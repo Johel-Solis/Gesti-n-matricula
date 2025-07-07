@@ -43,6 +43,29 @@ public class GestionarPeriodoAcademicoUseCase {
         repository.deleteById(id);
     }
 
+    public java.util.Map<String, Object> validarFechas(LocalDate fechaInicio, LocalDate fechaFin) {
+        java.util.Map<String, Object> resultado = new java.util.HashMap<>();
+        
+        // Validar que fechaInicio no sea después que fechaFin
+        if (fechaInicio.isAfter(fechaFin)) {
+            resultado.put("disponible", false);
+            resultado.put("mensaje", "La fecha de inicio no puede ser mayor que la fecha de fin.");
+            return resultado;
+        }
+
+        // Validar que las fechas no se superpongan con períodos existentes
+        List<PeriodoAcademico> superpuestos = repository.findByFechaSuperpuesta(fechaInicio, fechaFin);
+        
+        if (!superpuestos.isEmpty()) {
+            resultado.put("disponible", false);
+            resultado.put("mensaje", "Las fechas se superponen con un período académico existente.");
+            return resultado;
+        }
+
+        resultado.put("disponible", true);
+        resultado.put("mensaje", "Las fechas están disponibles para crear un nuevo período académico.");
+        return resultado;
+    }
 
    private void validarPeriodo(PeriodoAcademico p) {
     // 1. Fecha de inicio no puede ser después que la fecha de fin

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import unicauca.edu.co.ms_gestion_maticula.app.usecases.GestionarPeriodoAcademicoUseCase;
@@ -57,6 +58,26 @@ public class PeriodoAcademicoController {
     public ResponseEntity<ApiResponse> eliminar(@PathVariable Long id) {
         useCase.eliminar(id);
         return ResponseEntity.ok(new ApiResponse("SUCCESS", "Período eliminado", null, 200));
+    }
+
+    @GetMapping("/validar-fechas")
+    public ResponseEntity<ApiResponse> validarFechas(
+            @RequestParam("fechaInicio") String fechaInicio,
+            @RequestParam("fechaFin") String fechaFin) {
+        
+        try {
+            java.time.LocalDate inicio = java.time.LocalDate.parse(fechaInicio);
+            java.time.LocalDate fin = java.time.LocalDate.parse(fechaFin);
+            
+            java.util.Map<String, Object> validacion = useCase.validarFechas(inicio, fin);
+            
+            String status = Boolean.TRUE.equals(validacion.get("disponible")) ? "SUCCESS" : "ERROR";
+            return ResponseEntity.ok(new ApiResponse(status, (String) validacion.get("mensaje"), validacion.get("disponible"), 200));
+            
+        } catch (java.time.format.DateTimeParseException e) {
+            return ResponseEntity.badRequest()
+                .body(new ApiResponse("ERROR", "Formato de fecha inválido. Use el formato YYYY-MM-DD", false, 400));
+        }
     }
 
 }

@@ -1,4 +1,4 @@
-package unicauca.edu.co.ms_gestion_maticula.domain.enums;
+package unicauca.edu.co.ms_gestion_maticula.app.domain.enums;
 
 public enum PeriodoEstadoEnum {
     ACTIVO,

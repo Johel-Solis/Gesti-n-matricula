@@ -12,7 +12,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import unicauca.edu.co.ms_gestion_maticula.domain.model.PeriodoAcademico;
+import unicauca.edu.co.ms_gestion_maticula.app.domain.model.PeriodoAcademico;
 
 @Entity
 @Table(name = "periodo_academico")

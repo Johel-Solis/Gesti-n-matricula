@@ -1,12 +1,10 @@
-package unicauca.edu.co.ms_gestion_maticula.domain.ports;
+package unicauca.edu.co.ms_gestion_maticula.app.ports;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-
-
-import unicauca.edu.co.ms_gestion_maticula.domain.model.PeriodoAcademico;
+import unicauca.edu.co.ms_gestion_maticula.app.domain.model.PeriodoAcademico;
 
 public interface PeriodoAcademicoRepository  {
 

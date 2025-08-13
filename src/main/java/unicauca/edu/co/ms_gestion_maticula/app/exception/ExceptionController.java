@@ -1,8 +1,9 @@
-package unicauca.edu.co.ms_gestion_maticula.app.usecases.exception;
+package unicauca.edu.co.ms_gestion_maticula.app.exception;
 
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -34,8 +35,19 @@ public class ExceptionController {
         return buildErrorResponse("Parámetro inválido: " + ex.getName(), HttpStatus.BAD_REQUEST);
     }
 
+     @ExceptionHandler(MethodArgumentNotValidException.class)
+  public ResponseEntity<ApiResponse> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
+      var errores = ex.getBindingResult().getFieldErrors().stream()
+              .map(e -> e.getField() + ": " + e.getDefaultMessage())
+              .toList();
+      return new ResponseEntity<>(
+              new ApiResponse("ERROR", "Solicitud inválida", errores, 400),
+              HttpStatus.BAD_REQUEST);
+  }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse> handleGeneralException(Exception ex) {
+        System.out.println("Error interno del servidor: " + ex.getMessage());
         return buildErrorResponse("Error interno del servidor", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 

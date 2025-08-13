@@ -1,11 +1,11 @@
-package unicauca.edu.co.ms_gestion_maticula.domain.model;
+package unicauca.edu.co.ms_gestion_maticula.app.domain.model;
 
 import java.time.LocalDate;
 
 import lombok.Builder;
 import lombok.Data;
 import unicauca.edu.co.ms_gestion_maticula.adapters.out.persistence.entity.PeriodoAcademicoEntity;
-import unicauca.edu.co.ms_gestion_maticula.domain.enums.PeriodoEstadoEnum;
+import unicauca.edu.co.ms_gestion_maticula.app.domain.enums.PeriodoEstadoEnum;
 
 
 @Data

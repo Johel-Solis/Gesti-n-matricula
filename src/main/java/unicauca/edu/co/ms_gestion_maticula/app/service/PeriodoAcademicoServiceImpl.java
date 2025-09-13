@@ -18,8 +18,8 @@ import unicauca.edu.co.ms_gestion_maticula.app.domain.model.PeriodoAcademico;
 import unicauca.edu.co.ms_gestion_maticula.app.domain.request.PeriodoAcademicoRequest;
 import unicauca.edu.co.ms_gestion_maticula.app.domain.response.PeriodoFechaResponse;
 import unicauca.edu.co.ms_gestion_maticula.app.domain.response.PeriodoAcademicoResponse;
-import unicauca.edu.co.ms_gestion_maticula.app.ports.PeriodoAcademicoRepository;
 import unicauca.edu.co.ms_gestion_maticula.app.ports.In.PeriodoAcademicoService;
+import unicauca.edu.co.ms_gestion_maticula.app.ports.out.PeriodoAcademicoRepository;
 
 @Service
 @RequiredArgsConstructor

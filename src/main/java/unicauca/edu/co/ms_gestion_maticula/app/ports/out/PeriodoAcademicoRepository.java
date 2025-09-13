@@ -1,4 +1,4 @@
-package unicauca.edu.co.ms_gestion_maticula.app.ports;
+package unicauca.edu.co.ms_gestion_maticula.app.ports.out;
 
 import java.time.LocalDate;
 import java.util.List;

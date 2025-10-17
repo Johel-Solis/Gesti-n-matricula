@@ -19,24 +19,32 @@ import unicauca.edu.co.ms_gestion_maticula.adapters.out.persistence.entity.Curso
 public class Curso {
     private Long id;
     private String grupo;
-    private PeriodoAcademico periodo; // referencia por id para desacoplar del entity
-    private Asignatura asignatura; // referencia por id
-    private Set<Docente> docentes; // ids de docentes asignados
+    private PeriodoAcademico periodo; 
+    private Asignatura asignatura; 
+    private Set<Docente> docentes; 
+    private Set<MaterialApoyo> materiales;
     private String horario;
     private String salon;
     private String observacion;
+    
 
     public CursoEntity toEntity(){
         if(docentes == null){
             docentes = new HashSet<>();
         }
-        return CursoEntity.builder()
+        if(materiales == null){
+            materiales = new HashSet<>();
+        }
+    return CursoEntity.builder()
                 .id(this.id)
                 .grupo(this.grupo)
                 .periodo(periodo.toEntity())
                 .asignatura(this.asignatura.toEntity())
                 .docentes(this.docentes.stream()
                         .map(docente -> docente.toEntity())
+                        .collect(Collectors.toSet()))
+                .materiales(this.materiales.stream()
+                        .map(MaterialApoyo::toEntity)
                         .collect(Collectors.toSet()))
                 .horario(this.horario)
                 .salon(this.salon)

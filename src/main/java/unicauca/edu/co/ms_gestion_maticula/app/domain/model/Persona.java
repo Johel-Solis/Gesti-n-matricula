@@ -12,7 +12,7 @@ import unicauca.edu.co.ms_gestion_maticula.adapters.out.persistence.entity.Perso
 @AllArgsConstructor
 public class Persona {
     private Long id;
-    private Long identificacion; // documento único
+    private Long identificacion; 
     private String nombre;
     private String apellido;
     private String correoElectronico;

@@ -1,0 +1,17 @@
+package unicauca.edu.co.ms_gestion_maticula.app.domain.response;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class MaterialApoyoResponse {
+    private Long id;
+    private String nombre;
+    private String descripcion;
+    private String enlace;
+}

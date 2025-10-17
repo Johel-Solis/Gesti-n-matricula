@@ -30,6 +30,10 @@ public class PeriodoAcademicoJpaAdapter implements PeriodoAcademicoRepository {
     public Optional<PeriodoAcademico> findById(Long id) {
         return jpaRepository.findById(id).map(PeriodoAcademicoEntity::toDomain);
     }
+    @Override
+    public Optional<PeriodoAcademico> findByState(String estado) {
+        return jpaRepository.findByEstado(estado).map(PeriodoAcademicoEntity::toDomain);
+    }
 
     @Override
     public List<PeriodoAcademico> findAll() {

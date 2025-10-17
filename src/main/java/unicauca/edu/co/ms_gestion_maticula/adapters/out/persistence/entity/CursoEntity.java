@@ -60,6 +60,16 @@ public class CursoEntity {
     )
     private Set<DocenteEntity> docentes = new HashSet<>();
 
+    @ManyToMany
+    @JoinTable(
+        name = "curso_material",
+        joinColumns = @JoinColumn(name = "id_curso"),
+        inverseJoinColumns = @JoinColumn(name = "id_material"),
+        uniqueConstraints = @UniqueConstraint(name="uk_curso_material", columnNames = {"id_curso","id_material"})
+    )
+    @Builder.Default
+    private Set<MaterialApoyoEntity> materiales = new HashSet<>();
+
     @Column(name = "horariocurso", nullable=false, length=100)
     private String horario;
 
@@ -78,6 +88,7 @@ public class CursoEntity {
                 .docentes(this.docentes.stream()
                         .map(DocenteEntity::toDomain)
                         .collect(Collectors.toSet()))
+        .materiales(this.materiales==null? new HashSet<>() : this.materiales.stream().map(MaterialApoyoEntity::toDomain).collect(Collectors.toSet()))
                 .horario(this.horario)
                 .salon(this.salon)
                 .observacion(this.observacion)

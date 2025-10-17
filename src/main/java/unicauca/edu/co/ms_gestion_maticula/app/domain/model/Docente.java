@@ -12,14 +12,11 @@ import unicauca.edu.co.ms_gestion_maticula.adapters.out.persistence.entity.Docen
 @AllArgsConstructor
 public class Docente {
     private Long id;
-    private Long personaId; // referencia a persona
-    private Persona persona; // objeto embebido opcional
+    //private Long personaId;
+    private Persona persona; 
     private String codigo;
     private String facultad;
     private String departamento;
-    private String tipoVinculacion;
-    private String escalafon;
-    private String observacion;
     private String estado;
 
     public DocenteEntity toEntity(){
@@ -29,9 +26,6 @@ public class Docente {
                 this.codigo,
                 this.facultad,
                 this.departamento,
-                this.tipoVinculacion,
-                this.escalafon,
-                this.observacion,
                 this.estado
         );
     }
@@ -40,14 +34,10 @@ public class Docente {
         if(entity == null) return null;
         return Docente.builder()
                 .id(entity.getId())
-                .personaId(entity.getPersona() != null ? entity.getPersona().getId() : null)
                 .persona(Persona.fromEntity(entity.getPersona()))
                 .codigo(entity.getCodigo())
                 .facultad(entity.getFacultad())
                 .departamento(entity.getDepartamento())
-                .tipoVinculacion(entity.getTipoVinculacion())
-                .escalafon(entity.getEscalafon())
-                .observacion(entity.getObservacion())
                 .estado(entity.getEstado())
                 .build();
     }

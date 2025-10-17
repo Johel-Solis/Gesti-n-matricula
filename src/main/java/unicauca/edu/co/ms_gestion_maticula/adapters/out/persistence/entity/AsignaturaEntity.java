@@ -1,6 +1,6 @@
 package unicauca.edu.co.ms_gestion_maticula.adapters.out.persistence.entity;
 
-import java.util.Date;
+
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -8,13 +8,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
@@ -46,12 +43,6 @@ public class AsignaturaEntity {
     @Column(name = "estado_asignatura")
     private Boolean estadoAsignatura;
 
-    @Column(name = "fecha_aprobacion")
-    private Date fechaAprobacion;
-
-    @Column(name = "oficio_facultad")
-    private Integer oficioFacultad;
-
     @Column(name = "area_formacion")
     private Integer areaFormacion;
 
@@ -60,21 +51,6 @@ public class AsignaturaEntity {
 
     @Column(name = "creditos")
     private Integer creditos;
-
-    @Column(name = "objetivo_asignatura")
-    private String objetivoAsignatura;
-
-    @Column(name = "contenido_asignatura")
-    private String contenidoAsignatura;
-
-    @Column(name = "horas_presencial")
-    private Integer horasPresencial;
-
-    @Column(name = "horas_no_presencial")
-    private Integer horasNoPresencial;
-
-    @Column(name = "horas_total")
-    private Integer horasTotal;
 
     @Transient
     private List<DocenteEntity> listaDocentes;
@@ -90,16 +66,9 @@ public class AsignaturaEntity {
                 .codigo(this.codigoAsignatura)
                 .nombre(this.nombreAsignatura)
                 .estado(this.estadoAsignatura)
-                .fechaAprobacion(this.fechaAprobacion)
-                .oficioFacultad(this.oficioFacultad)
                 .areaFormacion(this.areaFormacion)
                 .tipo(this.tipoAsignatura)
                 .creditos(this.creditos)
-                .objetivo(this.objetivoAsignatura)
-                .contenido(this.contenidoAsignatura)
-                .horasPresencial(this.horasPresencial)
-                .horasNoPresencial(this.horasNoPresencial)
-                .horasTotal(this.horasTotal)
                 .build();
     }
    

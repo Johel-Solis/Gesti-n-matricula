@@ -21,9 +21,7 @@ public class CursoRequest {
     @Size(max = 20, message = "{curso.grupo.size}")
     private String grupo;
 
-    @NotNull(message = "{curso.periodoId.notnull}")
-    private Long periodoId; // referencia a PeriodoAcademico
-
+    
     @NotNull(message = "{curso.asignaturaId.notnull}")
     private Long asignaturaId;
 

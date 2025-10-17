@@ -11,6 +11,7 @@ public interface PeriodoAcademicoRepository  {
     PeriodoAcademico save(PeriodoAcademico periodo);
     void deleteById(Long id);
     Optional<PeriodoAcademico> findById(Long id);
+    Optional<PeriodoAcademico> findByState(String estado);
     List<PeriodoAcademico> findAll();
     Optional<PeriodoAcademico> findPeriodoActivo();
     List<PeriodoAcademico> findByFechaSuperpuesta(LocalDate inicio, LocalDate fin);

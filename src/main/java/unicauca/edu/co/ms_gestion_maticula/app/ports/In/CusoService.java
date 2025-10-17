@@ -11,7 +11,7 @@ public interface CusoService {
     public CursoResponse obtenerCursoPorId(Long id);
     public void eliminarCurso(Long id);
     public CursoResponse actualizarCurso(Long id, CursoRequest request);
-    public boolean existeCurso(String grupo, Long periodoId, Long asignaturaId);
+    public boolean existeCurso(String grupo, Long asignaturaId);
     public boolean existeCursoPorId(Long id);
     public List<CursoResponse> obtenerTodosLosCursos();
 

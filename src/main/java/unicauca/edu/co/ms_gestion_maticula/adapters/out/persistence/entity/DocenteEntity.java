@@ -14,9 +14,10 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import unicauca.edu.co.ms_gestion_maticula.app.domain.model.Docente;
 
-@Data   @AllArgsConstructor
+@Data   @AllArgsConstructor @NoArgsConstructor
 @Entity @Table(name = "docentes")
 public class DocenteEntity {
 
@@ -35,12 +36,6 @@ public class DocenteEntity {
 	
 	private String departamento;
 
-	private String tipoVinculacion;
-
-	private String escalafon;
-	
-	private String observacion;
-		
 	private String estado;
 
 	public Docente toDomain() {
@@ -50,9 +45,6 @@ public class DocenteEntity {
 				.codigo(this.codigo)
 				.facultad(this.facultad)
 				.departamento(this.departamento)
-				.tipoVinculacion(this.tipoVinculacion)
-				.escalafon(this.escalafon)
-				.observacion(this.observacion)
 				.estado(this.estado)
 				.build();
 	}

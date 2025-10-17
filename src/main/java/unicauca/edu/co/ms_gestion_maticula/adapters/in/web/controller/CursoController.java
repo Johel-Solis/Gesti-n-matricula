@@ -27,7 +27,8 @@ public class CursoController {
             @RequestParam(required = false) String grupo,
             @RequestParam(required = false) Long asignaturaId ) {
         boolean existe = cursoService.existeCurso(grupo, asignaturaId);
-        return ResponseEntity.ok(new ApiResponse("SUCCESS", "Curso existe", existe, 200));
+        String message = existe ? "El curso ya existe" : "El curso no existe";
+        return ResponseEntity.ok(new ApiResponse("SUCCESS", message, existe, 200));
     }
 
     @GetMapping("/{id}")

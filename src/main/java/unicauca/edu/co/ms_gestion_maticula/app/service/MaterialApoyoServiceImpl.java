@@ -28,8 +28,9 @@ public class MaterialApoyoServiceImpl implements MaterialApoyoService {
     @Autowired
     private final ModelMapper mapper;
 
+    @Autowired
     @Qualifier("messageResourceMatricula")
-    MessageSource messageSource;
+    private MessageSource messageSource;
 
     private String msg(String key, Object... args){
         return messageSource.getMessage(key, args, LocaleContextHolder.getLocale());

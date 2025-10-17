@@ -41,8 +41,9 @@ public class CursoServiceImpl implements CusoService {
     @Autowired
     private final MaterialApoyoRepository materialApoyoRepository;
 
-   @Qualifier("messageResourceMatricula")
-	MessageSource messageSource; 
+    @Autowired
+    @Qualifier("messageResourceMatricula")
+	private MessageSource messageSource; 
 
     @Override
     @Transactional

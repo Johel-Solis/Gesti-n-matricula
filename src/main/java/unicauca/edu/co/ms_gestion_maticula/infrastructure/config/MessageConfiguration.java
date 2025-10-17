@@ -23,7 +23,7 @@ public class MessageConfiguration {
     @Bean(name = "messageResourceMatricula")
     public MessageSource messageResource() {
         ResourceBundleMessageSource messageBundleResrc = new ResourceBundleMessageSource();
-        messageBundleResrc.setBasename("classpath:ValidationMessages");
+    messageBundleResrc.setBasename("ValidationMessages");
         messageBundleResrc.setDefaultEncoding("UTF-8");
         return messageBundleResrc;
     }

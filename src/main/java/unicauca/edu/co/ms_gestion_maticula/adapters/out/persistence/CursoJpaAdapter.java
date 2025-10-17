@@ -1,5 +1,6 @@
 package unicauca.edu.co.ms_gestion_maticula.adapters.out.persistence;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -11,6 +12,8 @@ import org.springframework.stereotype.Component;
 import lombok.RequiredArgsConstructor;
 import unicauca.edu.co.ms_gestion_maticula.adapters.out.persistence.entity.AsignaturaEntity;
 import unicauca.edu.co.ms_gestion_maticula.adapters.out.persistence.entity.CursoEntity;
+import unicauca.edu.co.ms_gestion_maticula.adapters.out.persistence.entity.DocenteEntity;
+import unicauca.edu.co.ms_gestion_maticula.adapters.out.persistence.entity.MaterialApoyoEntity;
 import unicauca.edu.co.ms_gestion_maticula.adapters.out.persistence.repository.AsignaturaJpaRepository;
 import unicauca.edu.co.ms_gestion_maticula.adapters.out.persistence.repository.CursoJpaRepository;
 import unicauca.edu.co.ms_gestion_maticula.adapters.out.persistence.repository.DocenteJpaRepository;
@@ -71,16 +74,16 @@ public class CursoJpaAdapter implements CursoRepository {
     var periodo = periodoRepo.findById(curso.getPeriodo().getId())
         .orElseThrow(() -> new IllegalArgumentException("Período no encontrado"));
 
-    Set<Long> docentesIds = curso.getDocentes() == null ? Set.of() :
-        curso.getDocentes().stream().map(d -> d.getId()).collect(Collectors.toSet());
-    Set<unicauca.edu.co.ms_gestion_maticula.adapters.out.persistence.entity.DocenteEntity> docentes =
-        docentesIds.isEmpty() ? Set.of() :
-        docenteRepo.findAllById(docentesIds).stream().collect(Collectors.toSet());
+    List<Long> docentesIds = curso.getDocentes() == null ? new ArrayList<>() :
+        curso.getDocentes().stream().map(d -> d.getId()).collect(Collectors.toList());
+    List<DocenteEntity> docentes =
+        docentesIds.isEmpty() ? new ArrayList<>() :
+        new ArrayList<>(docenteRepo.findAllById(docentesIds));
 
-    Set<Long> materialesIds = curso.getMateriales()==null? Set.of() :
-        curso.getMateriales().stream().map(m -> m.getId()).collect(Collectors.toSet());
-    Set<unicauca.edu.co.ms_gestion_maticula.adapters.out.persistence.entity.MaterialApoyoEntity> materiales =
-        materialesIds.isEmpty()? Set.of() : materialRepo.findAllById(materialesIds).stream().collect(Collectors.toSet());
+    List<Long> materialesIds = curso.getMateriales()==null? new ArrayList<>() :
+        curso.getMateriales().stream().map(m -> m.getId()).collect(Collectors.toList());
+    List<MaterialApoyoEntity> materiales =
+        materialesIds.isEmpty()? new ArrayList<>() : new ArrayList<>(materialRepo.findAllById(materialesIds));
 
     CursoEntity entity = CursoEntity.builder()
         .id(curso.getId())
@@ -107,5 +110,21 @@ public class CursoJpaAdapter implements CursoRepository {
     public List<Curso> findCursosByAsignaturaId(Long asignaturaId) {
         return cursoRepo.findByAsignatura(asignaturaId).stream().map(CursoEntity::toDomain).toList();
     }
+
+    @Override
+    public List<Asignatura> findAsignaturasByStatus(Boolean status) {
+        return asignaturaRepo.findByEstadoAsignatura(status).stream()
+                .map(AsignaturaEntity::toDomain)
+                .toList();
+    }
+
+    @Override
+    public List<Docente> findDocentesByAsignaturaId(Long asignaturaId) {
+        return docenteRepo.findByAsignaturaId(asignaturaId).stream()
+                .map(DocenteEntity::toDomain)
+                .toList();
+    }
+
+    
 
 }

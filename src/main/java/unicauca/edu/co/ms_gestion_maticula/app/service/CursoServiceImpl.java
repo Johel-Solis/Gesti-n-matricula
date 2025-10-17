@@ -1,8 +1,10 @@
 package unicauca.edu.co.ms_gestion_maticula.app.service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +22,9 @@ import unicauca.edu.co.ms_gestion_maticula.app.domain.model.Docente;
 import unicauca.edu.co.ms_gestion_maticula.app.domain.model.PeriodoAcademico;
 import unicauca.edu.co.ms_gestion_maticula.app.domain.model.MaterialApoyo;
 import unicauca.edu.co.ms_gestion_maticula.app.domain.request.CursoRequest;
+import unicauca.edu.co.ms_gestion_maticula.app.domain.response.AsignaturaResponse;
 import unicauca.edu.co.ms_gestion_maticula.app.domain.response.CursoResponse;
+import unicauca.edu.co.ms_gestion_maticula.app.domain.response.DocenteResponse;
 import unicauca.edu.co.ms_gestion_maticula.app.domain.response.MaterialApoyoResponse;
 import unicauca.edu.co.ms_gestion_maticula.app.ports.In.CusoService;
 import unicauca.edu.co.ms_gestion_maticula.app.ports.out.CursoRepository;
@@ -87,10 +91,10 @@ public class CursoServiceImpl implements CusoService {
         }
 
         // 5) Construir y guardar curso
-        Set<Docente> docentes = Set.copyOf(docentesList);
+        Set<Docente> docentes = new HashSet<>(docentesList);
 
         // 6) Materiales de apoyo (opcionales) - validar existencia si se enviaron
-        Set<MaterialApoyo> materiales = Set.of();
+        Set<MaterialApoyo> materiales = new HashSet<>();
         if(request.getMaterialApoyoIds()!=null && !request.getMaterialApoyoIds().isEmpty()){
             List<MaterialApoyo> mats = materialApoyoRepository.findAllByIds(request.getMaterialApoyoIds());
             var encontrados = mats.stream().map(MaterialApoyo::getId).collect(Collectors.toSet());
@@ -98,15 +102,15 @@ public class CursoServiceImpl implements CusoService {
             if(!faltantesMat.isEmpty()){
                 throw new IllegalArgumentException(msg("curso.error.materiales.noencontrados", faltantesMat));
             }
-            materiales = Set.copyOf(mats);
+            materiales.addAll(mats);
         }
 
         Curso curso = Curso.builder()
                 .grupo(request.getGrupo())
                 .periodo(periodo)
                 .asignatura(asignatura)
-                .docentes(docentes)
-                .materiales(materiales)
+                .docentes(docentes.stream().collect(Collectors.toList()))
+                .materiales(materiales.stream().collect(Collectors.toList()))
                 .horario(request.getHorario())
                 .salon(request.getSalon())
                 .observacion(request.getObservacion())
@@ -219,8 +223,8 @@ public class CursoServiceImpl implements CusoService {
                 .grupo(request.getGrupo())
                 .periodo(periodo)
                 .asignatura(asignatura)
-                .docentes(docentes)
-                .materiales(materiales)
+                .docentes(docentes.stream().collect(Collectors.toList()))
+                .materiales(materiales.stream().collect(Collectors.toList()))
                 .horario(request.getHorario())
                 .salon(request.getSalon())
                 .observacion(request.getObservacion())
@@ -280,6 +284,22 @@ public class CursoServiceImpl implements CusoService {
 
     private String msg(String key, Object... args) {
         return messageSource.getMessage(key, args, LocaleContextHolder.getLocale());
+    }
+
+    @Override
+    public List<AsignaturaResponse> obtenerAsignaturasPorEstado() {
+        List<Asignatura> asignaturas = cursoRepository.findAsignaturasByStatus(true);
+        return asignaturas.stream()
+                .map(a -> modelMapper.map(a, AsignaturaResponse.class))
+                .toList();
+    }
+
+    @Override
+    public List<DocenteResponse> obtenerDocentesPorAsignaturaId(Long asignaturaId) {
+        List<Docente> docentes = cursoRepository.findDocentesByAsignaturaId(asignaturaId);
+        return docentes.stream()
+                .map(Docente::toResponse)
+                .toList();
     }
    
 

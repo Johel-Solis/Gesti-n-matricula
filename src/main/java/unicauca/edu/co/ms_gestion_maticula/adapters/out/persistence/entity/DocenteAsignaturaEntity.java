@@ -16,7 +16,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "docentes_asignaturas", uniqueConstraints = {
+@Table(name = "docentes_asignatura", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"id_docente", "id_asignatura"})
 })
 @Data
@@ -36,8 +36,5 @@ public class DocenteAsignaturaEntity {
     @JoinColumn(name = "id_asignatura")
     @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler", "docentesAsignaturas" })
     private AsignaturaEntity asignatura;
-
-    @Column(name = "dicta_asignatura")
-    private Boolean dictaAsignatura;
 
 }

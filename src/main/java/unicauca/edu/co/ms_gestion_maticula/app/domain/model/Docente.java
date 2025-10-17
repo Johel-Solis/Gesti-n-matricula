@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import unicauca.edu.co.ms_gestion_maticula.adapters.out.persistence.entity.DocenteEntity;
+import unicauca.edu.co.ms_gestion_maticula.app.domain.response.DocenteResponse;
 
 @Data
 @Builder
@@ -39,6 +40,21 @@ public class Docente {
                 .facultad(entity.getFacultad())
                 .departamento(entity.getDepartamento())
                 .estado(entity.getEstado())
+                .build();
+    }
+
+    public DocenteResponse toResponse(){
+        return DocenteResponse.builder()
+                .id(this.id)
+                .nombre(this.persona.getNombre())
+                .apellido(this.persona.getApellido())
+                .correoElectronico(this.persona.getCorreoElectronico())
+                .telefono(this.persona.getTelefono())
+                .genero(this.persona.getGenero())
+                .tipoIdentificacion(this.persona.getTipoIdentificacion())
+                .codigo(this.codigo)
+                .facultad(this.facultad)
+                .departamento(this.departamento)
                 .build();
     }
 }

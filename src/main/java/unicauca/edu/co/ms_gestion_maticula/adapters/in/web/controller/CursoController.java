@@ -8,7 +8,9 @@ import org.springframework.web.bind.annotation.*;
 
 import lombok.RequiredArgsConstructor;
 import unicauca.edu.co.ms_gestion_maticula.app.domain.request.CursoRequest;
+import unicauca.edu.co.ms_gestion_maticula.app.domain.response.AsignaturaResponse;
 import unicauca.edu.co.ms_gestion_maticula.app.domain.response.CursoResponse;
+import unicauca.edu.co.ms_gestion_maticula.app.domain.response.DocenteResponse;
 import unicauca.edu.co.ms_gestion_maticula.app.service.CursoServiceImpl;
 import unicauca.edu.co.ms_gestion_maticula.infrastructure.utils.ApiResponse;
 
@@ -60,4 +62,17 @@ public class CursoController {
         cursoService.eliminarCurso(id);
         return ResponseEntity.ok(new ApiResponse("SUCCESS", "Curso eliminado", null, 200));
     }
+
+    @GetMapping("/asignaturas")
+    public ResponseEntity<ApiResponse> ListarAsignaturas() {
+        List<AsignaturaResponse> asignaturas = cursoService.obtenerAsignaturasPorEstado();
+        return ResponseEntity.ok(new ApiResponse("SUCCESS", "Asignaturas encontradas", asignaturas, 200));
+    }
+
+    @GetMapping("/asignaturas/docente/{id}")
+    public ResponseEntity<ApiResponse> obtenerDocentePorAsignaturas(@PathVariable Long id) {
+        List<DocenteResponse> docentes = cursoService.obtenerDocentesPorAsignaturaId(id);
+        return ResponseEntity.ok(new ApiResponse("SUCCESS", "Docentes encontrados", docentes, 200));
+    }
+
 }

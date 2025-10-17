@@ -1,6 +1,8 @@
 package unicauca.edu.co.ms_gestion_maticula.app.domain.model;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -21,8 +23,8 @@ public class Curso {
     private String grupo;
     private PeriodoAcademico periodo; 
     private Asignatura asignatura; 
-    private Set<Docente> docentes; 
-    private Set<MaterialApoyo> materiales;
+    private List<Docente> docentes; 
+    private List<MaterialApoyo> materiales;
     private String horario;
     private String salon;
     private String observacion;
@@ -30,10 +32,10 @@ public class Curso {
 
     public CursoEntity toEntity(){
         if(docentes == null){
-            docentes = new HashSet<>();
+            docentes = new ArrayList<>();
         }
         if(materiales == null){
-            materiales = new HashSet<>();
+            materiales = new ArrayList<>();
         }
     return CursoEntity.builder()
                 .id(this.id)
@@ -42,10 +44,10 @@ public class Curso {
                 .asignatura(this.asignatura.toEntity())
                 .docentes(this.docentes.stream()
                         .map(docente -> docente.toEntity())
-                        .collect(Collectors.toSet()))
+                        .collect(Collectors.toList()))
                 .materiales(this.materiales.stream()
                         .map(MaterialApoyo::toEntity)
-                        .collect(Collectors.toSet()))
+                        .collect(Collectors.toList()))
                 .horario(this.horario)
                 .salon(this.salon)
                 .observacion(this.observacion)

@@ -17,5 +17,7 @@ public interface CursoRepository {
     Curso saveCurso(Curso curso);
     void deleteCurso(Long cursoId);
     List<Curso> findCursosByAsignaturaId(Long asignaturaId);
+    List<Asignatura> findAsignaturasByStatus(Boolean status);
+    List<Docente> findDocentesByAsignaturaId(Long asignaturaId);
 
 }

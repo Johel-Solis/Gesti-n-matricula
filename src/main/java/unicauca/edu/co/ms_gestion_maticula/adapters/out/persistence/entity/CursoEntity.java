@@ -1,6 +1,8 @@
 package unicauca.edu.co.ms_gestion_maticula.adapters.out.persistence.entity;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -58,7 +60,7 @@ public class CursoEntity {
         inverseJoinColumns = @JoinColumn(name = "id_docente"),
         uniqueConstraints = @UniqueConstraint(name="uk_curso_docente", columnNames = {"id_curso","id_docente"})
     )
-    private Set<DocenteEntity> docentes = new HashSet<>();
+    private List<DocenteEntity> docentes = new ArrayList<>();
 
     @ManyToMany
     @JoinTable(
@@ -68,7 +70,7 @@ public class CursoEntity {
         uniqueConstraints = @UniqueConstraint(name="uk_curso_material", columnNames = {"id_curso","id_material"})
     )
     @Builder.Default
-    private Set<MaterialApoyoEntity> materiales = new HashSet<>();
+    private List<MaterialApoyoEntity> materiales = new ArrayList<>();
 
     @Column(name = "horariocurso", nullable=false, length=100)
     private String horario;
@@ -87,8 +89,8 @@ public class CursoEntity {
                 .asignatura(this.asignatura.toDomain())
                 .docentes(this.docentes.stream()
                         .map(DocenteEntity::toDomain)
-                        .collect(Collectors.toSet()))
-        .materiales(this.materiales==null? new HashSet<>() : this.materiales.stream().map(MaterialApoyoEntity::toDomain).collect(Collectors.toSet()))
+                        .collect(Collectors.toList()))
+        .materiales(this.materiales==null? new ArrayList<>() : this.materiales.stream().map(MaterialApoyoEntity::toDomain).collect(Collectors.toList()))
                 .horario(this.horario)
                 .salon(this.salon)
                 .observacion(this.observacion)

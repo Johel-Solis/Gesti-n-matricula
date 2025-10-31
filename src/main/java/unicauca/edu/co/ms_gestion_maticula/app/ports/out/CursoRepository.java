@@ -3,6 +3,7 @@ package unicauca.edu.co.ms_gestion_maticula.app.ports.out;
 import java.util.List;
 import java.util.Optional;
 
+import unicauca.edu.co.ms_gestion_maticula.app.domain.model.AreaFormacion;
 import unicauca.edu.co.ms_gestion_maticula.app.domain.model.Asignatura;
 import unicauca.edu.co.ms_gestion_maticula.app.domain.model.Curso;
 import unicauca.edu.co.ms_gestion_maticula.app.domain.model.Docente;
@@ -17,7 +18,8 @@ public interface CursoRepository {
     Curso saveCurso(Curso curso);
     void deleteCurso(Long cursoId);
     List<Curso> findCursosByAsignaturaId(Long asignaturaId);
-    List<Asignatura> findAsignaturasByStatus(Boolean status);
+    List<AreaFormacion> findAllAreasFormacion();
+    List<Asignatura> findAsignaturasByStatus(Boolean status, Long idArea);
     List<Docente> findDocentesByAsignaturaId(Long asignaturaId);
 
 }

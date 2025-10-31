@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import unicauca.edu.co.ms_gestion_maticula.app.domain.model.AreaFormacion;
 import unicauca.edu.co.ms_gestion_maticula.app.domain.model.Asignatura;
 import unicauca.edu.co.ms_gestion_maticula.app.domain.model.Curso;
 import unicauca.edu.co.ms_gestion_maticula.app.domain.model.Docente;
@@ -26,6 +27,7 @@ import unicauca.edu.co.ms_gestion_maticula.app.domain.response.AsignaturaRespons
 import unicauca.edu.co.ms_gestion_maticula.app.domain.response.CursoResponse;
 import unicauca.edu.co.ms_gestion_maticula.app.domain.response.DocenteResponse;
 import unicauca.edu.co.ms_gestion_maticula.app.domain.response.MaterialApoyoResponse;
+
 import unicauca.edu.co.ms_gestion_maticula.app.ports.In.CusoService;
 import unicauca.edu.co.ms_gestion_maticula.app.ports.out.CursoRepository;
 import unicauca.edu.co.ms_gestion_maticula.app.ports.out.PeriodoAcademicoRepository;
@@ -287,8 +289,8 @@ public class CursoServiceImpl implements CusoService {
     }
 
     @Override
-    public List<AsignaturaResponse> obtenerAsignaturasPorEstado() {
-        List<Asignatura> asignaturas = cursoRepository.findAsignaturasByStatus(true);
+    public List<AsignaturaResponse> obtenerAsignaturasPorEstado(Long idArea) {
+        List<Asignatura> asignaturas = cursoRepository.findAsignaturasByStatus(true, idArea);
         return asignaturas.stream()
                 .map(a -> modelMapper.map(a, AsignaturaResponse.class))
                 .toList();
@@ -301,6 +303,12 @@ public class CursoServiceImpl implements CusoService {
                 .map(Docente::toResponse)
                 .toList();
     }
+
+    @Override
+    public List<AreaFormacion> obtenerAreasFormacion() {
+        return cursoRepository.findAllAreasFormacion();
+    }
+
    
 
 }

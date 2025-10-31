@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-
+import unicauca.edu.co.ms_gestion_maticula.app.domain.model.AreaFormacion;
 import unicauca.edu.co.ms_gestion_maticula.app.domain.request.CursoRequest;
 import unicauca.edu.co.ms_gestion_maticula.app.domain.response.AsignaturaResponse;
 import unicauca.edu.co.ms_gestion_maticula.app.domain.response.CursoResponse;
@@ -63,11 +63,19 @@ public class CursoController {
     public ResponseEntity<ApiResponse> eliminarCurso(@PathVariable Long id) {
         cursoService.eliminarCurso(id);
         return ResponseEntity.ok(new ApiResponse("SUCCESS", "Curso eliminado", null, 200));
+    
+    }
+
+    @GetMapping("/asignaturas/area")
+    public ResponseEntity<ApiResponse> ListarAreasFormacion() {
+        List<AreaFormacion> asignaturas = cursoService.obtenerAreasFormacion();
+        return ResponseEntity.ok(new ApiResponse("SUCCESS", "Áreas de formación encontradas", asignaturas, 200));
     }
 
     @GetMapping("/asignaturas")
-    public ResponseEntity<ApiResponse> ListarAsignaturas() {
-        List<AsignaturaResponse> asignaturas = cursoService.obtenerAsignaturasPorEstado();
+    public ResponseEntity<ApiResponse> ListarAsignaturas(@RequestParam(required = false) Long idArea) {
+        System.out.println("ID Área: " + idArea);
+        List<AsignaturaResponse> asignaturas = cursoService.obtenerAsignaturasPorEstado(idArea);
         return ResponseEntity.ok(new ApiResponse("SUCCESS", "Asignaturas encontradas", asignaturas, 200));
     }
 

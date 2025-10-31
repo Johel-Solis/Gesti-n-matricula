@@ -2,6 +2,7 @@ package unicauca.edu.co.ms_gestion_maticula.app.ports.In;
 
 import java.util.List;
 
+import unicauca.edu.co.ms_gestion_maticula.app.domain.model.AreaFormacion;
 import unicauca.edu.co.ms_gestion_maticula.app.domain.request.CursoRequest;
 import unicauca.edu.co.ms_gestion_maticula.app.domain.response.AsignaturaResponse;
 import unicauca.edu.co.ms_gestion_maticula.app.domain.response.CursoResponse;
@@ -16,8 +17,9 @@ public interface CusoService {
     public boolean existeCurso(String grupo, Long asignaturaId);
     public boolean existeCursoPorId(Long id);
     public List<CursoResponse> obtenerTodosLosCursos(Long idArea, Long idAsignatura, Long idPeriodo);
-    public List<AsignaturaResponse> obtenerAsignaturasPorEstado();
+    public List<AsignaturaResponse> obtenerAsignaturasPorEstado(Long idArea);
     public List<DocenteResponse> obtenerDocentesPorAsignaturaId(Long asignaturaId);
+    public List<AreaFormacion> obtenerAreasFormacion();
     
 
 }

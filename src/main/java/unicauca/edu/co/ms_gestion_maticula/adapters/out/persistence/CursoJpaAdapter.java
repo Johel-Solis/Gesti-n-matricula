@@ -9,7 +9,10 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+
 import lombok.RequiredArgsConstructor;
+import unicauca.edu.co.ms_gestion_maticula.adapters.out.persistence.entity.AreaFormacionEntity;
 import unicauca.edu.co.ms_gestion_maticula.adapters.out.persistence.entity.AsignaturaEntity;
 import unicauca.edu.co.ms_gestion_maticula.adapters.out.persistence.entity.CursoEntity;
 import unicauca.edu.co.ms_gestion_maticula.adapters.out.persistence.entity.DocenteEntity;
@@ -19,7 +22,7 @@ import unicauca.edu.co.ms_gestion_maticula.adapters.out.persistence.repository.C
 import unicauca.edu.co.ms_gestion_maticula.adapters.out.persistence.repository.DocenteJpaRepository;
 import unicauca.edu.co.ms_gestion_maticula.adapters.out.persistence.repository.PeriodoJpaRepository;
 import unicauca.edu.co.ms_gestion_maticula.adapters.out.persistence.repository.MaterialApoyoJpaRepository;
-
+import unicauca.edu.co.ms_gestion_maticula.app.domain.model.AreaFormacion;
 import unicauca.edu.co.ms_gestion_maticula.app.domain.model.Asignatura;
 import unicauca.edu.co.ms_gestion_maticula.app.domain.model.Curso;
 import unicauca.edu.co.ms_gestion_maticula.app.domain.model.Docente;
@@ -112,8 +115,8 @@ public class CursoJpaAdapter implements CursoRepository {
     }
 
     @Override
-    public List<Asignatura> findAsignaturasByStatus(Boolean status) {
-        return asignaturaRepo.findByEstadoAsignatura(status).stream()
+    public List<Asignatura> findAsignaturasByStatus(Boolean status, Long idArea) {
+        return asignaturaRepo.findByEstadoAsignaturaAndAreaFormacion(status, idArea).stream()
                 .map(AsignaturaEntity::toDomain)
                 .toList();
     }
@@ -123,6 +126,14 @@ public class CursoJpaAdapter implements CursoRepository {
         return docenteRepo.findByAsignaturaId(asignaturaId).stream()
                 .map(DocenteEntity::toDomain)
                 .toList();
+    }
+
+    @Override
+    public List<AreaFormacion> findAllAreasFormacion() {
+        return asignaturaRepo.findAllAreasFormacion().stream()
+                .map(AreaFormacionEntity::toDomain)
+                .toList();
+        
     }
 
     

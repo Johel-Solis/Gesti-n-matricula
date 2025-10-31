@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import lombok.RequiredArgsConstructor;
+
 import unicauca.edu.co.ms_gestion_maticula.app.domain.request.CursoRequest;
 import unicauca.edu.co.ms_gestion_maticula.app.domain.response.AsignaturaResponse;
 import unicauca.edu.co.ms_gestion_maticula.app.domain.response.CursoResponse;
@@ -40,8 +40,10 @@ public class CursoController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse> listarCursos() {
-        List<CursoResponse> cursos = cursoService.obtenerTodosLosCursos();
+    public ResponseEntity<ApiResponse> listarCursos(@RequestParam(required = false) Long idArea,
+            @RequestParam(required = false) Long idAsignatura,
+            @RequestParam(required = false) Long idPeriodo) {
+        List<CursoResponse> cursos = cursoService.obtenerTodosLosCursos(idArea, idAsignatura, idPeriodo);
         return ResponseEntity.ok(new ApiResponse("SUCCESS", "Lista de cursos", cursos, 200));
     }
 

@@ -54,8 +54,8 @@ public class CursoJpaAdapter implements CursoRepository {
     }
 
     @Override
-    public List<Curso> findAllCursos() {
-        return cursoRepo.findAll().stream()
+    public List<Curso> findAllCursos(Long idArea, Long idAsignatura, Long idPeriodo) {
+        return cursoRepo.findByPeriodoIdAndIdAreaAndIdAsignatura(idPeriodo, idArea, idAsignatura).stream()
                 .map(CursoEntity::toDomain)
                 .toList();
     }

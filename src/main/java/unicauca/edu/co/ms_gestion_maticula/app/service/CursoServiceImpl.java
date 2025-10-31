@@ -197,7 +197,7 @@ public class CursoServiceImpl implements CusoService {
         boolean existeEnActivo = cursoRepository.existsByGrupoAndPeriodoIdAndAsignaturaId(
                 request.getGrupo(), periodoActivoId, request.getAsignaturaId());
         if (existeEnActivo) {
-            boolean esMismo = cursoRepository.findAllCursos().stream()
+            boolean esMismo = cursoRepository.findAllCursos(Long.valueOf(asignatura.getAreaFormacion()),asignatura.getId(),periodoActivoId).stream()
                 .anyMatch(c -> c.getId().equals(id));
             if (!esMismo) {
                 throw new IllegalArgumentException(msg("curso.error.unicidad.grupo_asignatura_periodo"));
@@ -264,8 +264,8 @@ public class CursoServiceImpl implements CusoService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<CursoResponse> obtenerTodosLosCursos() {
-        List<Curso> cursos = cursoRepository.findAllCursos();
+    public List<CursoResponse> obtenerTodosLosCursos(Long idArea, Long idAsignatura, Long idPeriodo) {
+        List<Curso> cursos = cursoRepository.findAllCursos(idArea, idAsignatura, idPeriodo);
         return cursos.stream().map(c -> {
             CursoResponse resp = modelMapper.map(c, CursoResponse.class);
             if(c.getMateriales()!=null){

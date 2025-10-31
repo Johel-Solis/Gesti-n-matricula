@@ -12,7 +12,7 @@ public interface CursoRepository {
     boolean existsByGrupoAndPeriodoIdAndAsignaturaId(String grupo, Long periodoId, Long asignaturaId);
     Optional<Asignatura> findAsignaturaById(Long asignaturaId);
     List<Docente> findDocentesByIds(List<Long> docenteIds);
-    List<Curso> findAllCursos();
+    List<Curso> findAllCursos(Long idArea, Long idAsignatura, Long idPeriodo);
     Optional<Curso> findCursoById(Long cursoId);
     Curso saveCurso(Curso curso);
     void deleteCurso(Long cursoId);

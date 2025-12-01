@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class MatriculaCursoEstudiantesRequests {
+public class  MatriculaCursoEstudiantesRequests {
 
     @NotEmpty(message = "{matriculaCursoEstudiantes.matriculaEstudianteCursos.notempty}")
     private List<MatriculaEstudianteCursosRequest> matriculaEstudianteCursos;

@@ -79,6 +79,9 @@ public class CursoEntity {
     @Column(name = "observacioncurso", nullable=true, length=255)
     private String observacion;
 
+    @Column(name ="estado")
+    private boolean estado;
+
     public Curso toDomain() {
         return Curso.builder()
                 .id(this.id)
@@ -92,6 +95,7 @@ public class CursoEntity {
                 .horario(this.horario)
                 .salon(this.salon)
                 .observacion(this.observacion)
+                .estado(this.estado)
                 .build();
     }
 

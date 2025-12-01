@@ -26,6 +26,7 @@ public class Curso {
     private String horario;
     private String salon;
     private String observacion;
+    private boolean estado;
     
 
     public CursoEntity toEntity(){
@@ -49,6 +50,7 @@ public class Curso {
                 .horario(this.horario)
                 .salon(this.salon)
                 .observacion(this.observacion)
+                .estado(this.estado)
                 .build();
     }
 }

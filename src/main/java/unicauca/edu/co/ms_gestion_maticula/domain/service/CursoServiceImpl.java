@@ -1,4 +1,4 @@
-package unicauca.edu.co.ms_gestion_maticula.domain.service.service;
+package unicauca.edu.co.ms_gestion_maticula.domain.service;
 
 import java.util.HashSet;
 import java.util.List;
@@ -27,10 +27,10 @@ import unicauca.edu.co.ms_gestion_maticula.domain.response.CursoResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.DocenteResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MaterialApoyoResponse;
 
-import unicauca.edu.co.ms_gestion_maticula.domain.ports.ports.In.CusoService;
-import unicauca.edu.co.ms_gestion_maticula.domain.ports.ports.out.CursoRepository;
-import unicauca.edu.co.ms_gestion_maticula.domain.ports.ports.out.PeriodoAcademicoRepository;
-import unicauca.edu.co.ms_gestion_maticula.domain.ports.ports.out.MaterialApoyoRepository;
+import unicauca.edu.co.ms_gestion_maticula.domain.ports.In.CusoService;
+import unicauca.edu.co.ms_gestion_maticula.domain.ports.out.CursoRepository;
+import unicauca.edu.co.ms_gestion_maticula.domain.ports.out.PeriodoAcademicoRepository;
+import unicauca.edu.co.ms_gestion_maticula.domain.ports.out.MaterialApoyoRepository;
 
 @Service
 @RequiredArgsConstructor

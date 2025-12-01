@@ -1,4 +1,4 @@
-package unicauca.edu.co.ms_gestion_maticula.app.web.controller.controller;
+package unicauca.edu.co.ms_gestion_maticula.app.web.controller;
 
 import java.util.List;
 
@@ -11,7 +11,7 @@ import unicauca.edu.co.ms_gestion_maticula.domain.request.CursoRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.AsignaturaResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.CursoResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.DocenteResponse;
-import unicauca.edu.co.ms_gestion_maticula.domain.service.service.CursoServiceImpl;
+import unicauca.edu.co.ms_gestion_maticula.domain.service.CursoServiceImpl;
 import unicauca.edu.co.ms_gestion_maticula.infrastructure.utils.ApiResponse;
 
 @RestController

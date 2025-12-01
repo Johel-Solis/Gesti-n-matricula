@@ -1,4 +1,4 @@
-package unicauca.edu.co.ms_gestion_maticula.app.web.controller.controller;
+package unicauca.edu.co.ms_gestion_maticula.app.web.controller;
 
 import java.util.List;
 
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.MaterialApoyoRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MaterialApoyoResponse;
-import unicauca.edu.co.ms_gestion_maticula.domain.ports.ports.In.MaterialApoyoService;
+import unicauca.edu.co.ms_gestion_maticula.domain.ports.In.MaterialApoyoService;
 import unicauca.edu.co.ms_gestion_maticula.infrastructure.utils.ApiResponse;
 
 @RestController

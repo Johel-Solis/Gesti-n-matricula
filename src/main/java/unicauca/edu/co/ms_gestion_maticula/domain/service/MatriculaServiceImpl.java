@@ -1,10 +1,12 @@
-package unicauca.edu.co.ms_gestion_maticula.domain.service.service;
+package unicauca.edu.co.ms_gestion_maticula.domain.service;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -16,44 +18,60 @@ import unicauca.edu.co.ms_gestion_maticula.domain.model.PeriodoAcademico;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.CursoMatriculaRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.MatriculaCursoEstudiantesRequests;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.MatriculaEstudianteCursosRequest;
-import unicauca.edu.co.ms_gestion_maticula.domain.ports.ports.In.MatriculaService;
-import unicauca.edu.co.ms_gestion_maticula.domain.ports.ports.out.CursoRepository;
-import unicauca.edu.co.ms_gestion_maticula.domain.ports.ports.out.MatriculaRepository;
-import unicauca.edu.co.ms_gestion_maticula.domain.ports.ports.out.PeriodoAcademicoRepository;
+import unicauca.edu.co.ms_gestion_maticula.domain.ports.In.MatriculaService;
+import unicauca.edu.co.ms_gestion_maticula.domain.ports.out.CursoRepository;
+import unicauca.edu.co.ms_gestion_maticula.domain.ports.out.MatriculaRepository;
+import unicauca.edu.co.ms_gestion_maticula.domain.ports.out.PeriodoAcademicoRepository;
+import unicauca.edu.co.ms_gestion_maticula.domain.response.CursoResponse;
+import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaBatchResultResponse;
+import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaNoRealizadaResponse;
+import unicauca.edu.co.ms_gestion_maticula.domain.response.PeriodoAcademicoResponse;
+import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaResponse;
 
 @Service
 @RequiredArgsConstructor
 public class MatriculaServiceImpl implements MatriculaService {
 
+    @Autowired
     private final MatriculaRepository matriculaRepository;
+    @Autowired
     private final CursoRepository cursoRepository;
+    @Autowired
     private final PeriodoAcademicoRepository periodoAcademicoRepository;
+    @Autowired
+    private final ModelMapper modelMapper;
 
     @Override
-    public void matricularEstudiantesEnCursos(MatriculaCursoEstudiantesRequests requests) {
-        if (requests == null || requests.getMatriculaEstudianteCursos() == null || 
+    public MatriculaBatchResultResponse matricularEstudiantesEnCursos(MatriculaCursoEstudiantesRequests requests) {
+        if (requests == null || requests.getMatriculaEstudianteCursos() == null ||
             requests.getMatriculaEstudianteCursos().isEmpty()) {
             throw new IllegalArgumentException("Debe especificar al menos una solicitud de matrícula");
         }
         
-        List<String> errores = new ArrayList<>();
-        
+        List<MatriculaResponse> exitos = new ArrayList<>();
+        List<MatriculaNoRealizadaResponse> fallidos = new ArrayList<>();
+
         // Procesar cada solicitud de matrícula
         for (MatriculaEstudianteCursosRequest solicitud : requests.getMatriculaEstudianteCursos()) {
             try {
-                matriculaEstudianteCursos(solicitud);
+                exitos.addAll(matriculaEstudianteCursos(solicitud));
             } catch (Exception e) {
-                errores.add("Error para estudiante " + solicitud.getEstudianteId() + ": " + e.getMessage());
+                fallidos.add(MatriculaNoRealizadaResponse.builder()
+                        .estudianteId(solicitud.getEstudianteId())
+                        .cursoId(obtenerCursoIdPrimerIntento(solicitud))
+                        .motivo(e.getMessage())
+                        .build());
             }
         }
-        
-        if (!errores.isEmpty()) {
-            throw new IllegalArgumentException("Errores durante las matrículas: " + String.join("; ", errores));
-        }
+
+        return MatriculaBatchResultResponse.builder()
+                .matriculasRealizadas(exitos)
+                .matriculasNoRealizadas(fallidos)
+                .build();
     }
 
     @Override
-    public void matriculaEstudianteCursos(MatriculaEstudianteCursosRequest request) {
+    public List<MatriculaResponse> matriculaEstudianteCursos(MatriculaEstudianteCursosRequest request) {
         if (request == null || request.getEstudianteId() == null) {
             throw new IllegalArgumentException("La solicitud de matrícula es requerida");
         }
@@ -63,34 +81,24 @@ public class MatriculaServiceImpl implements MatriculaService {
         }
         
         // Validar periodo de matrícula
-        validarPeriodoMatricula();
-        
+//        validarPeriodoMatricula();
+        List<Matricula> matriculas = new ArrayList<>();
         // Validar cada curso antes de proceder con las matrículas
         for (CursoMatriculaRequest cursoRequest : request.getCursos()) {
             validarMatriculaEstudiantes(request.getEstudianteId(), cursoRequest.getCursoId());
+            Curso curso = validarYObtenerCurso(cursoRequest.getCursoId());
+            // Realizar las matrículas
+            Matricula matricula = crearMatricula(request.getEstudianteId(), curso, cursoRequest.getObservacion());
+            Matricula matriculaResult=matriculaRepository.save(matricula);
+            matriculas.add(matriculaResult);
         }
         
-        // Realizar las matrículas
-        List<String> errores = new ArrayList<>();
-        for (CursoMatriculaRequest cursoRequest : request.getCursos()) {
-            try {
-                Curso curso = validarYObtenerCurso(cursoRequest.getCursoId());
-                Matricula matricula = crearMatricula(request.getEstudianteId(), curso, cursoRequest.getObservacion());
-                matriculaRepository.save(matricula);
-                
-            } catch (Exception e) {
-                errores.add("Error al matricular en curso " + cursoRequest.getCursoId() + ": " + e.getMessage());
-            }
-        }
-        
-        if (!errores.isEmpty()) {
-            throw new IllegalArgumentException("Errores durante la matrícula: " + String.join(", ", errores));
-        }
+        return toMatriculaResponse(matriculas);
     }
 
     @Override
-    public void matricularCursoEstudiantes(MatriculaCursoEstudiantesRequests requests) {
-        matricularEstudiantesEnCursos(requests);
+    public MatriculaBatchResultResponse matricularCursoEstudiantes(MatriculaCursoEstudiantesRequests requests) {
+        return matricularEstudiantesEnCursos(requests);
     }
 
     @Override
@@ -277,6 +285,7 @@ public class MatriculaServiceImpl implements MatriculaService {
 
     /**
      * Método auxiliar para validar que un curso existe y está disponible para matrícula
+     * @param  cursoId
      */
     private Curso validarYObtenerCurso(Long cursoId) {
         Curso curso = cursoRepository.findCursoById(cursoId)
@@ -289,7 +298,11 @@ public class MatriculaServiceImpl implements MatriculaService {
         if (!curso.getPeriodo().getId().equals(periodoActivo.getId())) {
             throw new IllegalArgumentException("El curso no pertenece al periodo académico activo");
         }
-        
+
+        if (!curso.isEstado()) {
+            throw new IllegalArgumentException("El curso no está disponible para matrícula");
+        }
+
         return curso;
     }
 
@@ -309,7 +322,10 @@ public class MatriculaServiceImpl implements MatriculaService {
                 .build();
     }
 
-    
+    /**
+     * Validar prerequisitos de una asignatura para un estudiante antes de la matrícula.
+     * (Actualmente sólo valida estado de la asignatura; extender si hay tabla de prerequisitos)
+     */
     private void validarPrerequisitos(Long estudianteId, Long asignaturaId) {
         
         
@@ -320,5 +336,26 @@ public class MatriculaServiceImpl implements MatriculaService {
             throw new IllegalArgumentException("La asignatura no está disponible para matrícula");
         }
     }
+
+    private Long obtenerCursoIdPrimerIntento(MatriculaEstudianteCursosRequest solicitud) {
+        if (solicitud.getCursos() == null || solicitud.getCursos().isEmpty()) {
+            return null;
+        }
+        return solicitud.getCursos().get(0).getCursoId();
+    }
+
+    private List<MatriculaResponse> toMatriculaResponse(List<Matricula> matriculas) {
+        return matriculas.stream()
+                .map(matricula -> MatriculaResponse.builder()
+                        .id(matricula.getId())
+                        .estudianteId(matricula.getEstudianteId())
+                        .curso(modelMapper.map(matricula.getCurso(), CursoResponse.class))
+                        .periodo(modelMapper.map(matricula.getPeriodo(), PeriodoAcademicoResponse.class))
+                        .estado(matricula.getEstado())
+                        .observacion(matricula.getObservacion())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
 
 }

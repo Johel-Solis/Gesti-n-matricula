@@ -1,4 +1,4 @@
-package unicauca.edu.co.ms_gestion_maticula.domain.service.service;
+package unicauca.edu.co.ms_gestion_maticula.domain.service;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,8 +16,8 @@ import lombok.RequiredArgsConstructor;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.MaterialApoyo;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.MaterialApoyoRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MaterialApoyoResponse;
-import unicauca.edu.co.ms_gestion_maticula.domain.ports.ports.In.MaterialApoyoService;
-import unicauca.edu.co.ms_gestion_maticula.domain.ports.ports.out.MaterialApoyoRepository;
+import unicauca.edu.co.ms_gestion_maticula.domain.ports.In.MaterialApoyoService;
+import unicauca.edu.co.ms_gestion_maticula.domain.ports.out.MaterialApoyoRepository;
 
 @Service
 @RequiredArgsConstructor

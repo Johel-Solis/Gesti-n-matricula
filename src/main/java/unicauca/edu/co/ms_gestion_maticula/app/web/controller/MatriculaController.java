@@ -1,4 +1,4 @@
-package unicauca.edu.co.ms_gestion_maticula.app.web.controller.controller;
+package unicauca.edu.co.ms_gestion_maticula.app.web.controller;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,12 +14,13 @@ import unicauca.edu.co.ms_gestion_maticula.domain.model.Matricula;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.MatriculaCursoEstudiantesRequests;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.MatriculaEstudianteCursosRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.AsignaturaResponse;
+import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaBatchResultResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaResponse;
-import unicauca.edu.co.ms_gestion_maticula.domain.service.service.MatriculaServiceImpl;
+import unicauca.edu.co.ms_gestion_maticula.domain.service.MatriculaServiceImpl;
 import unicauca.edu.co.ms_gestion_maticula.infrastructure.utils.ApiResponse;
 
 @RestController
-@RequestMapping("/api/matriculas")
+@RequestMapping("/api/matricula")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RequiredArgsConstructor
 public class MatriculaController {
@@ -33,8 +34,8 @@ public class MatriculaController {
     @PostMapping("/batch")
     public ResponseEntity<ApiResponse> matricularEstudiantesEnCursos(
             @Validated @RequestBody MatriculaCursoEstudiantesRequests requests) {
-        matriculaService.matricularEstudiantesEnCursos(requests);
-        return ResponseEntity.ok(new ApiResponse("SUCCESS", "Matrículas realizadas exitosamente", null, 201));
+        MatriculaBatchResultResponse resultado = matriculaService.matricularEstudiantesEnCursos(requests);
+        return ResponseEntity.ok(new ApiResponse("SUCCESS", "Matrículas procesadas", resultado, 201));
     }
 
     /**
@@ -43,8 +44,8 @@ public class MatriculaController {
     @PostMapping("/estudiante")
     public ResponseEntity<ApiResponse> matricularEstudianteCursos(
             @Validated @RequestBody MatriculaEstudianteCursosRequest request) {
-        matriculaService.matriculaEstudianteCursos(request);
-        return ResponseEntity.ok(new ApiResponse("SUCCESS", "Matrícula del estudiante realizada exitosamente", null, 201));
+        List<MatriculaResponse> resultado = matriculaService.matriculaEstudianteCursos(request);
+        return ResponseEntity.ok(new ApiResponse("SUCCESS", "Matrícula del estudiante procesada", resultado, 201));
     }
 
     /**
@@ -53,8 +54,8 @@ public class MatriculaController {
     @PostMapping("/curso")
     public ResponseEntity<ApiResponse> matricularCursoEstudiantes(
             @Validated @RequestBody MatriculaCursoEstudiantesRequests requests) {
-        matriculaService.matricularCursoEstudiantes(requests);
-        return ResponseEntity.ok(new ApiResponse("SUCCESS", "Matrículas en curso realizadas exitosamente", null, 201));
+        MatriculaBatchResultResponse resultado = matriculaService.matricularCursoEstudiantes(requests);
+        return ResponseEntity.ok(new ApiResponse("SUCCESS", "Matrículas del curso procesadas", resultado, 201));
     }
 
     /**

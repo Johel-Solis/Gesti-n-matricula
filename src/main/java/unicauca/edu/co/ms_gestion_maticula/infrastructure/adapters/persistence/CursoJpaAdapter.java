@@ -24,7 +24,7 @@ import unicauca.edu.co.ms_gestion_maticula.domain.model.AreaFormacion;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Asignatura;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Curso;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Docente;
-import unicauca.edu.co.ms_gestion_maticula.domain.ports.ports.out.CursoRepository;
+import unicauca.edu.co.ms_gestion_maticula.domain.ports.out.CursoRepository;
 
 @Component
 @RequiredArgsConstructor

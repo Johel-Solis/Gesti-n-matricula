@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 import unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence.entity.MaterialApoyoEntity;
 import unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence.repository.MaterialApoyoJpaRepository;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.MaterialApoyo;
-import unicauca.edu.co.ms_gestion_maticula.domain.ports.ports.out.MaterialApoyoRepository;
+import unicauca.edu.co.ms_gestion_maticula.domain.ports.out.MaterialApoyoRepository;
 
 @Component
 @RequiredArgsConstructor

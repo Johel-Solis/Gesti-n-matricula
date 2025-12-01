@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence.entity.PeriodoAcademicoEntity;
 import unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence.repository.PeriodoJpaRepository;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.PeriodoAcademico;
-import unicauca.edu.co.ms_gestion_maticula.domain.ports.ports.out.PeriodoAcademicoRepository;
+import unicauca.edu.co.ms_gestion_maticula.domain.ports.out.PeriodoAcademicoRepository;
 
 
 @Component

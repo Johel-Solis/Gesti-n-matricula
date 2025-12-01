@@ -11,7 +11,7 @@ import unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence.r
 import unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence.repository.MatriculaJpaRepository;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Asignatura;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Matricula;
-import unicauca.edu.co.ms_gestion_maticula.domain.ports.ports.out.MatriculaRepository;
+import unicauca.edu.co.ms_gestion_maticula.domain.ports.out.MatriculaRepository;
 
 @Component
 @RequiredArgsConstructor

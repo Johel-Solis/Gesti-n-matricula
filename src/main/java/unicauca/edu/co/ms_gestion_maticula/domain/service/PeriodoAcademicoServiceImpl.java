@@ -1,4 +1,4 @@
-package unicauca.edu.co.ms_gestion_maticula.domain.service.service;
+package unicauca.edu.co.ms_gestion_maticula.domain.service;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -18,8 +18,8 @@ import unicauca.edu.co.ms_gestion_maticula.domain.model.PeriodoAcademico;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.PeriodoAcademicoRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.PeriodoFechaResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.PeriodoAcademicoResponse;
-import unicauca.edu.co.ms_gestion_maticula.domain.ports.ports.In.PeriodoAcademicoService;
-import unicauca.edu.co.ms_gestion_maticula.domain.ports.ports.out.PeriodoAcademicoRepository;
+import unicauca.edu.co.ms_gestion_maticula.domain.ports.In.PeriodoAcademicoService;
+import unicauca.edu.co.ms_gestion_maticula.domain.ports.out.PeriodoAcademicoRepository;
 
 @Service
 @RequiredArgsConstructor

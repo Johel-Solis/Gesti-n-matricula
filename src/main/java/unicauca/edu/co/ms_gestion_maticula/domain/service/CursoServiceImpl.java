@@ -115,6 +115,7 @@ public class CursoServiceImpl implements CusoService {
                 .horario(request.getHorario())
                 .salon(request.getSalon())
                 .observacion(request.getObservacion())
+                .estado(true)
                 .build();
 
     Curso result = cursoRepository.saveCurso(curso);

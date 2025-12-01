@@ -300,7 +300,7 @@ public class MatriculaServiceImpl implements MatriculaService {
             throw new IllegalArgumentException("El curso no pertenece al periodo académico activo");
         }
 
-        if (!curso.getEstado() ) {
+        if (!curso.isEstado() ) {
             throw new IllegalArgumentException("El curso no está disponible para matrícula");
         }
 

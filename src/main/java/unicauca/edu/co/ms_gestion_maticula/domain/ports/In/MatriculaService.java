@@ -4,6 +4,7 @@ import java.util.List;
 
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Asignatura;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Matricula;
+import unicauca.edu.co.ms_gestion_maticula.domain.request.ListEstudianteRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.MatriculaCursoEstudiantesRequests;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.MatriculaEstudianteCursosRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaBatchResultResponse;
@@ -16,7 +17,12 @@ public interface MatriculaService {
     MatriculaBatchResultResponse matricularCursoEstudiantes(MatriculaCursoEstudiantesRequests requests);
 
     Boolean validarMatriculaEstudiantes(Long estudianteId, Long cursoId);
-    List<Matricula> consultarMatriculaEstudiantes(MatriculaCursoEstudiantesRequests requests);
+    List<Matricula> consultarMatriculaEstudiantes(ListEstudianteRequest requests);
     List<Asignatura> obtenerAsignaturasDisponiblesporEstudiante(Long estudianteId);
+    void cancelarMatricula(Long matriculaId, String motivoCancelacion);
+    List<Matricula> obtenerMatriculasPorEstudianteYPeriodo(Long estudianteId, Long periodoId);
+    Matricula obtenerMatriculaPorId(Long matriculaId);
+    List<Matricula> listarMatriculas(Long periodoId, String estado);
+    
 
 }

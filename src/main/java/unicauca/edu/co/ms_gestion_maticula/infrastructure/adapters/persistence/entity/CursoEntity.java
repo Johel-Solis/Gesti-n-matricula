@@ -79,7 +79,7 @@ public class CursoEntity {
     @Column(name = "observacioncurso", nullable=true, length=255)
     private String observacion;
 
-    @Column(name ="estado")
+    @Column(name ="estado", nullable = false)
     private boolean estado;
 
     public Curso toDomain() {

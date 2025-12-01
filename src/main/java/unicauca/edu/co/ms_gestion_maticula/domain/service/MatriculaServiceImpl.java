@@ -16,6 +16,7 @@ import unicauca.edu.co.ms_gestion_maticula.domain.model.Curso;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Matricula;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.PeriodoAcademico;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.CursoMatriculaRequest;
+import unicauca.edu.co.ms_gestion_maticula.domain.request.ListEstudianteRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.MatriculaCursoEstudiantesRequests;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.MatriculaEstudianteCursosRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.In.MatriculaService;
@@ -138,18 +139,18 @@ public class MatriculaServiceImpl implements MatriculaService {
     }
 
     @Override
-    public List<Matricula> consultarMatriculaEstudiantes(MatriculaCursoEstudiantesRequests requests) {
-        if (requests == null || requests.getMatriculaEstudianteCursos() == null || 
-            requests.getMatriculaEstudianteCursos().isEmpty()) {
+    public List<Matricula> consultarMatriculaEstudiantes(ListEstudianteRequest requests) {
+        if (requests == null || requests.getEstudianteIds() == null || 
+            requests.getEstudianteIds().isEmpty()) {
             throw new IllegalArgumentException("Debe especificar al menos un estudiante para consultar");
         }
         
         List<Matricula> todasLasMatriculas = new ArrayList<>();
         
         // Obtener matrículas para cada estudiante especificado
-        for (MatriculaEstudianteCursosRequest solicitud : requests.getMatriculaEstudianteCursos()) {
-            if (solicitud.getEstudianteId() != null) {
-                List<Matricula> matriculasEstudiante = matriculaRepository.findByEstudianteId(solicitud.getEstudianteId());
+        for (Long estudianteId : requests.getEstudianteIds()) {
+            if (estudianteId != null) {
+                List<Matricula> matriculasEstudiante = matriculaRepository.findByEstudianteId(estudianteId);
                 todasLasMatriculas.addAll(matriculasEstudiante);
             }
         }
@@ -299,7 +300,7 @@ public class MatriculaServiceImpl implements MatriculaService {
             throw new IllegalArgumentException("El curso no pertenece al periodo académico activo");
         }
 
-        if (!curso.isEstado()) {
+        if (!curso.getEstado() ) {
             throw new IllegalArgumentException("El curso no está disponible para matrícula");
         }
 

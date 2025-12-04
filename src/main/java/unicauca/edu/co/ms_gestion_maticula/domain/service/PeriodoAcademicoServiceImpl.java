@@ -100,6 +100,15 @@ public class PeriodoAcademicoServiceImpl implements PeriodoAcademicoService {
         return resultado;
     }
 
+    @Override
+    public PeriodoAcademicoResponse obtenerPeriodoActivo() {
+        Optional<PeriodoAcademico> periodoOpt = repository.findPeriodoActivo();
+        if (periodoOpt.isEmpty()) {
+            throw new IllegalArgumentException("No hay un período académico activo.");
+        }
+        return modelMapper.map(periodoOpt.get(), PeriodoAcademicoResponse.class);
+    }
+
     private void validarPeriodo(PeriodoAcademico p) {
         // 1. Fecha de inicio no puede ser después que la fecha de fin
         if (p.getFechaInicio().isAfter(p.getFechaFin())) {

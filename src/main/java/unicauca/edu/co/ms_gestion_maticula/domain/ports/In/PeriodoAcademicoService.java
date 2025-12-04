@@ -21,6 +21,7 @@ public interface PeriodoAcademicoService {
     public void eliminar(Long id);
 
     public PeriodoFechaResponse validarFechas(LocalDate fechaInicio, LocalDate fechaFin);
+    public PeriodoAcademicoResponse obtenerPeriodoActivo();
        
 
   

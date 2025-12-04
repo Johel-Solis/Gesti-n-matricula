@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-
+import unicauca.edu.co.ms_gestion_maticula.domain.ports.In.PeriodoAcademicoService;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.PeriodoAcademicoRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.PeriodoFechasRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.PeriodoAcademicoResponse;
@@ -28,16 +28,14 @@ import unicauca.edu.co.ms_gestion_maticula.infrastructure.utils.ApiResponse;
 @RequestMapping("/api/periodos")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class PeriodoAcademicoController {
-    private final PeriodoAcademicoServiceImpl useCase;
+    private final PeriodoAcademicoService useCase;
 
-    public PeriodoAcademicoController(PeriodoAcademicoServiceImpl useCase) {
+    public PeriodoAcademicoController(PeriodoAcademicoService useCase) {
         this.useCase = useCase;
     }
 
     @PostMapping
     public ResponseEntity<ApiResponse> crearPeriodo(@Valid @RequestBody PeriodoAcademicoRequest periodo) {
-
-            System.out.println("Creando período académico: " + periodo.toString());
             PeriodoAcademicoResponse creado = useCase.crearPeriodo(periodo);
             return ResponseEntity.ok(new ApiResponse("SUCCESS", "Período creado correctamente", creado, 200));
     }
@@ -70,6 +68,12 @@ public class PeriodoAcademicoController {
     public ResponseEntity<ApiResponse> validarFechas(@Valid PeriodoFechasRequest request) {
         PeriodoFechaResponse validacion = useCase.validarFechas(request.getFechaInicio(), request.getFechaFin());
         return ResponseEntity.ok(new ApiResponse("SUCCESS", validacion.getMensaje(), validacion.getDisponible(), 200));
+    }
+
+    @GetMapping("/activo")
+    public ResponseEntity<ApiResponse> obtenerPeriodoActivo() {
+        PeriodoAcademicoResponse periodoActivo = useCase.obtenerPeriodoActivo();
+        return ResponseEntity.ok(new ApiResponse("SUCCESS", "Período activo obtenido", periodoActivo, 200));
     }
 
 }

@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import lombok.RequiredArgsConstructor;
 import unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence.entity.EstudianteEntity;
 import unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence.entity.MatriculaEntity;
-import unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence.repository.EstrudianteJpaRepository;
+import unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence.repository.EstudianteJpaRepository;
 import unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence.repository.MatriculaCalificacionRepository;
 import unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence.repository.MatriculaJpaRepository;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Asignatura;
@@ -22,7 +22,7 @@ public class MatriculaJpaAdapter implements MatriculaRepository {
 
     private final MatriculaJpaRepository repository;
     private final MatriculaCalificacionRepository matriculaCalificacionRepository;
-    private final EstrudianteJpaRepository estudianteRepository;
+    private final EstudianteJpaRepository estudianteRepository;
 
     @Override
     public Matricula save(Matricula matricula) {
@@ -86,9 +86,10 @@ public class MatriculaJpaAdapter implements MatriculaRepository {
     }
 
     @Override
-    public Optional<Estudiante> getEstudianteByIdAndEstado(Long estudianteId, String estado) {
-        return estudianteRepository.getEstudianteByIdAndEstado(estudianteId, estado)
-                .map(EstudianteEntity::toDomain);
+    public Optional<Estudiante> getEstudianteByIdAndEstado(Long estudianteId, String estadoMartricula,boolean estado) {
+        // return estudianteRepository.getEstudianteByIdAndEstado(estudianteId, estadoMartricula, estado)
+        //         .map(EstudianteEntity::toDomain);
+        return Optional.empty();
     }
     
 }

@@ -18,7 +18,7 @@ public interface MatriculaRepository {
     List<Asignatura> getAsignaturasMatriculadas(Long estudianteId, Long periodoId);
     Boolean existsMatriculaByEstudianteIdAndPeriodoIdAndAsignaturaId(Long estudianteId, Long periodoId, Long asignaturaId);
     Optional<Estudiante> getEstudianteById(Long estudianteId);
-    Optional<Estudiante> getEstudianteByIdAndEstado(Long estudianteId, String estado);
+    Optional<Estudiante> getEstudianteByIdAndEstado(Long estudianteId, String estadoMatricula,boolean estado);
 
 
 }

@@ -11,6 +11,7 @@ import unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence.e
 import unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence.repository.EstudianteJpaRepository;
 import unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence.repository.MatriculaCalificacionRepository;
 import unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence.repository.MatriculaJpaRepository;
+import unicauca.edu.co.ms_gestion_maticula.domain.enums.EstadoEstudianteMaestria;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Asignatura;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Estudiante;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Matricula;
@@ -86,10 +87,9 @@ public class MatriculaJpaAdapter implements MatriculaRepository {
     }
 
     @Override
-    public Optional<Estudiante> getEstudianteByIdAndEstado(Long estudianteId, String estadoMartricula,boolean estado) {
-        // return estudianteRepository.getEstudianteByIdAndEstado(estudianteId, estadoMartricula, estado)
-        //         .map(EstudianteEntity::toDomain);
-        return Optional.empty();
+    public Optional<Estudiante> getEstudianteByIdAndEstado(Long estudianteId, EstadoEstudianteMaestria estado) {
+        return estudianteRepository.getEstudianteByIdAndEstado(estudianteId, estado)
+                .map(EstudianteEntity::toDomain);
     }
     
 }

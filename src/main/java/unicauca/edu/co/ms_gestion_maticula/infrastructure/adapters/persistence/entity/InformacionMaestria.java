@@ -8,7 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import unicauca.edu.co.ms_gestion_maticula.domain.enums.EstadoMaestria;
+import unicauca.edu.co.ms_gestion_maticula.domain.enums.EstadoEstudianteMaestria;
 
 @Data
 @NoArgsConstructor @AllArgsConstructor @Builder // revisar cambios
@@ -16,7 +16,7 @@ import unicauca.edu.co.ms_gestion_maticula.domain.enums.EstadoMaestria;
 public class InformacionMaestria {
 
     @Enumerated(EnumType.STRING)
-	private EstadoMaestria estadoMaestria;
+	private EstadoEstudianteMaestria estadoMaestria;
 	
 	private String modalidad;
 	

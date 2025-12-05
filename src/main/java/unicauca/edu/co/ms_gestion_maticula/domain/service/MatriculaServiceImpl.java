@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import unicauca.edu.co.ms_gestion_maticula.domain.enums.EstadoEstudianteMaestria;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Asignatura;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Curso;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Estudiante;
@@ -114,8 +115,8 @@ public class MatriculaServiceImpl implements MatriculaService {
             throw new IllegalArgumentException("Los parámetros estudianteId y cursoId son requeridos");
         }
 
-        matriculaRepository.getEstudianteById(estudianteId)
-                .orElseThrow(() -> new EntityNotFoundException("Estudiante no encontrado con ID: " + estudianteId));    
+        matriculaRepository.getEstudianteByIdAndEstado(estudianteId,EstadoEstudianteMaestria.ACTIVO)
+                .orElseThrow(() -> new EntityNotFoundException("No está activo o no existe el estudiante con ID: " + estudianteId));
 
         // Validar periodo de matrícula
         validarPeriodoMatricula();
@@ -133,6 +134,8 @@ public class MatriculaServiceImpl implements MatriculaService {
         // Verificar si el estudiante ya está matriculado en esta asignatura en este periodo
         boolean yaMatriculado = matriculaRepository.existsMatriculaByEstudianteIdAndPeriodoIdAndAsignaturaId(
                 estudianteId, periodoActivo.getId(), curso.getAsignatura().getId());
+
+        System.out.println("Ya matriculado: " + yaMatriculado);
         
         if (yaMatriculado) {
             throw new IllegalArgumentException("El estudiante ya está matriculado en esta asignatura para el periodo actual");
@@ -224,6 +227,7 @@ public class MatriculaServiceImpl implements MatriculaService {
         
         // Actualizar estado y observación
         matricula.setEstadoMatricula("CANCELADA");
+        matricula.setEstado(false);
         matricula.setObservacion(matricula.getObservacion() + " - CANCELADA: " + motivoCancelacion);
         
         matriculaRepository.update(matricula);
@@ -328,6 +332,7 @@ public class MatriculaServiceImpl implements MatriculaService {
                 .estudiante(estudiante)
                 .curso(curso)
                 .periodo(periodoActivo)
+                .estado(true)
                 .estadoMatricula("ACTIVA")
                 .observacion(observacion)
                 .build();

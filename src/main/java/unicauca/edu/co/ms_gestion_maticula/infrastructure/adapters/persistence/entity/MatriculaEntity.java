@@ -21,9 +21,9 @@ import lombok.NoArgsConstructor;
 @Builder
 public class MatriculaEntity {
     @Id
-    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(name = "id_estudiante")
     private Long estudianteId;
     
@@ -34,8 +34,10 @@ public class MatriculaEntity {
     @ManyToOne
     @JoinColumn(name = "id_periodo")   
     private PeriodoAcademicoEntity periodo;
-    private String estado;
+    private Boolean estado;
     private String observacion;
+    @Column(name = "estado_matricula", nullable = false, length = 20)
+    private String estadoMatricula;
 
 
 

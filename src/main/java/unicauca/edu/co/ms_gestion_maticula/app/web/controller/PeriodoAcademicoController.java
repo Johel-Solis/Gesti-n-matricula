@@ -21,7 +21,6 @@ import unicauca.edu.co.ms_gestion_maticula.domain.request.PeriodoAcademicoReques
 import unicauca.edu.co.ms_gestion_maticula.domain.request.PeriodoFechasRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.PeriodoAcademicoResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.PeriodoFechaResponse;
-import unicauca.edu.co.ms_gestion_maticula.domain.service.PeriodoAcademicoServiceImpl;
 import unicauca.edu.co.ms_gestion_maticula.infrastructure.utils.ApiResponse;
 
 @RestController

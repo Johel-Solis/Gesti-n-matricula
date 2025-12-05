@@ -82,11 +82,13 @@ public class MatriculaServiceImpl implements MatriculaService {
         }
         
         // Validar periodo de matrícula
-//        validarPeriodoMatricula();
+        validarPeriodoMatricula();
+        System.out.println("Periodo de matrícula validado para el estudiante: " + request.getEstudianteId());
         List<Matricula> matriculas = new ArrayList<>();
         // Validar cada curso antes de proceder con las matrículas
         for (CursoMatriculaRequest cursoRequest : request.getCursos()) {
             validarMatriculaEstudiantes(request.getEstudianteId(), cursoRequest.getCursoId());
+            System.out.println("Curso validado: " + cursoRequest.getCursoId());
             Curso curso = validarYObtenerCurso(cursoRequest.getCursoId());
             // Realizar las matrículas
             Matricula matricula = crearMatricula(request.getEstudianteId(), curso, cursoRequest.getObservacion());
@@ -206,7 +208,7 @@ public class MatriculaServiceImpl implements MatriculaService {
                 .orElseThrow(() -> new EntityNotFoundException("Matrícula no encontrada"));
         
         // Validar que la matrícula esté activa
-        if (!"ACTIVA".equals(matricula.getEstado())) {
+        if (!matricula.isEstado()) {
             throw new IllegalArgumentException("Solo se pueden cancelar matrículas activas");
         }
         
@@ -214,7 +216,7 @@ public class MatriculaServiceImpl implements MatriculaService {
         validarPeriodoMatricula();
         
         // Actualizar estado y observación
-        matricula.setEstado("CANCELADA");
+        matricula.setEstadoMatricula("CANCELADA");
         matricula.setObservacion(matricula.getObservacion() + " - CANCELADA: " + motivoCancelacion);
         
         matriculaRepository.update(matricula);
@@ -260,7 +262,7 @@ public class MatriculaServiceImpl implements MatriculaService {
         return todasLasMatriculas.stream()
                 .filter(matricula -> {
                     boolean coincidePeriodo = periodoId == null || matricula.getPeriodo().getId().equals(periodoId);
-                    boolean coincideEstado = estado == null || estado.isEmpty() || matricula.getEstado().equalsIgnoreCase(estado);
+                    boolean coincideEstado = estado == null || estado.isEmpty() || matricula.getEstadoMatricula().equalsIgnoreCase(estado);
                     return coincidePeriodo && coincideEstado;
                 })
                 .collect(Collectors.toList());
@@ -300,7 +302,7 @@ public class MatriculaServiceImpl implements MatriculaService {
             throw new IllegalArgumentException("El curso no pertenece al periodo académico activo");
         }
 
-        if (!curso.isEstado() ) {
+        if (!curso.isEstado()) {
             throw new IllegalArgumentException("El curso no está disponible para matrícula");
         }
 
@@ -318,7 +320,7 @@ public class MatriculaServiceImpl implements MatriculaService {
                 .estudianteId(estudianteId)
                 .curso(curso)
                 .periodo(periodoActivo)
-                .estado("ACTIVA")
+                .estadoMatricula("ACTIVA")
                 .observacion(observacion)
                 .build();
     }
@@ -352,7 +354,7 @@ public class MatriculaServiceImpl implements MatriculaService {
                         .estudianteId(matricula.getEstudianteId())
                         .curso(modelMapper.map(matricula.getCurso(), CursoResponse.class))
                         .periodo(modelMapper.map(matricula.getPeriodo(), PeriodoAcademicoResponse.class))
-                        .estado(matricula.getEstado())
+                        .estado(matricula.getEstadoMatricula())
                         .observacion(matricula.getObservacion())
                         .build())
                 .collect(Collectors.toList());

@@ -15,7 +15,8 @@ public class Matricula {
     private Long estudianteId;
     private Curso curso;
     private PeriodoAcademico periodo;
-    private String estado;
+    private boolean estado;
+    private String estadoMatricula;
     private String observacion;
 
     public MatriculaEntity toEntity(){
@@ -25,6 +26,7 @@ public class Matricula {
                 .curso(this.curso.toEntity())
                 .periodo(this.periodo.toEntity())
                 .estado(this.estado)
+                .estadoMatricula(this.estadoMatricula)
                 .observacion(this.observacion)
                 .build();
     }
@@ -37,6 +39,7 @@ public class Matricula {
                 .periodo(entity.getPeriodo().toDomain())
                 .estado(entity.getEstado())
                 .observacion(entity.getObservacion())
+                .estadoMatricula(entity.getEstadoMatricula())
                 .build();
         }
 

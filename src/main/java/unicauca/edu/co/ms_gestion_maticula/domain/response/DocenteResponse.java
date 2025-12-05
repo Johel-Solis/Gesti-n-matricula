@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import unicauca.edu.co.ms_gestion_maticula.domain.model.Persona;
 
 @Data
 @AllArgsConstructor
@@ -11,12 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class DocenteResponse {
     private Long id;
-    private String nombre;
-    private String apellido;
-    private String correoElectronico;
-    private String telefono;
-    private String genero;
-    private String tipoIdentificacion;
+    private Persona persona;
     private String codigo;
     private String facultad;
     private String departamento;

@@ -13,6 +13,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Asignatura;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Curso;
+import unicauca.edu.co.ms_gestion_maticula.domain.model.Estudiante;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Matricula;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.PeriodoAcademico;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.CursoMatriculaRequest;
@@ -24,6 +25,7 @@ import unicauca.edu.co.ms_gestion_maticula.domain.ports.out.CursoRepository;
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.out.MatriculaRepository;
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.out.PeriodoAcademicoRepository;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.CursoResponse;
+import unicauca.edu.co.ms_gestion_maticula.domain.response.EstudianteResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaBatchResultResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaNoRealizadaResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.PeriodoAcademicoResponse;
@@ -57,9 +59,12 @@ public class MatriculaServiceImpl implements MatriculaService {
             try {
                 exitos.addAll(matriculaEstudianteCursos(solicitud));
             } catch (Exception e) {
+                CursoResponse cursoResponse = cursoRepository.findCursoById(obtenerCursoIdPrimerIntento(solicitud))
+                        .map(curso -> modelMapper.map(curso, CursoResponse.class))
+                        .orElse(null);
                 fallidos.add(MatriculaNoRealizadaResponse.builder()
-                        .estudianteId(solicitud.getEstudianteId())
-                        .cursoId(obtenerCursoIdPrimerIntento(solicitud))
+                        .estudiante(modelMapper.map(matriculaRepository.getEstudianteById(solicitud.getEstudianteId()).orElse(null), EstudianteResponse.class))
+                        .curso(cursoResponse)
                         .motivo(e.getMessage())
                         .build());
             }
@@ -83,7 +88,6 @@ public class MatriculaServiceImpl implements MatriculaService {
         
         // Validar periodo de matrícula
         validarPeriodoMatricula();
-        System.out.println("Periodo de matrícula validado para el estudiante: " + request.getEstudianteId());
         List<Matricula> matriculas = new ArrayList<>();
         // Validar cada curso antes de proceder con las matrículas
         for (CursoMatriculaRequest cursoRequest : request.getCursos()) {
@@ -109,6 +113,9 @@ public class MatriculaServiceImpl implements MatriculaService {
         if (estudianteId == null || cursoId == null) {
             throw new IllegalArgumentException("Los parámetros estudianteId y cursoId son requeridos");
         }
+
+        matriculaRepository.getEstudianteById(estudianteId)
+                .orElseThrow(() -> new EntityNotFoundException("Estudiante no encontrado con ID: " + estudianteId));    
 
         // Validar periodo de matrícula
         validarPeriodoMatricula();
@@ -315,9 +322,10 @@ public class MatriculaServiceImpl implements MatriculaService {
     private Matricula crearMatricula(Long estudianteId, Curso curso, String observacion) {
         PeriodoAcademico periodoActivo = periodoAcademicoRepository.findPeriodoActivo()
                 .orElseThrow(() -> new IllegalArgumentException("No hay periodo académico activo"));
-        
+        Estudiante estudiante= matriculaRepository.getEstudianteById(estudianteId)
+                .orElseThrow(() -> new EntityNotFoundException("Estudiante no encontrado con ID: " + estudianteId));
         return Matricula.builder()
-                .estudianteId(estudianteId)
+                .estudiante(estudiante)
                 .curso(curso)
                 .periodo(periodoActivo)
                 .estadoMatricula("ACTIVA")
@@ -351,7 +359,7 @@ public class MatriculaServiceImpl implements MatriculaService {
         return matriculas.stream()
                 .map(matricula -> MatriculaResponse.builder()
                         .id(matricula.getId())
-                        .estudianteId(matricula.getEstudianteId())
+                        .estudiante(modelMapper.map(matricula.getEstudiante(), EstudianteResponse.class))
                         .curso(modelMapper.map(matricula.getCurso(), CursoResponse.class))
                         .periodo(modelMapper.map(matricula.getPeriodo(), PeriodoAcademicoResponse.class))
                         .estado(matricula.getEstadoMatricula())

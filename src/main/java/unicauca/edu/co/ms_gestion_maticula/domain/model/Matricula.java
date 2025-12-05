@@ -12,7 +12,7 @@ import unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence.e
 @AllArgsConstructor
 public class Matricula {
     private Long id;
-    private Long estudianteId;
+    private Estudiante estudiante;
     private Curso curso;
     private PeriodoAcademico periodo;
     private boolean estado;
@@ -22,7 +22,7 @@ public class Matricula {
     public MatriculaEntity toEntity(){
         return MatriculaEntity.builder()
                 .id(this.id)
-                .estudianteId(this.estudianteId)
+                .estudiante(this.estudiante.toEntity())
                 .curso(this.curso.toEntity())
                 .periodo(this.periodo.toEntity())
                 .estado(this.estado)
@@ -34,7 +34,7 @@ public class Matricula {
     public Matricula fromEntity(MatriculaEntity entity){
         return Matricula.builder()
                 .id(entity.getId())
-                .estudianteId(entity.getEstudianteId())
+                .estudiante(entity.getEstudiante().toDomain())
                 .curso(entity.getCurso().toDomain())
                 .periodo(entity.getPeriodo().toDomain())
                 .estado(entity.getEstado())

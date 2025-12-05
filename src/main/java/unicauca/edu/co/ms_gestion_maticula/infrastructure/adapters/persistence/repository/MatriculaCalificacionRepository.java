@@ -9,7 +9,7 @@ public interface MatriculaCalificacionRepository  extends JpaRepository<Matricul
 
     @Query("SELECT CASE WHEN COUNT(mc) > 0 THEN true ELSE false END " +
            "FROM MatriculaCalificacion mc " +
-           "WHERE mc.matricula.estudianteId = :idEstudiante " +
+           "WHERE mc.matricula.estudiante.id = :idEstudiante " +
            "AND mc.esDefinitiva = true " +
            "AND mc.nota >= 3.5 " +
            "AND mc.asignatura.idAsignatura = :idAsignatura")

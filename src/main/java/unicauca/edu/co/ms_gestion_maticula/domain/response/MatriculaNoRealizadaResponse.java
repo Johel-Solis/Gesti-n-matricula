@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MatriculaNoRealizadaResponse {
-    private Long estudianteId;
-    private Long cursoId;
+    private EstudianteResponse estudiante;
+    private CursoResponse curso;
     private String motivo;
 }
 

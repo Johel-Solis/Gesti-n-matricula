@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class MatriculaResponse {
     private Long id;
-    private Long estudianteId;
+    private EstudianteResponse estudiante;
     private CursoResponse curso;
     private PeriodoAcademicoResponse periodo;
     private String estado;

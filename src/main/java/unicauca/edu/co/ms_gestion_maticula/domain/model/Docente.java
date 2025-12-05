@@ -46,15 +46,10 @@ public class Docente {
     public DocenteResponse toResponse(){
         return DocenteResponse.builder()
                 .id(this.id)
-                .nombre(this.persona.getNombre())
-                .apellido(this.persona.getApellido())
-                .correoElectronico(this.persona.getCorreoElectronico())
-                .telefono(this.persona.getTelefono())
-                .genero(this.persona.getGenero())
-                .tipoIdentificacion(this.persona.getTipoIdentificacion())
                 .codigo(this.codigo)
                 .facultad(this.facultad)
                 .departamento(this.departamento)
+                .persona(persona)
                 .build();
     }
 }

@@ -6,10 +6,13 @@ import java.util.Optional;
 import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
+import unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence.entity.EstudianteEntity;
 import unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence.entity.MatriculaEntity;
+import unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence.repository.EstrudianteJpaRepository;
 import unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence.repository.MatriculaCalificacionRepository;
 import unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence.repository.MatriculaJpaRepository;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Asignatura;
+import unicauca.edu.co.ms_gestion_maticula.domain.model.Estudiante;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Matricula;
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.out.MatriculaRepository;
 
@@ -19,6 +22,7 @@ public class MatriculaJpaAdapter implements MatriculaRepository {
 
     private final MatriculaJpaRepository repository;
     private final MatriculaCalificacionRepository matriculaCalificacionRepository;
+    private final EstrudianteJpaRepository estudianteRepository;
 
     @Override
     public Matricula save(Matricula matricula) {
@@ -73,6 +77,18 @@ public class MatriculaJpaAdapter implements MatriculaRepository {
     public Boolean existsMatriculaByEstudianteIdAndPeriodoIdAndAsignaturaId(Long estudianteId, Long periodoId,
             Long asignaturaId) {
         return repository.existsMatriculaByEstudianteIdAndPeriodoIdAndAsignaturaId(estudianteId, periodoId, asignaturaId,true);
+    }
+
+    @Override
+    public Optional<Estudiante> getEstudianteById(Long estudianteId) {
+        return estudianteRepository.findById(estudianteId)
+                .map(EstudianteEntity::toDomain);
+    }
+
+    @Override
+    public Optional<Estudiante> getEstudianteByIdAndEstado(Long estudianteId, String estado) {
+        return estudianteRepository.getEstudianteByIdAndEstado(estudianteId, estado)
+                .map(EstudianteEntity::toDomain);
     }
     
 }

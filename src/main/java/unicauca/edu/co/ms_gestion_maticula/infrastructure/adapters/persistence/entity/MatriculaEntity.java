@@ -24,8 +24,9 @@ public class MatriculaEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "id_estudiante")
-    private Long estudianteId;
+    @ManyToOne
+    @JoinColumn(name = "id_estudiante")
+    private EstudianteEntity estudiante;
     
     @ManyToOne
     @JoinColumn(name = "id_curso")  

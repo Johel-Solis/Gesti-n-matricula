@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Asignatura;
+import unicauca.edu.co.ms_gestion_maticula.domain.model.Estudiante;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Matricula;
 
 public interface MatriculaRepository {
@@ -16,6 +17,8 @@ public interface MatriculaRepository {
     Boolean asignaturaGanada(Long estudianteId, Long asignaturaId);
     List<Asignatura> getAsignaturasMatriculadas(Long estudianteId, Long periodoId);
     Boolean existsMatriculaByEstudianteIdAndPeriodoIdAndAsignaturaId(Long estudianteId, Long periodoId, Long asignaturaId);
+    Optional<Estudiante> getEstudianteById(Long estudianteId);
+    Optional<Estudiante> getEstudianteByIdAndEstado(Long estudianteId, String estado);
 
 
 }

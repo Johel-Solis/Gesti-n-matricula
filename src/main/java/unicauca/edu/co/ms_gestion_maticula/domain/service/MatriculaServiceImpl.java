@@ -114,7 +114,7 @@ public class MatriculaServiceImpl implements MatriculaService {
         if (estudianteId == null || cursoId == null) {
             throw new IllegalArgumentException("Los parámetros estudianteId y cursoId son requeridos");
         }
-
+        // Validar que el estudiante esté activo
         matriculaRepository.getEstudianteByIdAndEstado(estudianteId,EstadoEstudianteMaestria.ACTIVO)
                 .orElseThrow(() -> new EntityNotFoundException("No está activo o no existe el estudiante con ID: " + estudianteId));
 
@@ -135,7 +135,6 @@ public class MatriculaServiceImpl implements MatriculaService {
         boolean yaMatriculado = matriculaRepository.existsMatriculaByEstudianteIdAndPeriodoIdAndAsignaturaId(
                 estudianteId, periodoActivo.getId(), curso.getAsignatura().getId());
 
-        System.out.println("Ya matriculado: " + yaMatriculado);
         
         if (yaMatriculado) {
             throw new IllegalArgumentException("El estudiante ya está matriculado en esta asignatura para el periodo actual");
@@ -240,6 +239,7 @@ public class MatriculaServiceImpl implements MatriculaService {
         if (estudianteId == null) {
             throw new IllegalArgumentException("El ID del estudiante es requerido");
         }
+        //TODO: Validar existencia del estudiante, esta fallando la funcion
         
         List<Matricula> todasLasMatriculas = matriculaRepository.findByEstudianteId(estudianteId);
         

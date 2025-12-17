@@ -7,11 +7,13 @@ import unicauca.edu.co.ms_gestion_maticula.domain.enums.EstadoEstudianteMaestria
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Asignatura;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Estudiante;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Matricula;
+import unicauca.edu.co.ms_gestion_maticula.domain.model.MatriculaCurso;
 
 public interface MatriculaRepository {
     Matricula save(Matricula matricula);
     Optional<Matricula> findById(Long id);
     List<Matricula> findAll();
+    List<MatriculaCurso> getListMatriculas(Long periodoId, String estado, Long asignatura, Long estudiante);
     void deleteById(Long id);
     Matricula update(Matricula matricula);
     List<Matricula> findByEstudianteId(Long estudianteId);

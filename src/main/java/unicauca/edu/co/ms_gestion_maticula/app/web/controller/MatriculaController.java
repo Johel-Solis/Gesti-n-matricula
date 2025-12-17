@@ -17,6 +17,7 @@ import unicauca.edu.co.ms_gestion_maticula.domain.request.ListEstudianteRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.MatriculaCursoEstudiantesRequests;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.MatriculaEstudianteCursosRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.AsignaturaResponse;
+import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaAgrupadaResonse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaBatchResultResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaResponse;
 import unicauca.edu.co.ms_gestion_maticula.infrastructure.utils.ApiResponse;
@@ -149,12 +150,13 @@ public class MatriculaController {
      */
     @GetMapping
     public ResponseEntity<ApiResponse> listarMatriculas(
-            @RequestParam(required = false) Long periodoId,
-            @RequestParam(required = false) String estado) {
-        List<Matricula> matriculas = matriculaService.listarMatriculas(periodoId, estado);
-        List<MatriculaResponse> matriculasResponse = matriculas.stream()
-                .map(matricula -> modelMapper.map(matricula, MatriculaResponse.class))
-                .collect(Collectors.toList());
+            @RequestParam(required = true) Long periodoId,
+            @RequestParam(required = false) String estado,
+            @RequestParam(required = false) Long asignatura,
+            @RequestParam(required = false) Long estudiante
+        ) {
+        List<MatriculaAgrupadaResonse> matriculasResponse = matriculaService.listarMatriculas(periodoId, estado, asignatura, estudiante);
+    
         return ResponseEntity.ok(new ApiResponse("SUCCESS", "Matrículas encontradas", matriculasResponse, 200));
     }
 

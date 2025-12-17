@@ -7,6 +7,7 @@ import unicauca.edu.co.ms_gestion_maticula.domain.model.Matricula;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.ListEstudianteRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.MatriculaCursoEstudiantesRequests;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.MatriculaEstudianteCursosRequest;
+import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaAgrupadaResonse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaBatchResultResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaResponse;
 
@@ -22,7 +23,7 @@ public interface MatriculaService {
     void cancelarMatricula(Long matriculaId, String motivoCancelacion);
     List<Matricula> obtenerMatriculasPorEstudianteYPeriodo(Long estudianteId, Long periodoId);
     Matricula obtenerMatriculaPorId(Long matriculaId);
-    List<Matricula> listarMatriculas(Long periodoId, String estado);
+    List<MatriculaAgrupadaResonse> listarMatriculas(Long periodoId, String estado, Long asignatura, Long estudiante);
     
 
 }

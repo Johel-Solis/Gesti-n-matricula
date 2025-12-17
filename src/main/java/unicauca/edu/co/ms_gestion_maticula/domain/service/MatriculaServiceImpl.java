@@ -16,6 +16,7 @@ import unicauca.edu.co.ms_gestion_maticula.domain.model.Asignatura;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Curso;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Estudiante;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Matricula;
+import unicauca.edu.co.ms_gestion_maticula.domain.model.MatriculaCurso;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.PeriodoAcademico;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.CursoMatriculaRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.ListEstudianteRequest;
@@ -27,6 +28,7 @@ import unicauca.edu.co.ms_gestion_maticula.domain.ports.out.MatriculaRepository;
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.out.PeriodoAcademicoRepository;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.CursoResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.EstudianteResponse;
+import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaAgrupadaResonse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaBatchResultResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaNoRealizadaResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.PeriodoAcademicoResponse;
@@ -267,17 +269,18 @@ public class MatriculaServiceImpl implements MatriculaService {
     /**
      * Método adicional para listar todas las matrículas con filtros
      */
-    public List<Matricula> listarMatriculas(Long periodoId, String estado) {
-        List<Matricula> todasLasMatriculas = matriculaRepository.findAll();
-        
-        return todasLasMatriculas.stream()
-                .filter(matricula -> {
-                    boolean coincidePeriodo = periodoId == null || matricula.getPeriodo().getId().equals(periodoId);
-                    boolean coincideEstado = estado == null || estado.isEmpty() || matricula.getEstadoMatricula().equalsIgnoreCase(estado);
-                    return coincidePeriodo && coincideEstado;
-                })
-                .collect(Collectors.toList());
-    }
+    @Override
+    public List<MatriculaAgrupadaResonse> listarMatriculas(Long periodoId, String estado, Long asignatura, Long estudiante){
+        if (periodoId == null) {
+            throw new IllegalArgumentException("El identificador del periodo es obligatorio");
+        }
+
+        List<MatriculaCurso> matriculasCurso = matriculaRepository.getListMatriculas(periodoId, estado, asignatura, estudiante);
+
+        return matriculasCurso.stream()
+                .map(this::toMatriculaAgrupadaResonse)
+                .toList();   
+            }
 
     /**
      * Método auxiliar para validar que el periodo académico esté activo y dentro del plazo de matrícula
@@ -373,5 +376,17 @@ public class MatriculaServiceImpl implements MatriculaService {
                 .collect(Collectors.toList());
     }
 
+    private MatriculaAgrupadaResonse toMatriculaAgrupadaResonse(MatriculaCurso mCurso){
+        return MatriculaAgrupadaResonse.builder()
+        .idCurso(mCurso.getCurso().getId())
+        .asignatura(mCurso.getCurso().getAsignatura().getNombre())
+        .grupo(mCurso.getCurso().getGrupo())
+        .periodo(modelMapper.map(mCurso.getCurso().getPeriodo(),PeriodoAcademicoResponse.class))
+        .estado(mCurso.getCurso().isEstado()?"ACTIVO":"INACTIVO")
+        .cantidadEstudiante(mCurso.getTotalMatriculas())
+        .build();
+    }
+
+	
 
 }

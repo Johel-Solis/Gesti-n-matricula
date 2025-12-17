@@ -15,6 +15,7 @@ import unicauca.edu.co.ms_gestion_maticula.domain.enums.EstadoEstudianteMaestria
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Asignatura;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Estudiante;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Matricula;
+import unicauca.edu.co.ms_gestion_maticula.domain.model.MatriculaCurso;
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.out.MatriculaRepository;
 
 @Component
@@ -40,6 +41,17 @@ public class MatriculaJpaAdapter implements MatriculaRepository {
     public List<Matricula> findAll() {
         return repository.findAll().stream()
                 .map(entity -> new Matricula().fromEntity(entity))
+                .toList();
+    }
+
+    @Override
+    public List<MatriculaCurso> getListMatriculas(Long periodoId, String estado, Long asignatura, Long estudiante) {
+        estado = (estado == null || estado.isBlank()) ? null : estado;
+        estudiante = (estudiante != null && estudiante == 0) ? null : estudiante;
+        asignatura = (asignatura != null && asignatura == 0) ? null : asignatura;
+
+        return repository.getListMatricula( periodoId, estado, asignatura,  estudiante).stream()
+                .map(entity -> new MatriculaCurso().fromEntity(entity))
                 .toList();
     }
 

@@ -11,9 +11,9 @@ public interface MatriculaCalificacionRepository  extends JpaRepository<Matricul
            "FROM MatriculaCalificacion mc " +
            "WHERE mc.matricula.estudiante.id = :idEstudiante " +
            "AND mc.esDefinitiva = true " +
-           "AND mc.nota >= 3.5 " +
+           "AND mc.nota >= :umbralGanado " +
            "AND mc.asignatura.idAsignatura = :idAsignatura")
-    boolean asignaturaGanada(Long idEstudiante, Long idAsignatura);
+    boolean asignaturaGanada(Long idEstudiante, Long idAsignatura, double umbralGanado);
 
 
     // @Query("SELECT mc.asignatura FROM MatriculaCalificacion mc WHERE mc.matricula.estudiante.id = :idEstudiante")

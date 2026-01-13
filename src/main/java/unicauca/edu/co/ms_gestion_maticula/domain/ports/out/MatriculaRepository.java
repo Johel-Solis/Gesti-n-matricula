@@ -22,6 +22,7 @@ public interface MatriculaRepository {
     Boolean existsMatriculaByEstudianteIdAndPeriodoIdAndAsignaturaId(Long estudianteId, Long periodoId, Long asignaturaId);
     Optional<Estudiante> getEstudianteById(Long estudianteId);
     Optional<Estudiante> getEstudianteByIdAndEstado(Long estudianteId, EstadoEstudianteMaestria estado);
+    List<Matricula> findByEstudianteIdAndPeriodoActivo(Long estudianteId);
 
 
 }

@@ -27,6 +27,7 @@ import unicauca.edu.co.ms_gestion_maticula.domain.ports.out.CursoRepository;
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.out.MatriculaRepository;
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.out.PeriodoAcademicoRepository;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.CursoResponse;
+import unicauca.edu.co.ms_gestion_maticula.domain.response.EstudianteMatriculaResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.EstudianteResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaAgrupadaResonse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaBatchResultResponse;
@@ -177,6 +178,11 @@ public class MatriculaServiceImpl implements MatriculaService {
             throw new IllegalArgumentException("El ID del estudiante es requerido");
         }
         
+        System.out.println("Estudiante ID recibido en el servicio: " + estudianteId);
+        // Validar existencia del estudiante
+        matriculaRepository.getEstudianteById(estudianteId)
+                .orElseThrow(() -> new EntityNotFoundException("Estudiante no encontrado con ID: " + estudianteId));
+
         // Validar periodo de matrícula
         validarPeriodoMatricula();
         
@@ -185,6 +191,7 @@ public class MatriculaServiceImpl implements MatriculaService {
                 .orElseThrow(() -> new IllegalArgumentException("No hay periodo académico activo"));
         
         // Obtener todas las asignaturas activas
+        // TODO: optener asignaturas disponibles por periodo
         List<Asignatura> todasLasAsignaturas = cursoRepository.findAsignaturasByStatus(true,null);
         
         // Obtener asignaturas ya matriculadas por el estudiante en el periodo actual
@@ -235,23 +242,23 @@ public class MatriculaServiceImpl implements MatriculaService {
     }
 
     /**
-     * Método adicional para obtener matrículas por estudiante y periodo
+     * Método adicional para obtener matrículas por estudiante 
      */
-    public List<Matricula> obtenerMatriculasPorEstudianteYPeriodo(Long estudianteId, Long periodoId) {
+    public List<EstudianteMatriculaResponse> obtenerMatriculasPorEstudiante(Long estudianteId) {
         if (estudianteId == null) {
             throw new IllegalArgumentException("El ID del estudiante es requerido");
         }
         //TODO: Validar existencia del estudiante, esta fallando la funcion
         
-        List<Matricula> todasLasMatriculas = matriculaRepository.findByEstudianteId(estudianteId);
+        matriculaRepository.getEstudianteById(estudianteId)
+                .orElseThrow(() -> new EntityNotFoundException("Estudiante no encontrado con ID: " + estudianteId));
         
-        if (periodoId != null) {
-            return todasLasMatriculas.stream()
-                    .filter(matricula -> matricula.getPeriodo().getId().equals(periodoId))
-                    .collect(Collectors.toList());
-        }
+        List<Matricula> todasLasMatriculas = matriculaRepository.findByEstudianteIdAndPeriodoActivo(estudianteId);
+                         
+        return todasLasMatriculas.stream()
+                .map(this::toEstudianteMatriculaResponse)
+                .collect(Collectors.toList());
         
-        return todasLasMatriculas;
     }
 
     /**
@@ -387,6 +394,14 @@ public class MatriculaServiceImpl implements MatriculaService {
         .build();
     }
 
+    private EstudianteMatriculaResponse toEstudianteMatriculaResponse(Matricula matricula){
+        return EstudianteMatriculaResponse.builder()
+        .id(matricula.getId())
+        .curso(modelMapper.map(matricula.getCurso(), CursoResponse.class))
+        .estado(matricula.getEstadoMatricula())
+        .observacion(matricula.getObservacion())
+        .build();
+    }
 	
 
 }

@@ -3,6 +3,7 @@ package unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,9 @@ public class MatriculaJpaAdapter implements MatriculaRepository {
     private final MatriculaJpaRepository repository;
     private final MatriculaCalificacionRepository matriculaCalificacionRepository;
     private final EstudianteJpaRepository estudianteRepository;
+
+    @Value("${app.matricula.umbral-ganado}")
+    private double umbralGanado;
 
     @Override
     public Matricula save(Matricula matricula) {
@@ -75,8 +79,15 @@ public class MatriculaJpaAdapter implements MatriculaRepository {
     }
 
     @Override
+    public List<Matricula> findByEstudianteIdAndPeriodoActivo(Long estudianteId) {
+        return repository.getByEstudianteIdAndPeriodoActivo(estudianteId).stream()
+                .map(entity -> new Matricula().fromEntity(entity))
+                .toList();
+    }
+
+    @Override
     public Boolean asignaturaGanada(Long estudianteId, Long asignaturaId) {
-        return matriculaCalificacionRepository.asignaturaGanada(estudianteId, asignaturaId);
+        return matriculaCalificacionRepository.asignaturaGanada(estudianteId, asignaturaId, umbralGanado);
     }
 
     @Override

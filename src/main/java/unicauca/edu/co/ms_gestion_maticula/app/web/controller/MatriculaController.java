@@ -17,6 +17,7 @@ import unicauca.edu.co.ms_gestion_maticula.domain.request.ListEstudianteRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.MatriculaCursoEstudiantesRequests;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.MatriculaEstudianteCursosRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.AsignaturaResponse;
+import unicauca.edu.co.ms_gestion_maticula.domain.response.EstudianteMatriculaResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaAgrupadaResonse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaBatchResultResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaResponse;
@@ -91,25 +92,9 @@ public class MatriculaController {
      */
     @GetMapping("/estudiante/{estudianteId}")
     public ResponseEntity<ApiResponse> obtenerMatriculasPorEstudiante(@PathVariable Long estudianteId) {
-        List<Matricula> matriculas = matriculaService.obtenerMatriculasPorEstudianteYPeriodo(estudianteId, null);
-        List<MatriculaResponse> matriculasResponse = matriculas.stream()
-                .map(matricula -> modelMapper.map(matricula, MatriculaResponse.class))
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(new ApiResponse("SUCCESS", "Matrículas del estudiante encontradas", matriculasResponse, 200));
-    }
-
-    /**
-     * Endpoint para obtener matrículas de un estudiante en un periodo específico
-     */
-    @GetMapping("/estudiante/{estudianteId}/periodo/{periodoId}")
-    public ResponseEntity<ApiResponse> obtenerMatriculasPorEstudianteYPeriodo(
-            @PathVariable Long estudianteId, 
-            @PathVariable Long periodoId) {
-        List<Matricula> matriculas = matriculaService.obtenerMatriculasPorEstudianteYPeriodo(estudianteId, periodoId);
-        List<MatriculaResponse> matriculasResponse = matriculas.stream()
-                .map(matricula -> modelMapper.map(matricula, MatriculaResponse.class))
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(new ApiResponse("SUCCESS", "Matrículas encontradas", matriculasResponse, 200));
+        List<EstudianteMatriculaResponse> matriculas = matriculaService.obtenerMatriculasPorEstudiante(estudianteId);
+        
+        return ResponseEntity.ok(new ApiResponse("SUCCESS", "Matrículas del estudiante encontradas", matriculas, 200));
     }
 
     /**
@@ -117,10 +102,12 @@ public class MatriculaController {
      */
     @GetMapping("/asignaturas-disponibles/{estudianteId}")
     public ResponseEntity<ApiResponse> obtenerAsignaturasDisponibles(@PathVariable Long estudianteId) {
+        System.out.println("Estudiante ID recibido: " + estudianteId);
         List<Asignatura> asignaturas = matriculaService.obtenerAsignaturasDisponiblesporEstudiante(estudianteId);
         List<AsignaturaResponse> asignaturasResponse = asignaturas.stream()
                 .map(asignatura -> modelMapper.map(asignatura, AsignaturaResponse.class))
-                .collect(Collectors.toList());
+                .collect
+                (Collectors.toList());
         return ResponseEntity.ok(new ApiResponse("SUCCESS", "Asignaturas disponibles encontradas", asignaturasResponse, 200));
     }
 
@@ -159,6 +146,16 @@ public class MatriculaController {
     
         return ResponseEntity.ok(new ApiResponse("SUCCESS", "Matrículas encontradas", matriculasResponse, 200));
     }
+
+
+    /**
+     * 
+     * Endpoint para obtener estudiantes matriculados en un curso
+     *  
+     */ 
+    // @GetMapping("/curso/{cursoId}/estudiantes-disponibles")
+
+
 
     /**
      * Endpoint para obtener estadísticas de matrícula

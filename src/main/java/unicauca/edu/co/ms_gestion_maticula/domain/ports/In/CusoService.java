@@ -20,6 +20,7 @@ public interface CusoService {
     public List<AsignaturaResponse> obtenerAsignaturasPorEstado(Long idArea);
     public List<DocenteResponse> obtenerDocentesPorAsignaturaId(Long asignaturaId);
     public List<AreaFormacion> obtenerAreasFormacion();
+    public List<CursoResponse> obtenerCursosDisponibles(Long idEstudiante, Long idArea);
     
 
 }

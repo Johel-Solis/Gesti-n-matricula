@@ -19,4 +19,6 @@ public interface CursoJpaRepository extends JpaRepository<CursoEntity, Long> {
     @Query("SELECT c FROM CursoEntity c JOIN AsignaturaEntity a ON c.asignatura.id = a.id WHERE (:periodoId IS NULL OR c.periodo.id = :periodoId) AND (:idArea IS NULL OR a.areaFormacion = :idArea) AND (:idAsignatura IS NULL OR a.id = :idAsignatura)")
     public List<CursoEntity> findByPeriodoIdAndIdAreaAndIdAsignatura(Long periodoId, Long idArea, Long idAsignatura);
 
+    @Query("SELECT c FROM CursoEntity c WHERE c.asignatura.id IN :asignaturaIds AND c.periodo.id = :periodoId")
+    public List<CursoEntity> findByAsignaturas(List<Long> asignaturaIds, Long periodoId);
 }

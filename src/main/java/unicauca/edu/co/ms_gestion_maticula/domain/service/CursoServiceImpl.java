@@ -1,5 +1,6 @@
 package unicauca.edu.co.ms_gestion_maticula.domain.service;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -28,6 +29,7 @@ import unicauca.edu.co.ms_gestion_maticula.domain.response.DocenteResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MaterialApoyoResponse;
 
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.In.CusoService;
+import unicauca.edu.co.ms_gestion_maticula.domain.ports.In.MatriculaService;
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.out.CursoRepository;
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.out.PeriodoAcademicoRepository;
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.out.MaterialApoyoRepository;
@@ -45,6 +47,8 @@ public class CursoServiceImpl implements CusoService {
     private final ModelMapper modelMapper;
     @Autowired
     private final MaterialApoyoRepository materialApoyoRepository;
+
+    private final MatriculaService matriculaService;
 
     @Autowired
     @Qualifier("messageResourceMatricula")
@@ -307,6 +311,33 @@ public class CursoServiceImpl implements CusoService {
     @Override
     public List<AreaFormacion> obtenerAreasFormacion() {
         return cursoRepository.findAllAreasFormacion();
+    }
+
+    @Override
+    public List<CursoResponse> obtenerCursosDisponibles(Long idEstudiante, Long idArea){
+        PeriodoAcademico periodo = periodoAcademicoRepository.findPeriodoActivo()
+        .orElseThrow(() -> new EntityNotFoundException(msg("curso.error.periodo.activo.noexiste")));
+        
+        List<Asignatura> asignaturasDisponibles = matriculaService.obtenerAsignaturasDisponiblesporEstudiante(idEstudiante);
+
+        List<Long> asignaturasIds = new ArrayList<>();
+        if(idArea!=null){
+            asignaturasIds = asignaturasDisponibles.stream()
+                .filter(a -> a.getAreaFormacion() != null && a.getAreaFormacion().equals(Integer.parseInt(idArea.toString())))
+                .map(Asignatura::getId)
+                .toList();
+        } else {
+            asignaturasIds = asignaturasDisponibles.stream()
+                .map(Asignatura::getId)
+                .toList();
+        }
+
+
+        List<Curso> cursos = cursoRepository.getCursosByAsignaturaIds(asignaturasIds, periodo.getId());
+
+        return cursos.stream()
+                .map(c -> modelMapper.map(c, CursoResponse.class))
+                .toList();
     }
 
    

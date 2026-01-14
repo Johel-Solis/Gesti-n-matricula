@@ -102,7 +102,6 @@ public class MatriculaController {
      */
     @GetMapping("/asignaturas-disponibles/{estudianteId}")
     public ResponseEntity<ApiResponse> obtenerAsignaturasDisponibles(@PathVariable Long estudianteId) {
-        System.out.println("Estudiante ID recibido: " + estudianteId);
         List<Asignatura> asignaturas = matriculaService.obtenerAsignaturasDisponiblesporEstudiante(estudianteId);
         List<AsignaturaResponse> asignaturasResponse = asignaturas.stream()
                 .map(asignatura -> modelMapper.map(asignatura, AsignaturaResponse.class))

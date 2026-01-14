@@ -21,5 +21,6 @@ public interface CursoRepository {
     List<AreaFormacion> findAllAreasFormacion();
     List<Asignatura> findAsignaturasByStatus(Boolean status, Long idArea);
     List<Docente> findDocentesByAsignaturaId(Long asignaturaId);
+    List<Curso> getCursosByAsignaturaIds(List<Long> asignaturaIds, Long periodoId);
 
 }

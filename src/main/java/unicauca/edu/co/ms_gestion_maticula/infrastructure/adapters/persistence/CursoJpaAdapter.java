@@ -134,6 +134,14 @@ public class CursoJpaAdapter implements CursoRepository {
         
     }
 
+    @Override
+    public List<Curso> getCursosByAsignaturaIds(List<Long> asignaturaIds, Long periodoId) {
+        return cursoRepo.findByAsignaturas(asignaturaIds, periodoId).stream()
+                .map(CursoEntity::toDomain)
+                .toList();
+    }
+    
+
     
 
 }

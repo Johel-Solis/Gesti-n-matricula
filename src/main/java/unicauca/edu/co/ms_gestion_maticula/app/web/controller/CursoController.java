@@ -85,4 +85,9 @@ public class CursoController {
         return ResponseEntity.ok(new ApiResponse("SUCCESS", "Docentes encontrados", docentes, 200));
     }
 
+     @GetMapping("/disponibles-estudiante/{idEstudiante}")
+    public ResponseEntity<ApiResponse> cursosDisponibles(@PathVariable Long idEstudiante, @RequestParam(required = false) Long idArea) {
+        List<CursoResponse> cursos = cursoService.obtenerCursosDisponibles(idEstudiante,idArea);
+        return ResponseEntity.ok(new ApiResponse("SUCCESS", "Lista de cursos disponibles", cursos, 200));
+    }
 }

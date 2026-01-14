@@ -55,4 +55,7 @@ public interface MatriculaJpaRepository extends JpaRepository<MatriculaEntity, L
         @Param("asignatura") Long asignatura,
         @Param("estudiante") Long estudiante);
 
+
+    @Query("SELECT m FROM MatriculaEntity m WHERE m.curso.id = :cursoId AND m.periodo.id = :periodoId and m.estado = true")
+    List<MatriculaEntity> findByCursoIdAndPeriodoId(Long cursoId, Long periodoId);
 }

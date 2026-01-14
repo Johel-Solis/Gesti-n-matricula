@@ -20,6 +20,7 @@ import unicauca.edu.co.ms_gestion_maticula.domain.response.AsignaturaResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.EstudianteMatriculaResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaAgrupadaResonse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaBatchResultResponse;
+import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaCursoResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaResponse;
 import unicauca.edu.co.ms_gestion_maticula.infrastructure.utils.ApiResponse;
 
@@ -152,23 +153,28 @@ public class MatriculaController {
      * Endpoint para obtener estudiantes matriculados en un curso
      *  
      */ 
-    // @GetMapping("/curso/{cursoId}/estudiantes-disponibles")
-
-
-
-    /**
-     * Endpoint para obtener estadísticas de matrícula
-     */
-    @GetMapping("/estadisticas")
-    public ResponseEntity<ApiResponse> obtenerEstadisticasMatricula(
-            @RequestParam(required = false) Long periodoId) {
-        try {
-            // Este endpoint requiere implementación adicional en el servicio
-            return ResponseEntity.ok(new ApiResponse("INFO", 
-                    "Funcionalidad de estadísticas en desarrollo", null, 200));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest()
-                    .body(new ApiResponse("ERROR", "Error al obtener estadísticas", null, 400));
-        }
+    @GetMapping("/estudiantes-matriculados/{cursoId}")
+    public ResponseEntity<ApiResponse> obtenerEstudiantesMatriculadosEnCurso(
+            @PathVariable Long cursoId) {
+        List<MatriculaCursoResponse> estudiantes = matriculaService.obtenerEstudiantesMatriculadosEnCurso(cursoId);
+        
+        return ResponseEntity.ok(new ApiResponse("SUCCESS", "Estudiantes matriculados encontrados", estudiantes, 200));
     }
+
+     /**
+     * 
+     * Endpoint para obtener estudiantes disponibles para un curso
+     *  
+     */ 
+    @GetMapping("/estudiantes-disponibles")
+    public ResponseEntity<ApiResponse> obtenerEstudiantesDisponibles(
+            @RequestParam(required = false) Long cursoId) {
+        List<EstudianteMatriculaResponse> estudiantes = matriculaService.obtenerEstudiantesDisponibles(cursoId);
+        
+        return ResponseEntity.ok(new ApiResponse("SUCCESS", "Estudiantes disponibles encontrados", estudiantes, 200));
+    }
+
+
+
+    
 }

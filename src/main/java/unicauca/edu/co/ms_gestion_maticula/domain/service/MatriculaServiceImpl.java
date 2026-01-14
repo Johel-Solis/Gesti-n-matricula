@@ -31,6 +31,7 @@ import unicauca.edu.co.ms_gestion_maticula.domain.response.EstudianteMatriculaRe
 import unicauca.edu.co.ms_gestion_maticula.domain.response.EstudianteResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaAgrupadaResonse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaBatchResultResponse;
+import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaCursoResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaNoRealizadaResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.PeriodoAcademicoResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaResponse;
@@ -191,7 +192,6 @@ public class MatriculaServiceImpl implements MatriculaService {
                 .orElseThrow(() -> new IllegalArgumentException("No hay periodo académico activo"));
         
         // Obtener todas las asignaturas activas
-        // TODO: optener asignaturas disponibles por periodo
         List<Asignatura> todasLasAsignaturas = cursoRepository.findAsignaturasByStatus(true,null);
         
         // Obtener asignaturas ya matriculadas por el estudiante en el periodo actual
@@ -288,6 +288,40 @@ public class MatriculaServiceImpl implements MatriculaService {
                 .map(this::toMatriculaAgrupadaResonse)
                 .toList();   
             }
+
+
+    
+    
+    /**
+     * Método para obtener estudiantes matriculados en un curso específico
+     */
+     @Override
+    public List<MatriculaCursoResponse> obtenerEstudiantesMatriculadosEnCurso(Long cursoId) {
+        cursoRepository.findCursoById(cursoId)
+                .orElseThrow(() -> new EntityNotFoundException("Curso no encontrado con ID: " + cursoId));
+
+        PeriodoAcademico periodoActivo = periodoAcademicoRepository.findPeriodoActivo()
+                .orElseThrow(() -> new IllegalArgumentException("No hay periodo académico activo"));
+
+        List<Matricula> matriculas = matriculaRepository.findByCursoIdAndPeriodoId(cursoId, periodoActivo.getId());
+
+        return matriculas.stream()
+                .map(this::toMatriculaCursoResponse)
+                .collect(Collectors.toList());
+
+
+
+        
+    
+    }
+
+    @Override
+    public List<EstudianteMatriculaResponse> obtenerEstudiantesDisponibles(Long cursoId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'obtenerEstudiantesDisponibles'");
+    }
+
+
 
     /**
      * Método auxiliar para validar que el periodo académico esté activo y dentro del plazo de matrícula
@@ -402,6 +436,17 @@ public class MatriculaServiceImpl implements MatriculaService {
         .observacion(matricula.getObservacion())
         .build();
     }
+
+     private MatriculaCursoResponse toMatriculaCursoResponse(Matricula matricula){
+        return MatriculaCursoResponse.builder()
+        .id(matricula.getId())
+        .estudiante(modelMapper.map(matricula.getEstudiante(), EstudianteResponse.class))
+        .estado(matricula.getEstadoMatricula())
+        .observacion(matricula.getObservacion())
+        .build();
+    }
+
+   
 	
 
 }

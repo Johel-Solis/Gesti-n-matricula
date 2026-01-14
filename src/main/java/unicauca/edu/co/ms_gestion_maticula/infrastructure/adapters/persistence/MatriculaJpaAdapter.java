@@ -114,5 +114,12 @@ public class MatriculaJpaAdapter implements MatriculaRepository {
         return estudianteRepository.getEstudianteByIdAndEstado(estudianteId, estado)
                 .map(EstudianteEntity::toDomain);
     }
+
+    @Override
+    public List<Matricula> findByCursoIdAndPeriodoId(Long cursoId, Long periodoId) {
+        return repository.findByCursoIdAndPeriodoId(cursoId, periodoId).stream()
+                .map(entity -> new Matricula().fromEntity(entity))
+                .toList();
+    }
     
 }

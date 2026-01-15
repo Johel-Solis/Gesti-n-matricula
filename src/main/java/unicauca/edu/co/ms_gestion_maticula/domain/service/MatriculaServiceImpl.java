@@ -308,19 +308,8 @@ public class MatriculaServiceImpl implements MatriculaService {
         return matriculas.stream()
                 .map(this::toMatriculaCursoResponse)
                 .collect(Collectors.toList());
-
-
-
-        
     
     }
-
-    @Override
-    public List<EstudianteMatriculaResponse> obtenerEstudiantesDisponibles(Long cursoId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'obtenerEstudiantesDisponibles'");
-    }
-
 
 
     /**

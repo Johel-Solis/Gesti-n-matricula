@@ -7,6 +7,7 @@ import unicauca.edu.co.ms_gestion_maticula.domain.request.CursoRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.AsignaturaResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.CursoResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.DocenteResponse;
+import unicauca.edu.co.ms_gestion_maticula.domain.response.EstudianteResponse;
 
 public interface CusoService {
 
@@ -21,6 +22,7 @@ public interface CusoService {
     public List<DocenteResponse> obtenerDocentesPorAsignaturaId(Long asignaturaId);
     public List<AreaFormacion> obtenerAreasFormacion();
     public List<CursoResponse> obtenerCursosDisponibles(Long idEstudiante, Long idArea);
+    public List<EstudianteResponse> obtenerEstudiantesDisponiblesPorCursoAsignatura(Long asignaturaId);
     
 
 }

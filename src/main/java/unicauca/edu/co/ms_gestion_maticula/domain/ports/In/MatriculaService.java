@@ -8,6 +8,7 @@ import unicauca.edu.co.ms_gestion_maticula.domain.request.ListEstudianteRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.MatriculaCursoEstudiantesRequests;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.MatriculaEstudianteCursosRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.EstudianteMatriculaResponse;
+import unicauca.edu.co.ms_gestion_maticula.domain.response.EstudianteResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaAgrupadaResonse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaBatchResultResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaCursoResponse;
@@ -29,6 +30,5 @@ public interface MatriculaService {
     Matricula obtenerMatriculaPorId(Long matriculaId);
     List<MatriculaAgrupadaResonse> listarMatriculas(Long periodoId, String estado, Long asignatura, Long estudiante);
     List<MatriculaCursoResponse> obtenerEstudiantesMatriculadosEnCurso(Long cursoId);
-    List<EstudianteMatriculaResponse> obtenerEstudiantesDisponibles(Long cursoId);
 
 }

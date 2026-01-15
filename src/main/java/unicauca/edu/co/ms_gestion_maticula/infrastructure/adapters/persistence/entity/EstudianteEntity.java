@@ -17,7 +17,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Estudiante;
-import unicauca.edu.co.ms_gestion_maticula.domain.model.Persona;
+
 
 @Data   @AllArgsConstructor @NoArgsConstructor
 @Entity @Table(name = "estudiantes")

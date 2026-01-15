@@ -6,7 +6,7 @@ import java.util.Optional;
 
 import java.util.stream.Collectors;
 
-
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
@@ -18,12 +18,14 @@ import unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence.e
 import unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence.repository.AsignaturaJpaRepository;
 import unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence.repository.CursoJpaRepository;
 import unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence.repository.DocenteJpaRepository;
+import unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence.repository.EstudianteJpaRepository;
 import unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence.repository.PeriodoJpaRepository;
 import unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence.repository.MaterialApoyoJpaRepository;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.AreaFormacion;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Asignatura;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Curso;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Docente;
+import unicauca.edu.co.ms_gestion_maticula.domain.model.Estudiante;
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.out.CursoRepository;
 
 @Component
@@ -35,6 +37,9 @@ public class CursoJpaAdapter implements CursoRepository {
     private final DocenteJpaRepository docenteRepo;
     private final PeriodoJpaRepository periodoRepo;
     private final MaterialApoyoJpaRepository materialRepo;
+    private final EstudianteJpaRepository estudianteRepo;
+    @Value("${app.matricula.umbral-ganado}")
+    private double umbralGanado;
 
     @Override
     public boolean existsByGrupoAndPeriodoIdAndAsignaturaId(String grupo, Long periodoId, Long asignaturaId) {
@@ -141,7 +146,11 @@ public class CursoJpaAdapter implements CursoRepository {
                 .toList();
     }
     
-
+    public List<Estudiante> findEstudiantesDisponiblesPorAsignatura(Long asignaturaId, Long periodoId) {
+        return estudianteRepo.findEstudiantesDisponiblesPorAsignatura(asignaturaId, periodoId, umbralGanado).stream()
+                .map(Estudiante::fromEntity)
+                .toList();
+    }
     
 
 }

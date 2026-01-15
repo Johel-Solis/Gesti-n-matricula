@@ -11,6 +11,7 @@ import unicauca.edu.co.ms_gestion_maticula.domain.request.CursoRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.AsignaturaResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.CursoResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.DocenteResponse;
+import unicauca.edu.co.ms_gestion_maticula.domain.response.EstudianteResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.service.CursoServiceImpl;
 import unicauca.edu.co.ms_gestion_maticula.infrastructure.utils.ApiResponse;
 
@@ -89,5 +90,18 @@ public class CursoController {
     public ResponseEntity<ApiResponse> cursosDisponibles(@PathVariable Long idEstudiante, @RequestParam(required = false) Long idArea) {
         List<CursoResponse> cursos = cursoService.obtenerCursosDisponibles(idEstudiante,idArea);
         return ResponseEntity.ok(new ApiResponse("SUCCESS", "Lista de cursos disponibles", cursos, 200));
+    }
+
+      /**
+     * 
+     * Endpoint para obtener estudiantes disponibles para una asignatura
+     *  
+     */ 
+    @GetMapping("/disponibles-estudiantes/asignatura/{asignaturaId}")
+    public ResponseEntity<ApiResponse> obtenerEstudiantesDisponibles(
+            @PathVariable Long asignaturaId) {
+        List<EstudianteResponse> estudiantes = cursoService.obtenerEstudiantesDisponiblesPorCursoAsignatura(asignaturaId);
+        
+        return ResponseEntity.ok(new ApiResponse("SUCCESS", "Estudiantes disponibles encontrados", estudiantes, 200));
     }
 }

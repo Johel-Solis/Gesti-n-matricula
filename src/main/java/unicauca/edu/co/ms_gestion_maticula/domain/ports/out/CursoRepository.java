@@ -7,6 +7,7 @@ import unicauca.edu.co.ms_gestion_maticula.domain.model.AreaFormacion;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Asignatura;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Curso;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Docente;
+import unicauca.edu.co.ms_gestion_maticula.domain.model.Estudiante;
 
 public interface CursoRepository {
 
@@ -22,5 +23,7 @@ public interface CursoRepository {
     List<Asignatura> findAsignaturasByStatus(Boolean status, Long idArea);
     List<Docente> findDocentesByAsignaturaId(Long asignaturaId);
     List<Curso> getCursosByAsignaturaIds(List<Long> asignaturaIds, Long periodoId);
+
+    List<Estudiante> findEstudiantesDisponiblesPorAsignatura(Long asignaturaId, Long periodoId);
 
 }

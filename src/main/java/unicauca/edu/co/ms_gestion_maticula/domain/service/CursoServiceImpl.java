@@ -20,14 +20,17 @@ import unicauca.edu.co.ms_gestion_maticula.domain.model.AreaFormacion;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Asignatura;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Curso;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Docente;
+import unicauca.edu.co.ms_gestion_maticula.domain.model.Estudiante;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.PeriodoAcademico;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.MaterialApoyo;
+import unicauca.edu.co.ms_gestion_maticula.domain.model.Matricula;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.CursoRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.AsignaturaResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.CursoResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.DocenteResponse;
+import unicauca.edu.co.ms_gestion_maticula.domain.response.EstudianteResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MaterialApoyoResponse;
-
+import unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence.MatriculaJpaAdapter;
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.In.CusoService;
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.In.MatriculaService;
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.out.CursoRepository;
@@ -49,6 +52,8 @@ public class CursoServiceImpl implements CusoService {
     private final MaterialApoyoRepository materialApoyoRepository;
 
     private final MatriculaService matriculaService;
+
+    private final MatriculaJpaAdapter matriculaRepository;
 
     @Autowired
     @Qualifier("messageResourceMatricula")
@@ -338,6 +343,22 @@ public class CursoServiceImpl implements CusoService {
         return cursos.stream()
                 .map(c -> modelMapper.map(c, CursoResponse.class))
                 .toList();
+        }
+
+    @Override
+    public List<EstudianteResponse> obtenerEstudiantesDisponiblesPorCursoAsignatura(Long asignaturaId) {
+        cursoRepository.findAsignaturaById(asignaturaId)
+                .orElseThrow(() -> new EntityNotFoundException("Asignatura no encontrado con ID: " + asignaturaId));
+
+        PeriodoAcademico periodoActivo = periodoAcademicoRepository.findPeriodoActivo()
+                .orElseThrow(() -> new IllegalArgumentException("No hay periodo académico activo"));
+
+        List<Estudiante> estudiantes = cursoRepository.findEstudiantesDisponiblesPorAsignatura(asignaturaId, periodoActivo.getId());
+
+        return estudiantes.stream()
+                .map(c -> modelMapper.map(c, EstudianteResponse.class))
+                .toList();
+        
     }
 
    

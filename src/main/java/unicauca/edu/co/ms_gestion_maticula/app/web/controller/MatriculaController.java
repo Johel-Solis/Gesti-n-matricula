@@ -18,6 +18,7 @@ import unicauca.edu.co.ms_gestion_maticula.domain.request.MatriculaCursoEstudian
 import unicauca.edu.co.ms_gestion_maticula.domain.request.MatriculaEstudianteCursosRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.AsignaturaResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.EstudianteMatriculaResponse;
+import unicauca.edu.co.ms_gestion_maticula.domain.response.EstudianteResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaAgrupadaResonse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaBatchResultResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaCursoResponse;
@@ -160,20 +161,6 @@ public class MatriculaController {
         
         return ResponseEntity.ok(new ApiResponse("SUCCESS", "Estudiantes matriculados encontrados", estudiantes, 200));
     }
-
-     /**
-     * 
-     * Endpoint para obtener estudiantes disponibles para un curso
-     *  
-     */ 
-    @GetMapping("/estudiantes-disponibles")
-    public ResponseEntity<ApiResponse> obtenerEstudiantesDisponibles(
-            @RequestParam(required = false) Long cursoId) {
-        List<EstudianteMatriculaResponse> estudiantes = matriculaService.obtenerEstudiantesDisponibles(cursoId);
-        
-        return ResponseEntity.ok(new ApiResponse("SUCCESS", "Estudiantes disponibles encontrados", estudiantes, 200));
-    }
-
 
 
     

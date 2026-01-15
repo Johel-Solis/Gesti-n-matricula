@@ -21,7 +21,9 @@ import unicauca.edu.co.ms_gestion_maticula.domain.model.Estudiante;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Matricula;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.MatriculaCurso;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.PeriodoAcademico;
+import unicauca.edu.co.ms_gestion_maticula.domain.request.CursoMatriculaEstudiantesRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.CursoMatriculaRequest;
+import unicauca.edu.co.ms_gestion_maticula.domain.request.EstudianteMatriculaRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.ListEstudianteRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.MatriculaCursoEstudiantesRequests;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.MatriculaEstudianteCursosRequest;
@@ -88,7 +90,6 @@ public class MatriculaServiceImpl implements MatriculaService {
     @Override
     public MatriculaEstudianteCursosResponse matriculaEstudianteCursos(MatriculaEstudianteCursosRequest request) {
 
-        System.out.println("Procesando matrícula para el estudiante ID: " + request.getEstudianteId());
         if (request == null || request.getEstudianteId() == null) {
             throw new IllegalArgumentException("La solicitud de matrícula es requerida");
         }
@@ -107,7 +108,7 @@ public class MatriculaServiceImpl implements MatriculaService {
                 matriculaPorCursoId.put(matricula.getCurso().getId(), matricula);
             }
         }
-        System.out.println("Matrículas existentes encontradas: " + matriculasExistentes.size());
+        
 
         List<MatriculaNoRealizadaResponse> fallidos = new ArrayList<>();
 
@@ -124,11 +125,11 @@ public class MatriculaServiceImpl implements MatriculaService {
             solicitudesPorCursoId.putIfAbsent(cursoRequest.getCursoId(), cursoRequest);
         }
 
-        System.out.println("Solicitudes de matrícula recibidas: " + solicitudesPorCursoId.size());
+        
 
         List<Matricula> matriculasEliminadas = new ArrayList<>();
         for (Matricula matricula : matriculasExistentes) {
-            System.out.println("Revisando matrícula existente ID: " + matricula.getId());
+            
             Long cursoId = matricula.getCurso() != null ? matricula.getCurso().getId() : null;
             if (cursoId != null && !solicitudesPorCursoId.containsKey(cursoId)) {
                 matriculaRepository.deleteById(matricula.getId());
@@ -141,7 +142,7 @@ public class MatriculaServiceImpl implements MatriculaService {
             Long cursoId = cursoRequest.getCursoId();
             Matricula existente = matriculaPorCursoId.get(cursoId);
             if (existente != null) {
-                System.out.println("El estudiante ya está matriculado en el curso ID: " + cursoId);
+                
                 if (cursoRequest.getObservacion() != null &&
                         !Objects.equals(cursoRequest.getObservacion(), existente.getObservacion())) {
                     existente.setObservacion(cursoRequest.getObservacion());
@@ -185,8 +186,94 @@ public class MatriculaServiceImpl implements MatriculaService {
 
 
     @Override
-    public MatriculaBatchResultResponse matricularCursoEstudiantes(MatriculaCursoEstudiantesRequests requests) {
-        return matricularEstudiantesEnCursos(requests);
+    public MatriculaEstudianteCursosResponse matricularCursoEstudiantes(CursoMatriculaEstudiantesRequest request) {
+          if (request == null || request.getCursoId() == null) {
+            throw new IllegalArgumentException("La solicitud de matrícula es requerida");
+        }
+        // Validar periodo de matrícula
+        validarPeriodoMatricula();
+
+        Curso curso = validarYObtenerCurso(request.getCursoId());
+
+        List<Matricula> matriculasExistentes = matriculaRepository.findByCursoIdAndPeriodoId(request.getCursoId(),curso.getPeriodo().getId());
+        
+        Map<Long, Matricula> matriculaPorEstudianteId = new HashMap<>();
+        for (Matricula matricula : matriculasExistentes) {
+            if (matricula.getEstudiante() != null && matricula.getEstudiante().getId() != null) {
+                matriculaPorEstudianteId.put(matricula.getEstudiante().getId(), matricula);
+            }
+        }
+    
+
+        List<MatriculaNoRealizadaResponse> fallidos = new ArrayList<>();
+
+        Map<Long, EstudianteMatriculaRequest> solicitudesPorEstudianteId = new HashMap<>();
+        for (EstudianteMatriculaRequest estudianteRequest : request.getEstudiantes()) {
+            if (estudianteRequest == null || estudianteRequest.getEstudianteId() == null) {
+                fallidos.add(MatriculaNoRealizadaResponse.builder()
+                        .estudiante(null)
+                        .curso(modelMapper.map(curso, CursoResponse.class))
+                        .motivo("El estudianteId es requerido")
+                        .build());
+                continue;
+            }
+            solicitudesPorEstudianteId.putIfAbsent(estudianteRequest.getEstudianteId(), estudianteRequest);
+        }
+
+        List<Matricula> matriculasEliminadas = new ArrayList<>();
+        for (Matricula matricula : matriculasExistentes) {
+            Long estudianteId = matricula.getEstudiante() != null ? matricula.getEstudiante().getId() : null;
+            if (estudianteId != null && !solicitudesPorEstudianteId.containsKey(estudianteId)) {
+                matriculaRepository.deleteById(matricula.getId());
+                matriculasEliminadas.add(matricula);
+            }
+        }
+
+        List<Matricula> matriculasProcesadas = new ArrayList<>();
+        for (EstudianteMatriculaRequest estudianteRequest : request.getEstudiantes()) {
+            Long estudianteId = estudianteRequest.getEstudianteId();
+            Matricula existente = matriculaPorEstudianteId.get(estudianteId);
+            if (existente != null) {
+                
+                if (estudianteRequest.getObservacion() != null &&
+                        !Objects.equals(estudianteRequest.getObservacion(), existente.getObservacion())) {
+                    existente.setObservacion(estudianteRequest.getObservacion());
+                    existente = matriculaRepository.update(existente);
+                    matriculasProcesadas.add(existente);
+                }else {
+                    Estudiante estudiante =matriculaRepository.getEstudianteByIdAndEstado(estudianteRequest.getEstudianteId(), EstadoEstudianteMaestria.ACTIVO)
+                .orElseThrow(null);
+                    fallidos.add(MatriculaNoRealizadaResponse.builder()
+                            .estudiante(modelMapper.map(estudiante, EstudianteResponse.class))
+                            .curso(modelMapper.map(curso, CursoResponse.class))
+                            .motivo("El estudiante ya está matriculado en este curso")
+                            .build());
+                }
+                
+                continue;
+            }
+
+            try {
+            validarMatriculaEstudiantes(estudianteRequest.getEstudianteId(), curso.getId());
+            Matricula matricula = crearMatricula(estudianteRequest.getEstudianteId(), curso, estudianteRequest.getObservacion());
+            Matricula matriculaResult = matriculaRepository.save(matricula);
+            matriculasProcesadas.add(matriculaResult);
+            } catch (Exception e) {
+                Estudiante estudiante =matriculaRepository.getEstudianteByIdAndEstado(estudianteRequest.getEstudianteId(), EstadoEstudianteMaestria.ACTIVO)
+                .orElseThrow(null);
+                fallidos.add(MatriculaNoRealizadaResponse.builder()
+                        .estudiante(modelMapper.map(estudiante, EstudianteResponse.class))
+                        .curso(modelMapper.map(curso, CursoResponse.class))
+                        .motivo(e.getMessage())
+                        .build());
+            }
+        }
+
+        return MatriculaEstudianteCursosResponse.builder()
+                .matriculasProcesadas(toMatriculaResponse(matriculasProcesadas))
+                .matriculasNoProcesadas(fallidos)
+                .matriculasEliminadas(toMatriculaResponse(matriculasEliminadas))
+                .build();
     }
 
     @Override

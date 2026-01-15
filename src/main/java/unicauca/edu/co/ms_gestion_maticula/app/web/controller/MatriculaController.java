@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Asignatura;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Matricula;
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.In.MatriculaService;
+import unicauca.edu.co.ms_gestion_maticula.domain.request.CursoMatriculaEstudiantesRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.ListEstudianteRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.MatriculaCursoEstudiantesRequests;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.MatriculaEstudianteCursosRequest;
@@ -59,8 +60,8 @@ public class MatriculaController {
      */
     @PostMapping("/curso")
     public ResponseEntity<ApiResponse> matricularCursoEstudiantes(
-            @Validated @RequestBody MatriculaCursoEstudiantesRequests requests) {
-        MatriculaBatchResultResponse resultado = matriculaService.matricularCursoEstudiantes(requests);
+            @Validated @RequestBody CursoMatriculaEstudiantesRequest requests) {
+       MatriculaEstudianteCursosResponse resultado = matriculaService.matricularCursoEstudiantes(requests);
         return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse("SUCCESS", "Matrículas del curso procesadas", resultado, 201));
     }
 

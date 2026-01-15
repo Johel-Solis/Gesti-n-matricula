@@ -12,12 +12,13 @@ import unicauca.edu.co.ms_gestion_maticula.domain.response.EstudianteResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaAgrupadaResonse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaBatchResultResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaCursoResponse;
+import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaEstudianteCursosResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaResponse;
 
 public interface MatriculaService {
 
     MatriculaBatchResultResponse matricularEstudiantesEnCursos(MatriculaCursoEstudiantesRequests requests);
-    List<MatriculaResponse> matriculaEstudianteCursos(MatriculaEstudianteCursosRequest request);
+    MatriculaEstudianteCursosResponse matriculaEstudianteCursos(MatriculaEstudianteCursosRequest request);
     MatriculaBatchResultResponse matricularCursoEstudiantes(MatriculaCursoEstudiantesRequests requests);
 
     Boolean validarMatriculaEstudiantes(Long estudianteId, Long cursoId);

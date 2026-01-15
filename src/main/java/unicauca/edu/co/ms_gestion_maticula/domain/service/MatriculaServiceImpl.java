@@ -2,7 +2,10 @@ package unicauca.edu.co.ms_gestion_maticula.domain.service;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -32,6 +35,7 @@ import unicauca.edu.co.ms_gestion_maticula.domain.response.EstudianteResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaAgrupadaResonse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaBatchResultResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaCursoResponse;
+import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaEstudianteCursosResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaNoRealizadaResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.PeriodoAcademicoResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaResponse;
@@ -62,7 +66,7 @@ public class MatriculaServiceImpl implements MatriculaService {
         // Procesar cada solicitud de matrícula
         for (MatriculaEstudianteCursosRequest solicitud : requests.getMatriculaEstudianteCursos()) {
             try {
-                exitos.addAll(matriculaEstudianteCursos(solicitud));
+                exitos.addAll(matriculaEstudianteCursos(solicitud).getMatriculasProcesadas());
             } catch (Exception e) {
                 CursoResponse cursoResponse = cursoRepository.findCursoById(obtenerCursoIdPrimerIntento(solicitud))
                         .map(curso -> modelMapper.map(curso, CursoResponse.class))
@@ -82,31 +86,107 @@ public class MatriculaServiceImpl implements MatriculaService {
     }
 
     @Override
-    public List<MatriculaResponse> matriculaEstudianteCursos(MatriculaEstudianteCursosRequest request) {
+    public MatriculaEstudianteCursosResponse matriculaEstudianteCursos(MatriculaEstudianteCursosRequest request) {
+
+        System.out.println("Procesando matrícula para el estudiante ID: " + request.getEstudianteId());
         if (request == null || request.getEstudianteId() == null) {
             throw new IllegalArgumentException("La solicitud de matrícula es requerida");
         }
-        
+
         if (request.getCursos() == null || request.getCursos().isEmpty()) {
             throw new IllegalArgumentException("Debe especificar al menos un curso para matricular");
         }
-        
+
         // Validar periodo de matrícula
         validarPeriodoMatricula();
-        List<Matricula> matriculas = new ArrayList<>();
-        // Validar cada curso antes de proceder con las matrículas
-        for (CursoMatriculaRequest cursoRequest : request.getCursos()) {
-            validarMatriculaEstudiantes(request.getEstudianteId(), cursoRequest.getCursoId());
-            System.out.println("Curso validado: " + cursoRequest.getCursoId());
-            Curso curso = validarYObtenerCurso(cursoRequest.getCursoId());
-            // Realizar las matrículas
-            Matricula matricula = crearMatricula(request.getEstudianteId(), curso, cursoRequest.getObservacion());
-            Matricula matriculaResult=matriculaRepository.save(matricula);
-            matriculas.add(matriculaResult);
+
+        Estudiante estudiante =matriculaRepository.getEstudianteByIdAndEstado(request.getEstudianteId(), EstadoEstudianteMaestria.ACTIVO)
+                .orElseThrow(() -> new EntityNotFoundException("No está activo o no existe el estudiante con ID: " + request.getEstudianteId()));
+
+        List<Matricula> matriculasExistentes = matriculaRepository.findByEstudianteIdAndPeriodoActivo(request.getEstudianteId());
+
+        Map<Long, Matricula> matriculaPorCursoId = new HashMap<>();
+        for (Matricula matricula : matriculasExistentes) {
+            if (matricula.getCurso() != null && matricula.getCurso().getId() != null) {
+                matriculaPorCursoId.put(matricula.getCurso().getId(), matricula);
+            }
         }
-        
-        return toMatriculaResponse(matriculas);
+        System.out.println("Matrículas existentes encontradas: " + matriculasExistentes.size());
+
+        List<MatriculaNoRealizadaResponse> fallidos = new ArrayList<>();
+
+        Map<Long, CursoMatriculaRequest> solicitudesPorCursoId = new HashMap<>();
+        for (CursoMatriculaRequest cursoRequest : request.getCursos()) {
+            if (cursoRequest == null || cursoRequest.getCursoId() == null) {
+                fallidos.add(MatriculaNoRealizadaResponse.builder()
+                        .estudiante(modelMapper.map(estudiante, EstudianteResponse.class))
+                        .curso(null)
+                        .motivo("El cursoId es requerido")
+                        .build());
+                continue;
+            }
+            solicitudesPorCursoId.putIfAbsent(cursoRequest.getCursoId(), cursoRequest);
+        }
+
+        System.out.println("Solicitudes de matrícula recibidas: " + solicitudesPorCursoId.size());
+
+        List<Matricula> matriculasEliminadas = new ArrayList<>();
+        for (Matricula matricula : matriculasExistentes) {
+            System.out.println("Revisando matrícula existente ID: " + matricula.getId());
+            Long cursoId = matricula.getCurso() != null ? matricula.getCurso().getId() : null;
+            if (cursoId != null && !solicitudesPorCursoId.containsKey(cursoId)) {
+                matriculaRepository.deleteById(matricula.getId());
+                matriculasEliminadas.add(matricula);
+            }
+        }
+
+        List<Matricula> matriculasProcesadas = new ArrayList<>();
+        for (CursoMatriculaRequest cursoRequest : request.getCursos()) {
+            Long cursoId = cursoRequest.getCursoId();
+            Matricula existente = matriculaPorCursoId.get(cursoId);
+            if (existente != null) {
+                System.out.println("El estudiante ya está matriculado en el curso ID: " + cursoId);
+                if (cursoRequest.getObservacion() != null &&
+                        !Objects.equals(cursoRequest.getObservacion(), existente.getObservacion())) {
+                    existente.setObservacion(cursoRequest.getObservacion());
+                    existente = matriculaRepository.update(existente);
+                    matriculasProcesadas.add(existente);
+                }else {
+                    fallidos.add(MatriculaNoRealizadaResponse.builder()
+                            .estudiante(modelMapper.map(estudiante, EstudianteResponse.class))
+                            .curso(modelMapper.map(existente.getCurso(), CursoResponse.class))
+                            .motivo("El estudiante ya está matriculado en este curso")
+                            .build());
+                }
+                
+                continue;
+            }
+
+            try {
+            validarMatriculaEstudiantes(request.getEstudianteId(), cursoId);
+            Curso curso = validarYObtenerCurso(cursoId);
+            Matricula matricula = crearMatricula(request.getEstudianteId(), curso, cursoRequest.getObservacion());
+            Matricula matriculaResult = matriculaRepository.save(matricula);
+            matriculasProcesadas.add(matriculaResult);
+            } catch (Exception e) {
+                CursoResponse cursoResponse = cursoRepository.findCursoById(cursoId)
+                        .map(curso -> modelMapper.map(curso, CursoResponse.class))
+                        .orElse(null);
+                fallidos.add(MatriculaNoRealizadaResponse.builder()
+                        .estudiante(modelMapper.map(estudiante, EstudianteResponse.class))
+                        .curso(cursoResponse)
+                        .motivo(e.getMessage())
+                        .build());
+            }
+        }
+
+        return MatriculaEstudianteCursosResponse.builder()
+                .matriculasProcesadas(toMatriculaResponse(matriculasProcesadas))
+                .matriculasNoProcesadas(fallidos)
+                .matriculasEliminadas(toMatriculaResponse(matriculasEliminadas))
+                .build();
     }
+
 
     @Override
     public MatriculaBatchResultResponse matricularCursoEstudiantes(MatriculaCursoEstudiantesRequests requests) {

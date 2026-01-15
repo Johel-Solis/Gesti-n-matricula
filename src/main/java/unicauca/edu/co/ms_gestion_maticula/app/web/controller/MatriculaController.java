@@ -18,10 +18,10 @@ import unicauca.edu.co.ms_gestion_maticula.domain.request.MatriculaCursoEstudian
 import unicauca.edu.co.ms_gestion_maticula.domain.request.MatriculaEstudianteCursosRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.AsignaturaResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.EstudianteMatriculaResponse;
-import unicauca.edu.co.ms_gestion_maticula.domain.response.EstudianteResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaAgrupadaResonse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaBatchResultResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaCursoResponse;
+import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaEstudianteCursosResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaResponse;
 import unicauca.edu.co.ms_gestion_maticula.infrastructure.utils.ApiResponse;
 
@@ -50,7 +50,7 @@ public class MatriculaController {
     @PostMapping("/estudiante")
     public ResponseEntity<ApiResponse> matricularEstudianteCursos(
             @Validated @RequestBody MatriculaEstudianteCursosRequest request) {
-        List<MatriculaResponse> resultado = matriculaService.matriculaEstudianteCursos(request);
+        MatriculaEstudianteCursosResponse resultado = matriculaService.matriculaEstudianteCursos(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse("SUCCESS", "Matrícula del estudiante procesada", resultado, 201));
     }
 

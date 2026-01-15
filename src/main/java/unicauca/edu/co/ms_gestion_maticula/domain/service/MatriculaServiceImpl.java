@@ -93,10 +93,6 @@ public class MatriculaServiceImpl implements MatriculaService {
             throw new IllegalArgumentException("La solicitud de matrícula es requerida");
         }
 
-        if (request.getCursos() == null || request.getCursos().isEmpty()) {
-            throw new IllegalArgumentException("Debe especificar al menos un curso para matricular");
-        }
-
         // Validar periodo de matrícula
         validarPeriodoMatricula();
 

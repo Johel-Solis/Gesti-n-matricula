@@ -15,9 +15,9 @@ import lombok.NoArgsConstructor;
 public class MatriculaBatchResultResponse {
 
     @Builder.Default
-    private List<MatriculaResponse> matriculasRealizadas = new ArrayList<>();
+    private List<MatriculaResponse> matriculasProcesadas = new ArrayList<>();
 
     @Builder.Default
-    private List<MatriculaNoRealizadaResponse> matriculasNoRealizadas = new ArrayList<>();
+    private List<MatriculaNoRealizadaResponse> matriculasNoProcesadas = new ArrayList<>();
 }
 

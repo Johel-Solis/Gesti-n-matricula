@@ -61,10 +61,9 @@ public class MatriculaServiceImpl implements MatriculaService {
             requests.getMatriculaEstudianteCursos().isEmpty()) {
             throw new IllegalArgumentException("Debe especificar al menos una solicitud de matrícula");
         }
-        
+    
         List<MatriculaResponse> exitos = new ArrayList<>();
         List<MatriculaNoRealizadaResponse> fallidos = new ArrayList<>();
-
         // Procesar cada solicitud de matrícula
         for (MatriculaEstudianteCursosRequest solicitud : requests.getMatriculaEstudianteCursos()) {
             
@@ -90,10 +89,9 @@ public class MatriculaServiceImpl implements MatriculaService {
                 }
             }
         }
-
         return MatriculaBatchResultResponse.builder()
-                .matriculasRealizadas(exitos)
-                .matriculasNoRealizadas(fallidos)
+                .matriculasProcesadas(exitos)
+                .matriculasNoProcesadas(fallidos)
                 .build();
     }
 

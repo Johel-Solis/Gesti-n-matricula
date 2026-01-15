@@ -361,6 +361,15 @@ public class CursoServiceImpl implements CusoService {
         
     }
 
+    @Override
+    public List<EstudianteResponse> obtenerEstudiantesActivos() {
+        List<Estudiante> estudiantes = cursoRepository.getEstudiantesActivos();
+
+        return estudiantes.stream()
+                .map(e -> modelMapper.map(e, EstudianteResponse.class))
+                .toList();
+    }
+
    
 
 }

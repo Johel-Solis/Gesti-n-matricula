@@ -25,5 +25,6 @@ public interface CursoRepository {
     List<Curso> getCursosByAsignaturaIds(List<Long> asignaturaIds, Long periodoId);
 
     List<Estudiante> findEstudiantesDisponiblesPorAsignatura(Long asignaturaId, Long periodoId);
+    List<Estudiante> getEstudiantesActivos();
 
 }

@@ -151,6 +151,12 @@ public class CursoJpaAdapter implements CursoRepository {
                 .map(Estudiante::fromEntity)
                 .toList();
     }
+
+    public List<Estudiante> getEstudiantesActivos() {
+        return estudianteRepo.getEstudiantesActivos().stream()
+                .map(Estudiante::fromEntity)
+                .toList();
+    }
     
 
 }

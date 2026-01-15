@@ -104,4 +104,12 @@ public class CursoController {
         
         return ResponseEntity.ok(new ApiResponse("SUCCESS", "Estudiantes disponibles encontrados", estudiantes, 200));
     }
+
+    @GetMapping("/estudiantes/activos")
+    public ResponseEntity<ApiResponse> obtenerEstudiantesActivos() {
+        List<EstudianteResponse> estudiantes = cursoService.obtenerEstudiantesActivos();
+        
+        return ResponseEntity.ok(new ApiResponse("SUCCESS", "Estudiantes activos encontrados", estudiantes, 200));
+    }
+    
 }

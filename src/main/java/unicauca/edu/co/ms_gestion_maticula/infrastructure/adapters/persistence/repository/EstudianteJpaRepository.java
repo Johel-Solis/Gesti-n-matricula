@@ -50,4 +50,8 @@ public interface EstudianteJpaRepository extends JpaRepository<EstudianteEntity,
             @Param("idPeriodo") Long idPeriodo,
             @Param("notaMinima") double notaMinima);
 
+
+    @Query("SELECT e FROM EstudianteEntity e WHERE e.informacionMaestria.estadoMaestria = 'ACTIVO'")
+    List<EstudianteEntity> getEstudiantesActivos();
+
 }

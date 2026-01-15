@@ -67,17 +67,27 @@ public class MatriculaServiceImpl implements MatriculaService {
 
         // Procesar cada solicitud de matrícula
         for (MatriculaEstudianteCursosRequest solicitud : requests.getMatriculaEstudianteCursos()) {
-            try {
-                exitos.addAll(matriculaEstudianteCursos(solicitud).getMatriculasProcesadas());
-            } catch (Exception e) {
-                CursoResponse cursoResponse = cursoRepository.findCursoById(obtenerCursoIdPrimerIntento(solicitud))
-                        .map(curso -> modelMapper.map(curso, CursoResponse.class))
-                        .orElse(null);
-                fallidos.add(MatriculaNoRealizadaResponse.builder()
-                        .estudiante(modelMapper.map(matriculaRepository.getEstudianteById(solicitud.getEstudianteId()).orElse(null), EstudianteResponse.class))
-                        .curso(cursoResponse)
-                        .motivo(e.getMessage())
-                        .build());
+            
+            for (CursoMatriculaRequest cursoRequest : solicitud.getCursos()) {
+                Long cursoId = cursoRequest.getCursoId();
+                try {
+                validarMatriculaEstudiantes(solicitud.getEstudianteId(), cursoId);
+                Curso curso = validarYObtenerCurso(cursoId);
+                Matricula matricula = crearMatricula(solicitud.getEstudianteId(), curso, cursoRequest.getObservacion());
+                Matricula matriculaResult = matriculaRepository.save(matricula);
+                exitos.add(modelMapper.map(matriculaResult, MatriculaResponse.class));
+                } catch (Exception e) {
+                    CursoResponse cursoResponse = cursoRepository.findCursoById(cursoId)
+                            .map(curso -> modelMapper.map(curso, CursoResponse.class))
+                            .orElse(null);
+                    Estudiante estudiante =matriculaRepository.getEstudianteByIdAndEstado(solicitud.getEstudianteId(), EstadoEstudianteMaestria.ACTIVO)
+                    .orElseThrow(null);
+                    fallidos.add(MatriculaNoRealizadaResponse.builder()
+                            .estudiante(modelMapper.map(estudiante, EstudianteResponse.class))
+                            .curso(cursoResponse)
+                            .motivo(e.getMessage())
+                            .build());
+                }
             }
         }
 
@@ -555,6 +565,7 @@ public class MatriculaServiceImpl implements MatriculaService {
         }
         return solicitud.getCursos().get(0).getCursoId();
     }
+    
 
     private List<MatriculaResponse> toMatriculaResponse(List<Matricula> matriculas) {
         return matriculas.stream()

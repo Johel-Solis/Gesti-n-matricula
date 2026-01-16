@@ -66,5 +66,12 @@ public class EstudianteDocenteJpaAdapter implements EstudianteDocenteRepository 
         throw new UnsupportedOperationException("Unimplemented method 'findDocentesByIds'");
     }
 
+    @Override
+    public List<Estudiante> findEstudiantesByTutor(Long tutorId) {
+       List<Estudiante> estudiantes = estudianteRepo.findByTutor(tutorId).stream()
+                .map(Estudiante::fromEntity)
+                .toList();
+        return estudiantes;
+    }
 
 }

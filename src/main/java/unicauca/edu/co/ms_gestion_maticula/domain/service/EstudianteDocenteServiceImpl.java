@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.TutorEstudiante;
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.In.EstudianteDocenteService;
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.out.EstudianteDocenteRepository;
+import unicauca.edu.co.ms_gestion_maticula.domain.response.EstudianteResponse;
 
 
 @Service
@@ -28,6 +29,14 @@ public class EstudianteDocenteServiceImpl implements EstudianteDocenteService {
         return estudianteDocenteRepo.getDirectores();
                 
         
+    }
+
+    @Override
+    public List<EstudianteResponse> getEstudiantesByTutor(Long tutorId) {
+        List<EstudianteResponse> estudiantes = estudianteDocenteRepo.findEstudiantesByTutor(tutorId).stream()
+                .map(estudiante -> modelMapper.map(estudiante, EstudianteResponse.class))
+                .toList();
+        return estudiantes;
     }
 
 }

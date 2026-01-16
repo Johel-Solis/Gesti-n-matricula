@@ -1,15 +1,11 @@
 package unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence.repository;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-
 import unicauca.edu.co.ms_gestion_maticula.domain.enums.EstadoEstudianteMaestria;
-import unicauca.edu.co.ms_gestion_maticula.domain.model.Estudiante;
 import unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence.entity.EstudianteEntity;
 
 public interface EstudianteJpaRepository extends JpaRepository<EstudianteEntity, Long> {
@@ -53,5 +49,9 @@ public interface EstudianteJpaRepository extends JpaRepository<EstudianteEntity,
 
     @Query("SELECT e FROM EstudianteEntity e WHERE e.informacionMaestria.estadoMaestria = 'ACTIVO'")
     List<EstudianteEntity> getEstudiantesActivos();
+
+
+    @Query("SELECT de.estudiante FROM DocenteEstudiante de WHERE de.docente.id = :tutorId")
+    List<EstudianteEntity> findByTutor(Long tutorId);
 
 }

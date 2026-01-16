@@ -1,0 +1,69 @@
+package unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.stereotype.Component;
+
+import lombok.RequiredArgsConstructor;
+import unicauca.edu.co.ms_gestion_maticula.domain.enums.EstadoEstudianteMaestria;
+import unicauca.edu.co.ms_gestion_maticula.domain.model.Docente;
+import unicauca.edu.co.ms_gestion_maticula.domain.model.Estudiante;
+import unicauca.edu.co.ms_gestion_maticula.domain.ports.out.EstudianteDocenteRepository;
+import unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence.repository.DocenteJpaRepository;
+import unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence.repository.EstudianteJpaRepository;
+
+@Component
+@RequiredArgsConstructor
+public class EstudianteDocenteJpaAdapter implements EstudianteDocenteRepository {
+
+    private final EstudianteJpaRepository estudianteRepo;
+    private final DocenteJpaRepository docenteRepo;
+
+    @Override
+    public Optional<Estudiante> getEstudianteById(Long estudianteId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getEstudianteById'");
+    }
+
+    @Override
+    public Optional<Estudiante> getEstudianteByIdAndEstado(Long estudianteId, EstadoEstudianteMaestria estado) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getEstudianteByIdAndEstado'");
+    }
+
+    @Override
+    public List<Docente> getDirectores() {
+
+        List<Docente> directores = docenteRepo.getDirectores().stream()
+                .map(Docente::fromEntity)
+                .toList();
+        return directores;
+    }
+
+    @Override
+    public List<Estudiante> findEstudiantesDisponiblesPorAsignatura(Long asignaturaId, Long periodoId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'findEstudiantesDisponiblesPorAsignatura'");
+    }
+
+    @Override
+    public List<Estudiante> getEstudiantesActivos() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getEstudiantesActivos'");
+    }
+
+    @Override
+    public List<Docente> findDocentesByAsignaturaId(Long asignaturaId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'findDocentesByAsignaturaId'");
+    }
+
+    @Override
+    public List<Docente> findDocentesByIds(List<Long> docenteIds) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'findDocentesByIds'");
+    }
+
+
+}

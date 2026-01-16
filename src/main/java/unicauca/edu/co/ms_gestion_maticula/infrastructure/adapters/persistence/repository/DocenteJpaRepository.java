@@ -14,4 +14,7 @@ public interface DocenteJpaRepository extends JpaRepository<DocenteEntity, Long>
 
     @Query("SELECT d FROM DocenteEntity d JOIN DocenteAsignaturaEntity c ON d.id = c.docente.id WHERE c.asignatura.id = :asignaturaId")
     List<DocenteEntity> findByAsignaturaId(Long asignaturaId);
+
+    @Query("SELECT d FROM DocenteEntity d JOIN DocenteEstudiante de ON d.id = de.docente.id WHERE de.tipo = 'Director'")
+    List<DocenteEntity> getDirectores();
 }

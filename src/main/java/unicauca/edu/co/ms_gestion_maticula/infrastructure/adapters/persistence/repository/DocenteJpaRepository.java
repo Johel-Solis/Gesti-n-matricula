@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence.entity.DocenteEntity;
+import unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence.entity.TutorDto;
 
 public interface DocenteJpaRepository extends JpaRepository<DocenteEntity, Long> {
     Optional<DocenteEntity> findByCodigo(String codigo);
@@ -15,6 +16,11 @@ public interface DocenteJpaRepository extends JpaRepository<DocenteEntity, Long>
     @Query("SELECT d FROM DocenteEntity d JOIN DocenteAsignaturaEntity c ON d.id = c.docente.id WHERE c.asignatura.id = :asignaturaId")
     List<DocenteEntity> findByAsignaturaId(Long asignaturaId);
 
-    @Query("SELECT d FROM DocenteEntity d JOIN DocenteEstudiante de ON d.id = de.docente.id WHERE de.tipo = 'Director'")
-    List<DocenteEntity> getDirectores();
+    @Query("""
+        SELECT new  unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence.entity.TutorDto(de.docente, COUNT(de.id))
+        FROM DocenteEstudiante de 
+        WHERE de.tipo = 'Director'
+        group by de.docente
+    """)
+    List<TutorDto> getDirectores();
 }

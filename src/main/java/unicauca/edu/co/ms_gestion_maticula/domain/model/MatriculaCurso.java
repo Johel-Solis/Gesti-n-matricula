@@ -15,9 +15,6 @@ public class MatriculaCurso {
     private Curso curso;
     private Long totalMatriculas;
 
-
-
-
     public MatriculaCurso fromEntity( MatriculaCursoDto entity){
         return MatriculaCurso.builder()
         .curso(entity.getCurso().toDomain())

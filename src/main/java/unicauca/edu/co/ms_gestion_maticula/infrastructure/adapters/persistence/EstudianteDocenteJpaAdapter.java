@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import unicauca.edu.co.ms_gestion_maticula.domain.enums.EstadoEstudianteMaestria;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Docente;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Estudiante;
+import unicauca.edu.co.ms_gestion_maticula.domain.model.TutorEstudiante;
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.out.EstudianteDocenteRepository;
 import unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence.repository.DocenteJpaRepository;
 import unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence.repository.EstudianteJpaRepository;
@@ -33,10 +34,10 @@ public class EstudianteDocenteJpaAdapter implements EstudianteDocenteRepository 
     }
 
     @Override
-    public List<Docente> getDirectores() {
+    public List<TutorEstudiante> getDirectores() {
 
-        List<Docente> directores = docenteRepo.getDirectores().stream()
-                .map(Docente::fromEntity)
+        List<TutorEstudiante> directores = docenteRepo.getDirectores().stream()
+                .map(director -> new TutorEstudiante().fromEntity(director))
                 .toList();
         return directores;
     }

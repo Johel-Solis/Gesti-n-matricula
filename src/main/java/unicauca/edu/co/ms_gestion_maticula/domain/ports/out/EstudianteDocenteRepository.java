@@ -6,12 +6,14 @@ import java.util.Optional;
 import unicauca.edu.co.ms_gestion_maticula.domain.enums.EstadoEstudianteMaestria;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Docente;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Estudiante;
+import unicauca.edu.co.ms_gestion_maticula.domain.model.TutorEstudiante;
+
 
 public interface EstudianteDocenteRepository {
 
     Optional<Estudiante> getEstudianteById(Long estudianteId);
     Optional<Estudiante> getEstudianteByIdAndEstado(Long estudianteId, EstadoEstudianteMaestria estado);
-    List<Docente> getDirectores();
+    List<TutorEstudiante> getDirectores();
     List<Estudiante> findEstudiantesDisponiblesPorAsignatura(Long asignaturaId, Long periodoId);
     List<Estudiante> getEstudiantesActivos();
     List<Docente> findDocentesByAsignaturaId(Long asignaturaId);

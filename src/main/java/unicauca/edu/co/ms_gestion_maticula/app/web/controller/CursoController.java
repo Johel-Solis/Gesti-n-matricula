@@ -7,6 +7,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import unicauca.edu.co.ms_gestion_maticula.domain.model.AreaFormacion;
+import unicauca.edu.co.ms_gestion_maticula.domain.request.CursoReportRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.CursoRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.AsignaturaResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.CursoResponse;
@@ -14,6 +15,7 @@ import unicauca.edu.co.ms_gestion_maticula.domain.response.DocenteResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.EstudianteResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.service.CursoServiceImpl;
 import unicauca.edu.co.ms_gestion_maticula.infrastructure.utils.ApiResponse;
+
 
 @RestController
 @RequestMapping("/api/cursos")
@@ -111,5 +113,18 @@ public class CursoController {
         
         return ResponseEntity.ok(new ApiResponse("SUCCESS", "Estudiantes activos encontrados", estudiantes, 200));
     }
+
+
+    /**
+     * Endpoint para reporte de cursos ofertados
+     */
+
+    @PostMapping("/ofertados/report")
+    public String postMethodName(@RequestBody CursoReportRequest request) {
+        //TODO: process POST request
+        
+        return null;
+    }
+    
     
 }

@@ -101,6 +101,7 @@ public class CursoJpaAdapter implements CursoRepository {
         .salon(curso.getSalon())
         .observacion(curso.getObservacion())
     .materiales(materiales)
+    .estado(curso.isEstado())
         .build();
 
     CursoEntity saved = cursoRepo.save(entity);

@@ -1,8 +1,14 @@
 package unicauca.edu.co.ms_gestion_maticula.domain.service;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -24,17 +30,30 @@ import unicauca.edu.co.ms_gestion_maticula.domain.model.Estudiante;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.PeriodoAcademico;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.MaterialApoyo;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.CursoRequest;
+import unicauca.edu.co.ms_gestion_maticula.domain.request.CursoReportRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.AsignaturaResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.CursoResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.DocenteResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.EstudianteResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MaterialApoyoResponse;
+import unicauca.edu.co.ms_gestion_maticula.domain.response.ReportCursoDto;
 import unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence.MatriculaJpaAdapter;
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.In.CusoService;
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.In.MatriculaService;
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.out.CursoRepository;
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.out.PeriodoAcademicoRepository;
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.out.MaterialApoyoRepository;
+import net.sf.jasperreports.engine.JREmptyDataSource;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperExportManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.data.JRBeanArrayDataSource;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import net.sf.jasperreports.export.SimpleExporterInput;
+import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
+import net.sf.jasperreports.export.SimpleXlsxReportConfiguration;
+import net.sf.jasperreports.engine.export.ooxml.JRXlsxExporter;
 
 @Service
 @RequiredArgsConstructor
@@ -56,20 +75,20 @@ public class CursoServiceImpl implements CusoService {
 
     @Autowired
     @Qualifier("messageResourceMatricula")
-	private MessageSource messageSource; 
+    private MessageSource messageSource;
 
     @Override
     @Transactional
     public CursoResponse crearCurso(CursoRequest request) {
         // 1) Obtener período ACTIVO y asociarlo (si no existe lanzar excepción)
-    PeriodoAcademico periodo = periodoAcademicoRepository.findPeriodoActivo()
-        .orElseThrow(() -> new EntityNotFoundException(msg("curso.error.periodo.activo.noexiste")));
+        PeriodoAcademico periodo = periodoAcademicoRepository.findPeriodoActivo()
+                .orElseThrow(() -> new EntityNotFoundException(msg("curso.error.periodo.activo.noexiste")));
 
         Long periodoActivoId = periodo.getId();
 
         // 2) Validar que la asignatura exista y esté activa
-    Asignatura asignatura = cursoRepository.findAsignaturaById(request.getAsignaturaId())
-        .orElseThrow(() -> new EntityNotFoundException(msg("curso.error.asignatura.noexiste")));
+        Asignatura asignatura = cursoRepository.findAsignaturaById(request.getAsignaturaId())
+                .orElseThrow(() -> new EntityNotFoundException(msg("curso.error.asignatura.noexiste")));
         if (asignatura.getEstado() == null || !asignatura.getEstado()) {
             throw new IllegalArgumentException(msg("curso.error.asignatura.inactiva"));
         }
@@ -95,7 +114,8 @@ public class CursoServiceImpl implements CusoService {
         }
 
         // 4) Validar unicidad (grupo, asignatura, período ACTIVO)
-        if (cursoRepository.existsByGrupoAndPeriodoIdAndAsignaturaId(request.getGrupo(), periodoActivoId, request.getAsignaturaId())) {
+        if (cursoRepository.existsByGrupoAndPeriodoIdAndAsignaturaId(request.getGrupo(), periodoActivoId,
+                request.getAsignaturaId())) {
             throw new IllegalArgumentException(msg("curso.error.unicidad.grupo_asignatura_periodo"));
         }
 
@@ -104,11 +124,12 @@ public class CursoServiceImpl implements CusoService {
 
         // 6) Materiales de apoyo (opcionales) - validar existencia si se enviaron
         Set<MaterialApoyo> materiales = new HashSet<>();
-        if(request.getMaterialApoyoIds()!=null && !request.getMaterialApoyoIds().isEmpty()){
+        if (request.getMaterialApoyoIds() != null && !request.getMaterialApoyoIds().isEmpty()) {
             List<MaterialApoyo> mats = materialApoyoRepository.findAllByIds(request.getMaterialApoyoIds());
             var encontrados = mats.stream().map(MaterialApoyo::getId).collect(Collectors.toSet());
-            List<Long> faltantesMat = request.getMaterialApoyoIds().stream().filter(mid -> !encontrados.contains(mid)).toList();
-            if(!faltantesMat.isEmpty()){
+            List<Long> faltantesMat = request.getMaterialApoyoIds().stream().filter(mid -> !encontrados.contains(mid))
+                    .toList();
+            if (!faltantesMat.isEmpty()) {
                 throw new IllegalArgumentException(msg("curso.error.materiales.noencontrados", faltantesMat));
             }
             materiales.addAll(mats);
@@ -126,58 +147,59 @@ public class CursoServiceImpl implements CusoService {
                 .estado(true)
                 .build();
 
-    Curso result = cursoRepository.saveCurso(curso);
-    CursoResponse resp = modelMapper.map(result, CursoResponse.class);
-    if(result.getMateriales()!=null){
-        resp.setMateriales(result.getMateriales().stream()
-        .map(m -> MaterialApoyoResponse.builder()
-            .id(m.getId())
-            .nombre(m.getNombre())
-            .descripcion(m.getDescripcion())
-            .enlace(m.getEnlace())
-            .build())
-        .toList());
-    }
-    return resp;
+        Curso result = cursoRepository.saveCurso(curso);
+        CursoResponse resp = modelMapper.map(result, CursoResponse.class);
+        if (result.getMateriales() != null) {
+            resp.setMateriales(result.getMateriales().stream()
+                    .map(m -> MaterialApoyoResponse.builder()
+                            .id(m.getId())
+                            .nombre(m.getNombre())
+                            .descripcion(m.getDescripcion())
+                            .enlace(m.getEnlace())
+                            .build())
+                    .toList());
+        }
+        return resp;
     }
 
     @Override
     @Transactional(readOnly = true)
     public CursoResponse obtenerCursoPorId(Long id) {
-    Curso curso = cursoRepository.findCursoById(id)
-        .orElseThrow(() -> new EntityNotFoundException(msg("curso.error.noexiste")));
-    CursoResponse resp = modelMapper.map(curso, CursoResponse.class);
-    if(curso.getMateriales()!=null){
-        resp.setMateriales(curso.getMateriales().stream().map(m -> MaterialApoyoResponse.builder()
-            .id(m.getId())
-            .nombre(m.getNombre())
-            .descripcion(m.getDescripcion())
-            .enlace(m.getEnlace())
-            .build()).toList());
-    }
-    return resp;
+        Curso curso = cursoRepository.findCursoById(id)
+                .orElseThrow(() -> new EntityNotFoundException(msg("curso.error.noexiste")));
+        CursoResponse resp = modelMapper.map(curso, CursoResponse.class);
+        if (curso.getMateriales() != null) {
+            resp.setMateriales(curso.getMateriales().stream().map(m -> MaterialApoyoResponse.builder()
+                    .id(m.getId())
+                    .nombre(m.getNombre())
+                    .descripcion(m.getDescripcion())
+                    .enlace(m.getEnlace())
+                    .build()).toList());
+        }
+        return resp;
     }
 
     @Override
     @Transactional
     public void eliminarCurso(Long id) {
         // Asegurar existencia
-        cursoRepository.findCursoById(id); 
-        //faltan mas validaciones (matriculas asociadas)
+        cursoRepository.findCursoById(id);
+        // faltan mas validaciones (matriculas asociadas)
         cursoRepository.deleteCurso(id);
     }
 
     @Override
     @Transactional
     public CursoResponse actualizarCurso(Long id, CursoRequest request) {
-        // Validaciones similares a crear: periodo activo, asignatura activa, docentes activos, unicidad
-    PeriodoAcademico periodo = periodoAcademicoRepository.findPeriodoActivo()
-        .orElseThrow(() -> new EntityNotFoundException(msg("curso.error.periodo.activo.noexiste")));
+        // Validaciones similares a crear: periodo activo, asignatura activa, docentes
+        // activos, unicidad
+        PeriodoAcademico periodo = periodoAcademicoRepository.findPeriodoActivo()
+                .orElseThrow(() -> new EntityNotFoundException(msg("curso.error.periodo.activo.noexiste")));
         Long periodoActivoId = periodo.getId();
 
         // Verificar que el curso a actualizar pertenece al período ACTIVO
         Curso cursoActual = cursoRepository.findCursoById(id)
-            .orElseThrow(() -> new EntityNotFoundException(msg("curso.error.noexiste")));
+                .orElseThrow(() -> new EntityNotFoundException(msg("curso.error.noexiste")));
         if (cursoActual.getPeriodo() == null || !periodoActivoId.equals(cursoActual.getPeriodo().getId())) {
             throw new IllegalArgumentException(msg("curso.error.curso.no.pertenece.periodo.activo"));
         }
@@ -207,8 +229,10 @@ public class CursoServiceImpl implements CusoService {
         boolean existeEnActivo = cursoRepository.existsByGrupoAndPeriodoIdAndAsignaturaId(
                 request.getGrupo(), periodoActivoId, request.getAsignaturaId());
         if (existeEnActivo) {
-            boolean esMismo = cursoRepository.findAllCursos(Long.valueOf(asignatura.getAreaFormacion()),asignatura.getId(),periodoActivoId).stream()
-                .anyMatch(c -> c.getId().equals(id));
+            boolean esMismo = cursoRepository
+                    .findAllCursos(Long.valueOf(asignatura.getAreaFormacion()), asignatura.getId(), periodoActivoId)
+                    .stream()
+                    .anyMatch(c -> c.getId().equals(id));
             if (!esMismo) {
                 throw new IllegalArgumentException(msg("curso.error.unicidad.grupo_asignatura_periodo"));
             }
@@ -218,11 +242,12 @@ public class CursoServiceImpl implements CusoService {
 
         // Materiales (similar a crear)
         Set<MaterialApoyo> materiales = Set.of();
-        if(request.getMaterialApoyoIds()!=null && !request.getMaterialApoyoIds().isEmpty()){
+        if (request.getMaterialApoyoIds() != null && !request.getMaterialApoyoIds().isEmpty()) {
             List<MaterialApoyo> mats = materialApoyoRepository.findAllByIds(request.getMaterialApoyoIds());
             var encontrados = mats.stream().map(MaterialApoyo::getId).collect(Collectors.toSet());
-            List<Long> faltantesMat = request.getMaterialApoyoIds().stream().filter(mid -> !encontrados.contains(mid)).toList();
-            if(!faltantesMat.isEmpty()){
+            List<Long> faltantesMat = request.getMaterialApoyoIds().stream().filter(mid -> !encontrados.contains(mid))
+                    .toList();
+            if (!faltantesMat.isEmpty()) {
                 throw new IllegalArgumentException(msg("curso.error.materiales.noencontrados", faltantesMat));
             }
             materiales = Set.copyOf(mats);
@@ -239,17 +264,17 @@ public class CursoServiceImpl implements CusoService {
                 .salon(request.getSalon())
                 .observacion(request.getObservacion())
                 .build();
-    Curso actualizado = cursoRepository.saveCurso(curso);
-    CursoResponse resp = modelMapper.map(actualizado, CursoResponse.class);
-    if(actualizado.getMateriales()!=null){
-        resp.setMateriales(actualizado.getMateriales().stream().map(m -> MaterialApoyoResponse.builder()
-            .id(m.getId())
-            .nombre(m.getNombre())
-            .descripcion(m.getDescripcion())
-            .enlace(m.getEnlace())
-            .build()).toList());
-    }
-    return resp;
+        Curso actualizado = cursoRepository.saveCurso(curso);
+        CursoResponse resp = modelMapper.map(actualizado, CursoResponse.class);
+        if (actualizado.getMateriales() != null) {
+            resp.setMateriales(actualizado.getMateriales().stream().map(m -> MaterialApoyoResponse.builder()
+                    .id(m.getId())
+                    .nombre(m.getNombre())
+                    .descripcion(m.getDescripcion())
+                    .enlace(m.getEnlace())
+                    .build()).toList());
+        }
+        return resp;
     }
 
     @Override
@@ -257,7 +282,8 @@ public class CursoServiceImpl implements CusoService {
         Long periodoId = periodoAcademicoRepository.findPeriodoActivo()
                 .map(PeriodoAcademico::getId)
                 .orElse(null);
-        if (periodoId == null) return false;
+        if (periodoId == null)
+            return false;
         return cursoRepository.existsByGrupoAndPeriodoIdAndAsignaturaId(grupo, periodoId, asignaturaId);
     }
 
@@ -278,7 +304,7 @@ public class CursoServiceImpl implements CusoService {
         List<Curso> cursos = cursoRepository.findAllCursos(idArea, idAsignatura, idPeriodo);
         return cursos.stream().map(c -> {
             CursoResponse resp = modelMapper.map(c, CursoResponse.class);
-            if(c.getMateriales()!=null){
+            if (c.getMateriales() != null) {
                 resp.setMateriales(c.getMateriales().stream().map(m -> MaterialApoyoResponse.builder()
                         .id(m.getId())
                         .nombre(m.getNombre())
@@ -289,8 +315,6 @@ public class CursoServiceImpl implements CusoService {
             return resp;
         }).toList();
     }
-
-    
 
     private String msg(String key, Object... args) {
         return messageSource.getMessage(key, args, LocaleContextHolder.getLocale());
@@ -318,31 +342,32 @@ public class CursoServiceImpl implements CusoService {
     }
 
     @Override
-    public List<CursoResponse> obtenerCursosDisponibles(Long idEstudiante, Long idArea){
+    public List<CursoResponse> obtenerCursosDisponibles(Long idEstudiante, Long idArea) {
         PeriodoAcademico periodo = periodoAcademicoRepository.findPeriodoActivo()
-        .orElseThrow(() -> new EntityNotFoundException(msg("curso.error.periodo.activo.noexiste")));
-        
-        List<Asignatura> asignaturasDisponibles = matriculaService.obtenerAsignaturasDisponiblesporEstudiante(idEstudiante);
+                .orElseThrow(() -> new EntityNotFoundException(msg("curso.error.periodo.activo.noexiste")));
+
+        List<Asignatura> asignaturasDisponibles = matriculaService
+                .obtenerAsignaturasDisponiblesporEstudiante(idEstudiante);
 
         List<Long> asignaturasIds = new ArrayList<>();
-        if(idArea!=null){
+        if (idArea != null) {
             asignaturasIds = asignaturasDisponibles.stream()
-                .filter(a -> a.getAreaFormacion() != null && a.getAreaFormacion().equals(Integer.parseInt(idArea.toString())))
-                .map(Asignatura::getId)
-                .toList();
+                    .filter(a -> a.getAreaFormacion() != null
+                            && a.getAreaFormacion().equals(Integer.parseInt(idArea.toString())))
+                    .map(Asignatura::getId)
+                    .toList();
         } else {
             asignaturasIds = asignaturasDisponibles.stream()
-                .map(Asignatura::getId)
-                .toList();
+                    .map(Asignatura::getId)
+                    .toList();
         }
-
 
         List<Curso> cursos = cursoRepository.getCursosByAsignaturaIds(asignaturasIds, periodo.getId());
 
         return cursos.stream()
                 .map(c -> modelMapper.map(c, CursoResponse.class))
                 .toList();
-        }
+    }
 
     @Override
     public List<EstudianteResponse> obtenerEstudiantesDisponiblesPorCursoAsignatura(Long asignaturaId) {
@@ -352,12 +377,13 @@ public class CursoServiceImpl implements CusoService {
         PeriodoAcademico periodoActivo = periodoAcademicoRepository.findPeriodoActivo()
                 .orElseThrow(() -> new IllegalArgumentException("No hay periodo académico activo"));
 
-        List<Estudiante> estudiantes = cursoRepository.findEstudiantesDisponiblesPorAsignatura(asignaturaId, periodoActivo.getId());
+        List<Estudiante> estudiantes = cursoRepository.findEstudiantesDisponiblesPorAsignatura(asignaturaId,
+                periodoActivo.getId());
 
         return estudiantes.stream()
                 .map(c -> modelMapper.map(c, EstudianteResponse.class))
                 .toList();
-        
+
     }
 
     @Override
@@ -369,6 +395,119 @@ public class CursoServiceImpl implements CusoService {
                 .toList();
     }
 
-   
+    @Override
+    @Transactional(readOnly = true)
+    public byte[] generarReporteCursos(CursoReportRequest request, String formato) {
+        PeriodoAcademico periodo = periodoAcademicoRepository.findPeriodoActivo()
+                .orElseThrow(() -> new EntityNotFoundException(msg("curso.error.periodo.activo.noexiste")));
+
+        List<Curso> cursos = cursoRepository.findAllCursos(null, null, periodo.getId()).stream()
+                .filter(Curso::isEstado)
+                .toList();
+
+        if (request != null) {
+            if (request.getAsignaturaIds() != null && !request.getAsignaturaIds().isEmpty()) {
+                cursos = cursos.stream()
+                        .filter(c -> c.getAsignatura() != null
+                                && request.getAsignaturaIds().contains(c.getAsignatura().getId()))
+                        .toList();
+            }
+            if (request.getCursosIds() != null && !request.getCursosIds().isEmpty()) {
+                cursos = cursos.stream()
+                        .filter(c -> request.getCursosIds().contains(c.getId()))
+                        .toList();
+            }
+        }
+
+        List<ReportCursoDto> data = cursos.stream()
+                .map(this::toReportCursoDto)
+                .toList();
+        
+        System.out.println("Generando reporte de cursos. Formato: " + formato + ", Registros: " + data.size());
+
+        try (InputStream reportStream = getClass().getResourceAsStream("/Reportes/cursos.jasper");
+             InputStream logoStream = getClass().getResourceAsStream("/image/logo-unicauca.png")) {
+            if (reportStream == null) {
+                throw new IllegalArgumentException("No se encontro el reporte cursos.jasper");
+            }
+            if (logoStream == null) {
+                throw new IllegalArgumentException("No se encontro el logo para el reporte");
+            }
+            System.out.println("Recursos del reporte cargados correctamente.");
+            Map<String, Object> params = new HashMap<>();
+           params.put("logoUnicauca", new BufferedInputStream(logoStream));
+            params.put("fecha_periodo", periodo.getFechaInicio() + " - " + periodo.getFechaFin());
+            params.put("tag_periodo", periodo.getTagPeriodo()+"");
+            params.put("ds", new JRBeanArrayDataSource(data.toArray()));
+            System.out.println("Parámetros del reporte preparados: " + params.keySet());
+            JasperPrint print = JasperFillManager.fillReport(reportStream, params,
+                   new JRBeanArrayDataSource(data.toArray()));
+
+            System.out.println("Reporte llenado correctamente, exportando en formato: " + formato);
+            if (isExcelFormat(formato)) {
+                return exportXlsx(print);
+            }
+            return JasperExportManager.exportReportToPdf(print);
+        } catch (JRException e) {
+            System.out.println("Error generando el reporte de cursos: " + e.getMessage());
+            throw new IllegalStateException("Error generando el reporte de cursos", e);
+        } catch (Exception e) {
+            System.out.println("Error inesperado generando el reporte de cursos: " + e.getMessage());
+            throw new IllegalStateException("No se pudo generar el reporte de cursos", e);
+        }
+    }
+
+    private ReportCursoDto toReportCursoDto(Curso curso) {
+        return ReportCursoDto.builder()
+                .grupo(curso.getGrupo())
+                .asignatura(curso.getAsignatura() != null ? curso.getAsignatura().getNombre() : "")
+                .docentes(formatDocentes(curso.getDocentes()))
+                .horario(curso.getHorario() != null ? curso.getHorario() : "")
+                .salon(curso.getSalon() != null ? curso.getSalon() : "")
+                .build();
+    }
+
+    private String formatDocentes(List<Docente> docentes) {
+        if (docentes == null || docentes.isEmpty()) {
+            return "Sin docentes";
+        }
+        return docentes.stream()
+                .map(this::formatDocenteNombre)
+                .collect(Collectors.joining(", "));
+    }
+
+    private String formatDocenteNombre(Docente docente) {
+        if (docente == null) {
+            return "";
+        }
+        if (docente.getPersona() == null) {
+            return docente.getCodigo() != null ? docente.getCodigo() : "";
+        }
+        String nombre = docente.getPersona().getNombre() != null ? docente.getPersona().getNombre() : "";
+        String apellido = docente.getPersona().getApellido() != null ? docente.getPersona().getApellido() : "";
+        String full = (nombre + " " + apellido).trim();
+        return full.isEmpty() ? (docente.getCodigo() != null ? docente.getCodigo() : "") : full;
+    }
+
+    private boolean isExcelFormat(String formato) {
+        if (formato == null) {
+            return false;
+        }
+        String normalized = formato.trim().toLowerCase();
+        return normalized.equals("xlsx") || normalized.equals("excel");
+    }
+
+    private byte[] exportXlsx(JasperPrint print) throws JRException {
+        JRXlsxExporter exporter = new JRXlsxExporter();
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        exporter.setExporterInput(new SimpleExporterInput(print));
+        exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(outputStream));
+        SimpleXlsxReportConfiguration configuration = new SimpleXlsxReportConfiguration();
+        configuration.setDetectCellType(true);
+        configuration.setCollapseRowSpan(false);
+        exporter.setConfiguration(configuration);
+        exporter.exportReport();
+        return outputStream.toByteArray();
+    }
 
 }

@@ -2,6 +2,10 @@ package unicauca.edu.co.ms_gestion_maticula.app.web.controller;
 
 import java.util.List;
 
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -120,10 +124,20 @@ public class CursoController {
      */
 
     @PostMapping("/ofertados/report")
-    public String postMethodName(@RequestBody CursoReportRequest request) {
-        //TODO: process POST request
-        
-        return null;
+    public ResponseEntity<byte[]> generarReporteCursos(
+            @RequestBody(required = false) CursoReportRequest request,
+            @RequestParam(defaultValue = "pdf") String formato) {
+        byte[] reporte = cursoService.generarReporteCursos(request, formato);
+        boolean esExcel = formato != null && (formato.equalsIgnoreCase("xlsx") || formato.equalsIgnoreCase("excel"));
+        String extension = esExcel ? "xlsx" : "pdf";
+        MediaType mediaType = esExcel
+                ? MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                : MediaType.APPLICATION_PDF;
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(mediaType);
+        headers.setContentDisposition(ContentDisposition.attachment().filename("cursos." + extension).build());
+        return new ResponseEntity<>(reporte, headers, HttpStatus.OK);
     }
     
     

@@ -9,10 +9,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.In.EstudianteDocenteService;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.EstudianteResponse;
+import unicauca.edu.co.ms_gestion_maticula.domain.response.TutorNotificacionResponse;
 import unicauca.edu.co.ms_gestion_maticula.infrastructure.utils.ApiResponse;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 
 
 
@@ -38,6 +40,12 @@ public class EstudianteDocenteController {
 
         List<EstudianteResponse> estudiantes = estudianteDocenteService.getEstudiantesByTutor(tutorId);
         return ResponseEntity.ok(new ApiResponse("SUCCESS", "Lista de estudiantes por tutor", estudiantes, 200));
+    }
+
+    @PostMapping("/tutores/notificar-prematricula")
+    public ResponseEntity<ApiResponse> notificarTutoresPrematricula() {
+        List<TutorNotificacionResponse> notificados = estudianteDocenteService.notificarTutoresConMatriculasActivas();
+        return ResponseEntity.ok(new ApiResponse("SUCCESS", "Notificaciones enviadas", notificados, 200));
     }
     
     

@@ -93,6 +93,8 @@ public class EstudianteDocenteServiceImpl implements EstudianteDocenteService {
 
             resultado.add(TutorNotificacionResponse.builder()
                     .tutorId(docente.getId())
+                    .nombre(docente.getPersona() != null ? (docente.getPersona().getNombre() + " " + docente.getPersona().getApellido()).trim() : "")
+                    .codigo(docente.getCodigo())
                     .correo(correo)
                     .totalEstudiantesConMatriculaActiva(conMatriculasActivas.size())
                     .build());

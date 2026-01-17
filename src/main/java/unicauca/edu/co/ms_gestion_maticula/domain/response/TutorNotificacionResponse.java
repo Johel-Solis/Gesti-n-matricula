@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class TutorNotificacionResponse {
     private Long tutorId;
+    private String nombre;
+    private String codigo;
     private String correo;
     private int totalEstudiantesConMatriculaActiva;
 }

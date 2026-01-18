@@ -16,6 +16,8 @@ import unicauca.edu.co.ms_gestion_maticula.infrastructure.utils.ApiResponse;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 
 
@@ -47,6 +49,12 @@ public class EstudianteDocenteController {
     public ResponseEntity<ApiResponse> notificarTutoresPrematricula() {
         List<TutorNotificacionResponse> notificados = estudianteDocenteService.notificarTutoresConMatriculasActivas();
         return ResponseEntity.ok(new ApiResponse("SUCCESS", "Notificaciones enviadas", notificados, 200));
+    }
+    
+    @GetMapping("/matriculados")
+    public ResponseEntity<ApiResponse> getEstudianteMatriculados() {
+        List<EstudianteResponse> param = estudianteDocenteService.getEstudiantesMatriculados();
+        return ResponseEntity.ok(new ApiResponse("SUCCESS", "Lista de estudiantes matriculados", param, 200));
     }
     
     

@@ -158,6 +158,13 @@ public class CursoJpaAdapter implements CursoRepository {
                 .map(Estudiante::fromEntity)
                 .toList();
     }
+
+    @Override
+    public List<Curso> getCursosByPeriodoIdAndEstadoMatricula(Long periodoId, String estadoMatricula) {
+        return cursoRepo.getCursosByPeriodoIdAndEstadoMatricula(periodoId, estadoMatricula).stream()
+                .map(CursoEntity::toDomain)
+                .toList();
+    }
     
 
 }

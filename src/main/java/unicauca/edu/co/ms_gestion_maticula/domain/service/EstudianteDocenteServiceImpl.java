@@ -16,14 +16,17 @@ import unicauca.edu.co.ms_gestion_maticula.domain.enums.MatriculaEstado;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Docente;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Estudiante;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Matricula;
+import unicauca.edu.co.ms_gestion_maticula.domain.model.PeriodoAcademico;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.TutorEstudiante;
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.In.EstudianteDocenteService;
+import unicauca.edu.co.ms_gestion_maticula.domain.ports.In.PeriodoAcademicoService;
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.In.EmailService;
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.out.EstudianteDocenteRepository;
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.out.MatriculaRepository;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.EstudianteResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.EstudianteTutorResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.TutorNotificacionResponse;
+import unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence.PeriodoAcademicoJpaAdapter;
 
 
 @Service
@@ -43,6 +46,9 @@ public class EstudianteDocenteServiceImpl implements EstudianteDocenteService {
 
     @Autowired
     private final EmailService emailService;
+    
+    @Autowired
+    private final PeriodoAcademicoJpaAdapter periodoRepository;
 
     @Override
     public List<TutorEstudiante> getDirectores() {
@@ -59,6 +65,18 @@ public class EstudianteDocenteServiceImpl implements EstudianteDocenteService {
         
     }
 
+    @Override
+    public List<EstudianteResponse> getEstudiantesMatriculados() {
+
+        PeriodoAcademico periodoActivo = periodoRepository.findPeriodoActivo()
+                .orElseThrow(() -> new RuntimeException("No hay un periodo academico activo"));
+        return estudianteDocenteRepo.findEstudiantesMatriculados(periodoActivo.getId(), MatriculaEstado.APROBADA.name())
+                .stream()
+                .map(estudiante -> modelMapper.map(estudiante, EstudianteResponse.class))
+                .toList();
+
+
+    }
     private int countMatriculasPendientes(Long estudianteId) {
         List<Matricula> matriculas = matriculaRepository.findByEstudianteIdAndPeriodoActivo(estudianteId);
         int pendientes = 0;
@@ -185,4 +203,6 @@ public class EstudianteDocenteServiceImpl implements EstudianteDocenteService {
                 .totalMatriculas(countTotalMatriculas(estudiante.getId()))
                 .build();
     }
+
+    
 }

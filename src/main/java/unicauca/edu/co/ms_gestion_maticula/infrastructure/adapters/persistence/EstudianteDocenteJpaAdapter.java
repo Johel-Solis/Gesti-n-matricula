@@ -74,4 +74,13 @@ public class EstudianteDocenteJpaAdapter implements EstudianteDocenteRepository 
         return estudiantes;
     }
 
+    @Override
+    public List<Estudiante> findEstudiantesMatriculados(Long periodoId, String estadoMatricula) {
+        List<Estudiante> estudiantes = estudianteRepo.findByPeriodo(periodoId, estadoMatricula).stream()
+                .map(Estudiante::fromEntity)
+                .toList();
+        return estudiantes;
+    }
+
+
 }

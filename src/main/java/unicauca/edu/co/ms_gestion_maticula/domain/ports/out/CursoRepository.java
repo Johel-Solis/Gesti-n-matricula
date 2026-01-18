@@ -26,5 +26,6 @@ public interface CursoRepository {
 
     List<Estudiante> findEstudiantesDisponiblesPorAsignatura(Long asignaturaId, Long periodoId);
     List<Estudiante> getEstudiantesActivos();
+    List<Curso> getCursosByPeriodoIdAndEstadoMatricula(Long periodoId, String estadoMatricula);
 
 }

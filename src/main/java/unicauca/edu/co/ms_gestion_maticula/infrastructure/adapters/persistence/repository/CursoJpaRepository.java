@@ -21,4 +21,7 @@ public interface CursoJpaRepository extends JpaRepository<CursoEntity, Long> {
 
     @Query("SELECT c FROM CursoEntity c WHERE c.asignatura.id IN :asignaturaIds AND c.periodo.id = :periodoId")
     public List<CursoEntity> findByAsignaturas(List<Long> asignaturaIds, Long periodoId);
+
+    @Query("SELECT DISTINCT m.curso FROM MatriculaEntity m WHERE m.periodo.id = :periodoId AND m.estadoMatricula = :estadoMatricula")
+    public List<CursoEntity> getCursosByPeriodoIdAndEstadoMatricula(Long periodoId, String estadoMatricula);
 }

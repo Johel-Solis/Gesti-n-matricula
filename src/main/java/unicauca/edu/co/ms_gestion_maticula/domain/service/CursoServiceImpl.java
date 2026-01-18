@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import unicauca.edu.co.ms_gestion_maticula.domain.enums.MatriculaEstado;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.AreaFormacion;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Asignatura;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Curso;
@@ -29,6 +30,7 @@ import unicauca.edu.co.ms_gestion_maticula.domain.model.Docente;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Estudiante;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.PeriodoAcademico;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.MaterialApoyo;
+import unicauca.edu.co.ms_gestion_maticula.domain.model.Matricula;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.CursoRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.CursoReportRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.AsignaturaResponse;
@@ -508,6 +510,16 @@ public class CursoServiceImpl implements CusoService {
         exporter.setConfiguration(configuration);
         exporter.exportReport();
         return outputStream.toByteArray();
+    }
+
+    @Override
+    public List<CursoResponse> obtenerCursosPorMatriculaAprobada() {
+        PeriodoAcademico periodoActivo = periodoAcademicoRepository.findPeriodoActivo()
+                .orElseThrow(() -> new RuntimeException("No hay un periodo academico activo"));
+        List<Curso> cursos = cursoRepository.getCursosByPeriodoIdAndEstadoMatricula(periodoActivo.getId(),MatriculaEstado.APROBADA.name());
+        return cursos.stream()
+                .map(c -> modelMapper.map(c, CursoResponse.class))
+                .toList();
     }
 
 }

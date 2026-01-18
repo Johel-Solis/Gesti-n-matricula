@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import unicauca.edu.co.ms_gestion_maticula.domain.enums.EstadoEstudianteMaestria;
+import unicauca.edu.co.ms_gestion_maticula.domain.enums.MatriculaEstado;
 import unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence.entity.EstudianteEntity;
 
 public interface EstudianteJpaRepository extends JpaRepository<EstudianteEntity, Long> {
@@ -53,5 +54,8 @@ public interface EstudianteJpaRepository extends JpaRepository<EstudianteEntity,
 
     @Query("SELECT de.estudiante FROM DocenteEstudiante de WHERE de.docente.id = :tutorId")
     List<EstudianteEntity> findByTutor(Long tutorId);
+
+    @Query("SELECT DISTINCT m.estudiante  FROM MatriculaEntity m WHERE m.estado = true AND m.estadoMatricula = :estadoMatricula AND m.periodo.id = :periodoId")
+    List<EstudianteEntity> findByPeriodo( @Param("periodoId") Long periodoId,@Param("estadoMatricula") String estadoMatricula);
 
 }

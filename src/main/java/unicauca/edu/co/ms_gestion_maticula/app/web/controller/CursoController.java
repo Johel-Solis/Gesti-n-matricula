@@ -19,6 +19,9 @@ import unicauca.edu.co.ms_gestion_maticula.domain.response.DocenteResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.EstudianteResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.service.CursoServiceImpl;
 import unicauca.edu.co.ms_gestion_maticula.infrastructure.utils.ApiResponse;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 
 @RestController
@@ -138,6 +141,12 @@ public class CursoController {
         headers.setContentType(mediaType);
         headers.setContentDisposition(ContentDisposition.attachment().filename("cursos." + extension).build());
         return new ResponseEntity<>(reporte, headers, HttpStatus.OK);
+    }
+    
+    @GetMapping("/matricula-aprobadas")
+    public ResponseEntity<ApiResponse> getCursosAprobados() {
+        List<CursoResponse> cursos = cursoService.obtenerCursosPorMatriculaAprobada();
+        return ResponseEntity.ok(new ApiResponse("SUCCESS", "Lista de cursos con matricula aprobada", cursos, 200));
     }
     
     

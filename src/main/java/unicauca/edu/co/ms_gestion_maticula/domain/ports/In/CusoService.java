@@ -26,6 +26,7 @@ public interface CusoService {
     public List<EstudianteResponse> obtenerEstudiantesDisponiblesPorCursoAsignatura(Long asignaturaId);
     public List<EstudianteResponse> obtenerEstudiantesActivos();
     public byte[] generarReporteCursos(CursoReportRequest request, String formato);
+    public List<CursoResponse> obtenerCursosPorMatriculaAprobada();
     
 
 }

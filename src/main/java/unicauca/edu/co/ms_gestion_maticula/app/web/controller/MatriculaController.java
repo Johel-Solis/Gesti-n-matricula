@@ -26,11 +26,8 @@ import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaBatchResultR
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaCursoResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaEstudianteCursosResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaResponse;
+import unicauca.edu.co.ms_gestion_maticula.domain.response.TutorNotificacionResponse;
 import unicauca.edu.co.ms_gestion_maticula.infrastructure.utils.ApiResponse;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 
 
 
@@ -178,6 +175,13 @@ public class MatriculaController {
         
         return ResponseEntity.ok(new ApiResponse("SUCCESS", "Estado de matrícula cambiado", matricula, 200));
         
+    }
+
+
+    @PostMapping("/notificar-matricula-final")
+    public ResponseEntity<ApiResponse> notificarMatriculaFinal(@RequestBody  ListEstudianteRequest request) {
+        List<TutorNotificacionResponse> notificados = matriculaService.notificarMatriculasAprobadas(request);
+        return ResponseEntity.ok(new ApiResponse("SUCCESS", "Notificaciones enviadas", notificados, 200));
     }
     
 

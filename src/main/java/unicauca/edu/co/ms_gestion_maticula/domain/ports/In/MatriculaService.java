@@ -15,6 +15,7 @@ import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaBatchResultR
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaCursoResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaEstudianteCursosResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaResponse;
+import unicauca.edu.co.ms_gestion_maticula.domain.response.TutorNotificacionResponse;
 
 
 public interface MatriculaService {
@@ -34,5 +35,6 @@ public interface MatriculaService {
     List<MatriculaAgrupadaResonse> listarMatriculas(Long periodoId, String estado, Long asignatura, Long estudiante);
     List<MatriculaCursoResponse> obtenerEstudiantesMatriculadosEnCurso(Long cursoId);
     MatriculaResponse cambiarEstadoMatricula(Long id, MatriculaEstadoRequest request);
+    List<TutorNotificacionResponse> notificarMatriculasAprobadas(ListEstudianteRequest request);
 
 }

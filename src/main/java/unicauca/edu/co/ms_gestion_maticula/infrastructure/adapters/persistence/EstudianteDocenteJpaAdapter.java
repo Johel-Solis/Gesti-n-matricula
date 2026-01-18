@@ -82,5 +82,12 @@ public class EstudianteDocenteJpaAdapter implements EstudianteDocenteRepository 
         return estudiantes;
     }
 
+    @Override
+    public List<Docente> findTutoresByEstudiante(Long estudianteId) {
+        return docenteRepo.findTutoresByEstudiante(estudianteId).stream()
+                .map(Docente::fromEntity)
+                .toList();
+    }
+
 
 }

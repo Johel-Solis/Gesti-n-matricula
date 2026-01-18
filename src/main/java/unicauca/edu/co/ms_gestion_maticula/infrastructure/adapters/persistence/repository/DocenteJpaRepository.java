@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence.entity.DocenteEntity;
 import unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence.entity.TutorDto;
@@ -23,4 +24,12 @@ public interface DocenteJpaRepository extends JpaRepository<DocenteEntity, Long>
         group by de.docente
     """)
     List<TutorDto> getDirectores();
+
+    @Query("""
+        SELECT de.docente
+        FROM DocenteEstudiante de
+        WHERE de.estudiante.id = :estudianteId
+          AND de.tipo = 'Director'
+    """)
+    List<DocenteEntity> findTutoresByEstudiante(@Param("estudianteId") Long estudianteId);
 }

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.In.EstudianteDocenteService;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.EstudianteResponse;
+import unicauca.edu.co.ms_gestion_maticula.domain.response.EstudianteTutorResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.TutorNotificacionResponse;
 import unicauca.edu.co.ms_gestion_maticula.infrastructure.utils.ApiResponse;
 
@@ -38,7 +39,7 @@ public class EstudianteDocenteController {
     @GetMapping("/tutores/{id}/estudiantes")
      public ResponseEntity<ApiResponse> getEstudiantePorTutor(@PathVariable("id") Long tutorId) {
 
-        List<EstudianteResponse> estudiantes = estudianteDocenteService.getEstudiantesByTutor(tutorId);
+        List<EstudianteTutorResponse> estudiantes = estudianteDocenteService.getEstudiantesByTutor(tutorId);
         return ResponseEntity.ok(new ApiResponse("SUCCESS", "Lista de estudiantes por tutor", estudiantes, 200));
     }
 

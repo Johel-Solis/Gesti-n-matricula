@@ -24,6 +24,7 @@ public interface MatriculaRepository {
     Optional<Estudiante> getEstudianteByIdAndEstado(Long estudianteId, EstadoEstudianteMaestria estado);
     List<Matricula> findByEstudianteIdAndPeriodoActivo(Long estudianteId);
     List<Matricula> findByCursoIdAndPeriodoId(Long cursoId, Long periodoId);
+    Optional<Matricula> findNotaFinalByMatriculaId(Long idMatricula);
 
 
 }

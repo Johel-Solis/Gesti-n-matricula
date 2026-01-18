@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 
 import lombok.RequiredArgsConstructor;
+import unicauca.edu.co.ms_gestion_maticula.domain.enums.MatriculaEstado;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Docente;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Estudiante;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Matricula;
@@ -21,6 +22,7 @@ import unicauca.edu.co.ms_gestion_maticula.domain.ports.In.EmailService;
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.out.EstudianteDocenteRepository;
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.out.MatriculaRepository;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.EstudianteResponse;
+import unicauca.edu.co.ms_gestion_maticula.domain.response.EstudianteTutorResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.TutorNotificacionResponse;
 
 
@@ -50,13 +52,33 @@ public class EstudianteDocenteServiceImpl implements EstudianteDocenteService {
     }
 
     @Override
-    public List<EstudianteResponse> getEstudiantesByTutor(Long tutorId) {
-        List<EstudianteResponse> estudiantes = estudianteDocenteRepo.findEstudiantesByTutor(tutorId).stream()
-                .map(estudiante -> modelMapper.map(estudiante, EstudianteResponse.class))
+    public List<EstudianteTutorResponse> getEstudiantesByTutor(Long tutorId) {
+        return estudianteDocenteRepo.findEstudiantesByTutor(tutorId).stream()
+                .map(this::toEstudianteTutorResponse)
                 .toList();
-        return estudiantes;
+        
     }
 
+    private int countMatriculasPendientes(Long estudianteId) {
+        List<Matricula> matriculas = matriculaRepository.findByEstudianteIdAndPeriodoActivo(estudianteId);
+        int pendientes = 0;
+        for (Matricula matricula : matriculas) {
+            if (matricula != null && matricula.getEstadoMatricula() != null &&
+                    MatriculaEstado.CREADA.name().equalsIgnoreCase(matricula.getEstadoMatricula())) {
+                pendientes++;
+            }
+        }
+        return pendientes;
+    }
+
+    private int countTotalMatriculas(Long estudianteId) {
+        List<Matricula> matriculas = matriculaRepository.findByEstudianteIdAndPeriodoActivo(estudianteId);
+        int total = matriculas.stream()
+                .filter(matricula -> matricula != null && matricula.isEstado())
+                .toList()
+                .size();
+        return total;
+    }
     @Override
     public List<TutorNotificacionResponse> notificarTutoresConMatriculasActivas() {
         List<TutorEstudiante> tutores = estudianteDocenteRepo.getDirectores();
@@ -114,7 +136,7 @@ public class EstudianteDocenteServiceImpl implements EstudianteDocenteService {
             return false;
         }
         if (matricula.getEstadoMatricula() != null) {
-            return "ACTIVA".equalsIgnoreCase(matricula.getEstadoMatricula());
+            return MatriculaEstado.CREADA.name().equalsIgnoreCase(matricula.getEstadoMatricula());
         }
         return matricula.isEstado();
     }
@@ -156,4 +178,11 @@ public class EstudianteDocenteServiceImpl implements EstudianteDocenteService {
         return full.isEmpty() ? "Estudiante" : full;
     }
 
+    private EstudianteTutorResponse toEstudianteTutorResponse(Estudiante estudiante) {
+        return EstudianteTutorResponse.builder()
+                .estudiante( modelMapper.map(estudiante, EstudianteResponse.class))
+                .totalMatriculasPendientes(countMatriculasPendientes(estudiante.getId()))
+                .totalMatriculas(countTotalMatriculas(estudiante.getId()))
+                .build();
+    }
 }

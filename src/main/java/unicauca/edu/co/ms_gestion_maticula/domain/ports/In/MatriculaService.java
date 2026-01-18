@@ -26,7 +26,7 @@ public interface MatriculaService {
     List<Matricula> consultarMatriculaEstudiantes(ListEstudianteRequest requests);
 
     List<Asignatura> obtenerAsignaturasDisponiblesporEstudiante(Long estudianteId);
-    void cancelarMatricula(Long matriculaId, String motivoCancelacion);
+    String cancelarMatricula(Long matriculaId, String motivoCancelacion);
     List<EstudianteMatriculaResponse> obtenerMatriculasPorEstudiante(Long estudianteId);
     Matricula obtenerMatriculaPorId(Long matriculaId);
     List<MatriculaAgrupadaResonse> listarMatriculas(Long periodoId, String estado, Long asignatura, Long estudiante);

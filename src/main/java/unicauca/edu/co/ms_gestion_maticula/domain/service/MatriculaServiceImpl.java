@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import unicauca.edu.co.ms_gestion_maticula.domain.enums.EstadoEstudianteMaestria;
+import unicauca.edu.co.ms_gestion_maticula.domain.enums.MatriculaEstado;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Asignatura;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Curso;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Estudiante;
@@ -97,11 +98,9 @@ public class MatriculaServiceImpl implements MatriculaService {
 
     @Override
     public MatriculaEstudianteCursosResponse matriculaEstudianteCursos(MatriculaEstudianteCursosRequest request) {
-
         if (request == null || request.getEstudianteId() == null) {
             throw new IllegalArgumentException("La solicitud de matrícula es requerida");
         }
-
         // Validar periodo de matrícula
         validarPeriodoMatricula();
 
@@ -116,7 +115,6 @@ public class MatriculaServiceImpl implements MatriculaService {
                 matriculaPorCursoId.put(matricula.getCurso().getId(), matricula);
             }
         }
-        
 
         List<MatriculaNoRealizadaResponse> fallidos = new ArrayList<>();
 
@@ -133,13 +131,21 @@ public class MatriculaServiceImpl implements MatriculaService {
             solicitudesPorCursoId.putIfAbsent(cursoRequest.getCursoId(), cursoRequest);
         }
 
-        
-
         List<Matricula> matriculasEliminadas = new ArrayList<>();
         for (Matricula matricula : matriculasExistentes) {
             
             Long cursoId = matricula.getCurso() != null ? matricula.getCurso().getId() : null;
             if (cursoId != null && !solicitudesPorCursoId.containsKey(cursoId)) {
+                if (matricula.getEstadoMatricula().equals(MatriculaEstado.CANCELADA.name()) ||
+                    matricula.getEstadoMatricula().equals(MatriculaEstado.APROBADA.name()) ||
+                    matricula.getEstadoMatricula().equals(MatriculaEstado.RECHAZADA.name())) {
+                    fallidos.add(MatriculaNoRealizadaResponse.builder()
+                        .estudiante(modelMapper.map(estudiante, EstudianteResponse.class))
+                        .curso(modelMapper.map(matricula.getCurso(), CursoResponse.class))
+                        .motivo("No se puede eliminar la matrícula en estado " + matricula.getEstadoMatricula())
+                        .build());
+                    continue; 
+                }
                 matriculaRepository.deleteById(matricula.getId());
                 matriculasEliminadas.add(matricula);
             }
@@ -211,7 +217,6 @@ public class MatriculaServiceImpl implements MatriculaService {
                 matriculaPorEstudianteId.put(matricula.getEstudiante().getId(), matricula);
             }
         }
-    
 
         List<MatriculaNoRealizadaResponse> fallidos = new ArrayList<>();
 
@@ -232,6 +237,17 @@ public class MatriculaServiceImpl implements MatriculaService {
         for (Matricula matricula : matriculasExistentes) {
             Long estudianteId = matricula.getEstudiante() != null ? matricula.getEstudiante().getId() : null;
             if (estudianteId != null && !solicitudesPorEstudianteId.containsKey(estudianteId)) {
+                if (matricula.getEstadoMatricula().equals(MatriculaEstado.CANCELADA.name()) ||
+                    matricula.getEstadoMatricula().equals(MatriculaEstado.APROBADA.name()) ||
+                    matricula.getEstadoMatricula().equals(MatriculaEstado.RECHAZADA.name())) {
+                    fallidos.add(MatriculaNoRealizadaResponse.builder()
+                        .estudiante(modelMapper.map(matricula.getEstudiante(), EstudianteResponse.class))
+                        .curso(modelMapper.map(matricula.getCurso(), CursoResponse.class))
+                        .motivo("No se puede eliminar la matrícula en estado " + matricula.getEstadoMatricula())
+                        .build());
+                    continue; 
+                }
+
                 matriculaRepository.deleteById(matricula.getId());
                 matriculasEliminadas.add(matricula);
             }
@@ -388,28 +404,46 @@ public class MatriculaServiceImpl implements MatriculaService {
     /**
      * Método adicional para cancelar una matrícula específica
      */
-    public void cancelarMatricula(Long matriculaId, String motivoCancelacion) {
+    public String cancelarMatricula(Long matriculaId, String motivoCancelacion) {
+    
         if (matriculaId == null) {
             throw new IllegalArgumentException("El ID de la matrícula es requerido");
         }
         
         Matricula matricula = matriculaRepository.findById(matriculaId)
                 .orElseThrow(() -> new EntityNotFoundException("Matrícula no encontrada"));
+            
+    
+        matriculaRepository.findNotaFinalByMatriculaId(matriculaId)
+                .ifPresent(notaFinal -> {
+                    throw new IllegalArgumentException("No se puede cancelar la matrícula, ya tiene una nota final registrada");
+                });
         
         // Validar que la matrícula esté activa
         if (!matricula.isEstado()) {
             throw new IllegalArgumentException("Solo se pueden cancelar matrículas activas");
         }
-        
+
         // Validar periodo de matrícula
-        validarPeriodoMatricula();
+        PeriodoAcademico periodoActivo = periodoAcademicoRepository.findPeriodoActivo()
+                .orElseThrow(() -> new IllegalArgumentException("No hay periodo académico activo"));
+        
+        LocalDate fechaActual = LocalDate.now();
+        if (fechaActual.isBefore(periodoActivo.getFechaInicio())) {
+            throw new IllegalArgumentException("El periodo académico aún no ha iniciado");
+        }
+        if (fechaActual.isAfter(periodoActivo.getFechaFinMatricula())) {
+            throw new IllegalArgumentException("El periodo de matrícula ha finalizado");
+        }
         
         // Actualizar estado y observación
-        matricula.setEstadoMatricula("CANCELADA");
+        matricula.setEstadoMatricula(MatriculaEstado.CANCELADA.name());
         matricula.setEstado(false);
-        matricula.setObservacion(matricula.getObservacion() + " - CANCELADA: " + motivoCancelacion);
+        matricula.setObservacion("CANCELADA: " + motivoCancelacion);
         
         matriculaRepository.update(matricula);
+
+        return "Matrícula cancelada exitosamente";
     }
 
     /**
@@ -537,7 +571,7 @@ public class MatriculaServiceImpl implements MatriculaService {
                 .curso(curso)
                 .periodo(periodoActivo)
                 .estado(true)
-                .estadoMatricula("ACTIVA")
+                .estadoMatricula(MatriculaEstado.CREADA.name())
                 .observacion(observacion)
                 .build();
     }

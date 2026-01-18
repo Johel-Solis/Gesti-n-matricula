@@ -1,11 +1,11 @@
 package unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence.repository;
 
-import java.util.List;
+import java.util.Optional;
 
+import org.apache.poi.sl.draw.geom.GuideIf.Op;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-import unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence.entity.EstudianteEntity;
 import unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence.entity.MatriculaCalificacion;
 import unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence.entity.MatriculaEntity;
 
@@ -19,6 +19,11 @@ public interface MatriculaCalificacionRepository  extends JpaRepository<Matricul
            "AND mc.asignatura.idAsignatura = :idAsignatura")
     boolean asignaturaGanada(Long idEstudiante, Long idAsignatura, double umbralGanado);
 
+    @Query("SELECT mc.matricula " +
+           "FROM MatriculaCalificacion mc " +
+           "WHERE mc.matricula.id = :idMatricula " +
+           "AND mc.esDefinitiva = true")
+    Optional<MatriculaEntity> findNotaFinalByMatriculaIdEntity(Long idMatricula);
 
 
     // // @Query("SELECT mc.asignatura FROM MatriculaCalificacion mc WHERE mc.matricula.estudiante.id = :idEstudiante")

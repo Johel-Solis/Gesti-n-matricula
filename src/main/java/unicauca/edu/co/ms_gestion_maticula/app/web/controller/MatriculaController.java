@@ -15,6 +15,7 @@ import unicauca.edu.co.ms_gestion_maticula.domain.model.Matricula;
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.In.MatriculaService;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.CursoMatriculaEstudiantesRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.ListEstudianteRequest;
+import unicauca.edu.co.ms_gestion_maticula.domain.request.MatriculaCancelRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.MatriculaCursoEstudiantesRequests;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.MatriculaEstudianteCursosRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.AsignaturaResponse;
@@ -119,9 +120,9 @@ public class MatriculaController {
     @PutMapping("/{matriculaId}/cancelar")
     public ResponseEntity<ApiResponse> cancelarMatricula(
             @PathVariable Long matriculaId,
-            @RequestParam String motivo) {
-        matriculaService.cancelarMatricula(matriculaId, motivo);
-        return ResponseEntity.ok(new ApiResponse("SUCCESS", "Matrícula cancelada exitosamente", null, 200));
+            @RequestBody MatriculaCancelRequest request) {
+        String resultado = matriculaService.cancelarMatricula(matriculaId, request.getMotivo());
+        return ResponseEntity.ok(new ApiResponse("SUCCESS", resultado, null, 200));
     }
 
     /**

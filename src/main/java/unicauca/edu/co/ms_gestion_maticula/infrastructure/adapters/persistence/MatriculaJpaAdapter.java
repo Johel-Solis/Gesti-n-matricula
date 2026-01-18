@@ -122,4 +122,8 @@ public class MatriculaJpaAdapter implements MatriculaRepository {
                 .toList();
     }
     
+    public Optional<Matricula> findNotaFinalByMatriculaId(Long idMatricula) {
+        return matriculaCalificacionRepository.findNotaFinalByMatriculaIdEntity(idMatricula)
+                .map(entity -> new Matricula().fromEntity(entity));
+    }
 }

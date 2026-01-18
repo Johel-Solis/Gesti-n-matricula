@@ -7,12 +7,14 @@ import unicauca.edu.co.ms_gestion_maticula.domain.model.Matricula;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.CursoMatriculaEstudiantesRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.ListEstudianteRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.MatriculaCursoEstudiantesRequests;
+import unicauca.edu.co.ms_gestion_maticula.domain.request.MatriculaEstadoRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.MatriculaEstudianteCursosRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.EstudianteMatriculaResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaAgrupadaResonse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaBatchResultResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaCursoResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaEstudianteCursosResponse;
+import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaResponse;
 
 
 public interface MatriculaService {
@@ -31,5 +33,6 @@ public interface MatriculaService {
     Matricula obtenerMatriculaPorId(Long matriculaId);
     List<MatriculaAgrupadaResonse> listarMatriculas(Long periodoId, String estado, Long asignatura, Long estudiante);
     List<MatriculaCursoResponse> obtenerEstudiantesMatriculadosEnCurso(Long cursoId);
+    MatriculaResponse cambiarEstadoMatricula(Long id, MatriculaEstadoRequest request);
 
 }

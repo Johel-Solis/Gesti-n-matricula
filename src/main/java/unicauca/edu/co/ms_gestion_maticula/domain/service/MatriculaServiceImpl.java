@@ -27,6 +27,7 @@ import unicauca.edu.co.ms_gestion_maticula.domain.request.CursoMatriculaRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.EstudianteMatriculaRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.ListEstudianteRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.MatriculaCursoEstudiantesRequests;
+import unicauca.edu.co.ms_gestion_maticula.domain.request.MatriculaEstadoRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.MatriculaEstudianteCursosRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.In.MatriculaService;
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.out.CursoRepository;
@@ -517,6 +518,36 @@ public class MatriculaServiceImpl implements MatriculaService {
     }
 
 
+    @Override
+     public MatriculaResponse cambiarEstadoMatricula(Long id, MatriculaEstadoRequest request) {
+      
+        Matricula matricula = matriculaRepository.findById(id)
+        .orElseThrow(() -> new EntityNotFoundException("Matrícula no encontrada"));
+
+        if (request.getEstado().equalsIgnoreCase(MatriculaEstado.APROBADA.name()) ||
+            request.getEstado().equalsIgnoreCase(MatriculaEstado.RECHAZADA.name()) ||
+            request.getEstado().equalsIgnoreCase(MatriculaEstado.CREADA.name()) ||
+            request.getEstado().equalsIgnoreCase(MatriculaEstado.TUTOR_AVALADA.name()) ||
+            request.getEstado().equalsIgnoreCase(MatriculaEstado.TUTOR_NO_AVALADA.name()) ||
+            request.getEstado().equalsIgnoreCase(MatriculaEstado.CANCELADA.name())) {
+            
+            matricula.setEstadoMatricula(request.getEstado().toUpperCase());
+            if (request.getEstado().equalsIgnoreCase(MatriculaEstado.CANCELADA.name()) ||
+            request.getEstado().equalsIgnoreCase(MatriculaEstado.RECHAZADA.name()) )
+            {
+                matricula.setEstado(false);
+            }
+            matriculaRepository.update(matricula);
+            return modelMapper.map(matricula, MatriculaResponse.class);
+            
+        }else {
+            throw new IllegalArgumentException("Estado de matrícula no válido");
+        }
+
+
+     }
+
+
     /**
      * Método auxiliar para validar que el periodo académico esté activo y dentro del plazo de matrícula
      */
@@ -640,6 +671,8 @@ public class MatriculaServiceImpl implements MatriculaService {
         .observacion(matricula.getObservacion())
         .build();
     }
+
+     
 
    
 	

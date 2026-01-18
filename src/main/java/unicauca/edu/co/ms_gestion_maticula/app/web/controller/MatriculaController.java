@@ -17,6 +17,7 @@ import unicauca.edu.co.ms_gestion_maticula.domain.request.CursoMatriculaEstudian
 import unicauca.edu.co.ms_gestion_maticula.domain.request.ListEstudianteRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.MatriculaCancelRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.MatriculaCursoEstudiantesRequests;
+import unicauca.edu.co.ms_gestion_maticula.domain.request.MatriculaEstadoRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.MatriculaEstudianteCursosRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.AsignaturaResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.EstudianteMatriculaResponse;
@@ -26,6 +27,12 @@ import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaCursoRespons
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaEstudianteCursosResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.MatriculaResponse;
 import unicauca.edu.co.ms_gestion_maticula.infrastructure.utils.ApiResponse;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
+
 
 @RestController
 @RequestMapping("/api/matricula")
@@ -163,6 +170,16 @@ public class MatriculaController {
         
         return ResponseEntity.ok(new ApiResponse("SUCCESS", "Estudiantes matriculados encontrados", estudiantes, 200));
     }
+
+    @PutMapping("/cambiar-estado/{id}")
+    public ResponseEntity<ApiResponse> cambiarEstadoMatricula(@PathVariable Long id, @RequestBody MatriculaEstadoRequest request) {
+
+         MatriculaResponse matricula = matriculaService.cambiarEstadoMatricula(id,request);
+        
+        return ResponseEntity.ok(new ApiResponse("SUCCESS", "Estado de matrícula cambiado", matricula, 200));
+        
+    }
+    
 
 
     

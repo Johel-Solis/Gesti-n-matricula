@@ -1,6 +1,6 @@
 package unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence.entity;
 
-import jakarta.persistence.Convert;
+
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;

@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Docente;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Persona;
+
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.In.EmailService;
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.out.EstudianteDocenteRepository;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.ReportCursoDto;
@@ -43,6 +44,7 @@ import unicauca.edu.co.ms_gestion_maticula.domain.model.Estudiante;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Matricula;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.MatriculaCurso;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.PeriodoAcademico;
+import unicauca.edu.co.ms_gestion_maticula.domain.request.CambioEstadoMasivoRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.CursoMatriculaEstudiantesRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.CursoMatriculaRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.EstudianteMatriculaRequest;
@@ -431,7 +433,7 @@ public class MatriculaServiceImpl implements MatriculaService {
     }
 
     /**
-     * MÃ©todo adicional para cancelar una matrÃ­cula especÃ­fica
+     * Método adicional para cancelar una matrícula específica
      */
     public String cancelarMatricula(Long matriculaId, String motivoCancelacion) {
     
@@ -476,7 +478,7 @@ public class MatriculaServiceImpl implements MatriculaService {
     }
 
     /**
-     * MÃ©todo adicional para obtener matrÃ­culas por estudiante 
+     * Método adicional para obtener matrículas por estudiante 
      */
     public List<EstudianteMatriculaResponse> obtenerMatriculasPorEstudiante(Long estudianteId) {
         if (estudianteId == null) {
@@ -496,7 +498,7 @@ public class MatriculaServiceImpl implements MatriculaService {
     }
 
     /**
-     * MÃ©todo adicional para obtener una matrÃ­cula por ID
+     * Método adicional para obtener una matrícula por ID
      */
     public Matricula obtenerMatriculaPorId(Long matriculaId) {
         if (matriculaId == null) {
@@ -508,7 +510,7 @@ public class MatriculaServiceImpl implements MatriculaService {
     }
 
     /**
-     * MÃ©todo adicional para listar todas las matrÃ­culas con filtros
+     * Método adicional para listar todas las matrículas con filtros
      */
     @Override
     public List<MatriculaAgrupadaResonse> listarMatriculas(Long periodoId, String estado, Long asignatura, Long estudiante){
@@ -527,7 +529,7 @@ public class MatriculaServiceImpl implements MatriculaService {
     
     
     /**
-     * MÃ©todo para obtener estudiantes matriculados en un curso especÃ­fico
+     * Método para obtener estudiantes matriculados en un curso específico
      */
      @Override
     public List<MatriculaCursoResponse> obtenerEstudiantesMatriculadosEnCurso(Long cursoId) {
@@ -577,7 +579,7 @@ public class MatriculaServiceImpl implements MatriculaService {
 
 
     /**
-     * MÃ©todo auxiliar para validar que el periodo acadÃ©mico estÃ© activo y dentro del plazo de matrÃ­cula
+     * Método auxiliar para validar que el periodo académico esté activo y dentro del plazo de matrícula
      */
     private void validarPeriodoMatricula() {
         PeriodoAcademico periodoActivo = periodoAcademicoRepository.findPeriodoActivo()
@@ -595,7 +597,7 @@ public class MatriculaServiceImpl implements MatriculaService {
     }
 
     /**
-     * MÃ©todo auxiliar para validar que un curso existe y estÃ¡ disponible para matrÃ­cula
+     * Método auxiliar para validar que un curso existe y está disponible para matrícula
      * @param  cursoId
      */
     private Curso validarYObtenerCurso(Long cursoId) {
@@ -618,7 +620,7 @@ public class MatriculaServiceImpl implements MatriculaService {
     }
 
     /**
-     * MÃ©todo auxiliar para crear una matrÃ­cula
+     * Método auxiliar para crear una matrícula
      */
     private Matricula crearMatricula(Long estudianteId, Curso curso, String observacion) {
         PeriodoAcademico periodoActivo = periodoAcademicoRepository.findPeriodoActivo()
@@ -700,13 +702,7 @@ public class MatriculaServiceImpl implements MatriculaService {
         .build();
     }
 
-     
-
-   
-	
-
-
-
+    
     @Override
     public List<TutorNotificacionResponse> notificarMatriculasAprobadas(ListEstudianteRequest request) {
         if (request == null || request.getEstudianteIds() == null || 
@@ -982,6 +978,8 @@ public class MatriculaServiceImpl implements MatriculaService {
         return  cuerpo;
     }
 
+
+
    
 
     private String buildNombrePersona(Persona persona) {
@@ -1014,6 +1012,52 @@ public class MatriculaServiceImpl implements MatriculaService {
     private String buildNombreArchivoReporte(Estudiante estudiante) {
         String codigo = estudiante != null && estudiante.getCodigo() != null ? estudiante.getCodigo() : "estudiante";
         return "reporte_matricula_" + codigo + ".pdf";
+    }
+
+    @Override
+    public List<MatriculaResponse> cambiarEstadoMasivoMatricula(CambioEstadoMasivoRequest request) {
+
+        List<Matricula> matriculasActualizadas = new ArrayList<>();
+        List<Matricula> matriculasList = new ArrayList<>();
+        if (request == null || request.getEstudiantesIds() == null || request.getEstudiantesIds().isEmpty()) {
+            throw new IllegalArgumentException("Debe especificar al menos una matrícula para el cambio de estado masivo");
+        }
+        if (request.getNuevoEstado().equalsIgnoreCase(MatriculaEstado.APROBADA.name())
+            || request.getNuevoEstado().equalsIgnoreCase(MatriculaEstado.RECHAZADA.name())
+            || request.getNuevoEstado().equalsIgnoreCase(MatriculaEstado.CREADA.name())
+            || request.getNuevoEstado().equalsIgnoreCase(MatriculaEstado.TUTOR_AVALADA.name())
+            || request.getNuevoEstado().equalsIgnoreCase(MatriculaEstado.TUTOR_NO_AVALADA.name())
+            || request.getNuevoEstado().equalsIgnoreCase(MatriculaEstado.CANCELADA.name())
+            || request.getNuevoEstado().equalsIgnoreCase("APROBAR_TUTOR_AVALADA")
+        ) {
+            
+            for (Long estudianteId : request.getEstudiantesIds()) {
+                List<Matricula> matriculas = matriculaRepository.findByEstudianteIdAndPeriodoActivo(estudianteId);
+                matriculasList.addAll(matriculas);
+            }
+            for (Matricula matricula : matriculasList) {
+                if (request.getNuevoEstado().equalsIgnoreCase("APROBAR_TUTOR_AVALADA")) {
+                    matricula.setEstadoMatricula(MatriculaEstado.APROBADA.name());
+                    if (matricula.getEstadoMatricula().equalsIgnoreCase(MatriculaEstado.TUTOR_NO_AVALADA.name())) {
+                        matricula.setEstadoMatricula(MatriculaEstado.RECHAZADA.name());    
+                        matricula.setEstado(false);
+                    }
+                } else{
+                    MatriculaEstado nuevoEstado = MatriculaEstado.valueOf(request.getNuevoEstado().toUpperCase());
+                    matricula.setEstadoMatricula(nuevoEstado.name());                    
+                }
+
+                if (matricula.getEstadoMatricula().equalsIgnoreCase(MatriculaEstado.RECHAZADA.name())
+                || matricula.getEstadoMatricula().equalsIgnoreCase(MatriculaEstado.CANCELADA.name())) {
+                    matricula.setEstado(false);                  
+                }
+                matriculasActualizadas.add(matriculaRepository.update(matricula));
+            }
+  
+        }else {
+            throw new IllegalArgumentException("Estado de matrícula no válido para el cambio masivo"); 
+        }
+        return toMatriculaResponse(matriculasActualizadas);
     }
 
 }

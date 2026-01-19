@@ -4,6 +4,7 @@ import java.util.List;
 
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Asignatura;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Matricula;
+import unicauca.edu.co.ms_gestion_maticula.domain.request.CambioEstadoMasivoRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.CursoMatriculaEstudiantesRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.ListEstudianteRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.MatriculaCursoEstudiantesRequests;
@@ -36,5 +37,7 @@ public interface MatriculaService {
     List<MatriculaCursoResponse> obtenerEstudiantesMatriculadosEnCurso(Long cursoId);
     MatriculaResponse cambiarEstadoMatricula(Long id, MatriculaEstadoRequest request);
     List<TutorNotificacionResponse> notificarMatriculasAprobadas(ListEstudianteRequest request);
+
+    List<MatriculaResponse> cambiarEstadoMasivoMatricula(CambioEstadoMasivoRequest request);
 
 }

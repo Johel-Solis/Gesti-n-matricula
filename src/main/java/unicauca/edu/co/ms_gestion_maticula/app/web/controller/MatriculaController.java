@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Asignatura;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Matricula;
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.In.MatriculaService;
+import unicauca.edu.co.ms_gestion_maticula.domain.request.CambioEstadoMasivoRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.CursoMatriculaEstudiantesRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.ListEstudianteRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.MatriculaCancelRequest;
@@ -185,6 +186,15 @@ public class MatriculaController {
     }
     
 
+    
+    @PostMapping("/cambiar-estado/masivo")
+    public ResponseEntity<ApiResponse> cambiarEstadoMatriculaPorEstudiantes( @RequestBody CambioEstadoMasivoRequest request) {
+
+         List<MatriculaResponse> matricula = matriculaService.cambiarEstadoMasivoMatricula(request);
+        
+        return ResponseEntity.ok(new ApiResponse("SUCCESS", "Estado de matrícula cambiado", matricula, 200));
+        
+    }
 
     
 }

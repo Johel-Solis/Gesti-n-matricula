@@ -1,6 +1,7 @@
 package unicauca.edu.co.ms_gestion_maticula.domain.service;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -80,6 +81,7 @@ public class MatriculaServiceImpl implements MatriculaService {
     @Autowired
     private final EmailService emailService;
 
+    
     @Override
     public MatriculaBatchResultResponse matricularEstudiantesEnCursos(MatriculaCursoEstudiantesRequests requests) {
         if (requests == null || requests.getMatriculaEstudianteCursos() == null ||
@@ -743,8 +745,8 @@ public class MatriculaServiceImpl implements MatriculaService {
             if (correoEstudiante != null && !correoEstudiante.isBlank()) {
                 String normalized = correoEstudiante.trim().toLowerCase();
                 if (correosEnviados.add(normalized)) {
-                    String cuerpo = buildCuerpoCorreoEstudiante(estudiante, periodoActivo, totalAprobadas);
-                    emailService.sendEmailWithAttachment(correoEstudiante, asunto, cuerpo, reporte,
+                    String cuerpo = emailService.buildCorreoHtml("Reporte de Matrícula", buildCuerpoCorreoEstudiante(estudiante, periodoActivo, totalAprobadas));
+                    sendEmailWithAttachmentSafe(correoEstudiante, asunto, cuerpo, reporte,
                             buildNombreArchivoReporte(estudiante), "application/pdf");
                     notificaciones.add(TutorNotificacionResponse.builder()
                             .tutorId(estudiante.getId())
@@ -769,8 +771,8 @@ public class MatriculaServiceImpl implements MatriculaService {
                 if (!correosEnviados.add(normalized)) {
                     continue;
                 }
-                String cuerpo = buildCuerpoCorreoTutor(tutor, estudiante, periodoActivo, totalAprobadas);
-                emailService.sendEmailWithAttachment(correoTutor, asunto, cuerpo, reporte,
+                String cuerpo = emailService.buildCorreoHtml("Reporte de Matrícula", buildCuerpoCorreoTutor(tutor, estudiante, periodoActivo, totalAprobadas));
+                sendEmailWithAttachmentSafe(correoTutor, asunto, cuerpo, reporte,
                         buildNombreArchivoReporte(estudiante), "application/pdf");
                 notificaciones.add(TutorNotificacionResponse.builder()
                         .tutorId(tutor != null ? tutor.getId() : null)
@@ -789,6 +791,19 @@ public class MatriculaServiceImpl implements MatriculaService {
         return matricula != null
                 && matricula.getEstadoMatricula() != null
                 && MatriculaEstado.APROBADA.name().equalsIgnoreCase(matricula.getEstadoMatricula());
+    }
+
+    private void sendEmailWithAttachmentSafe(String to, String subject, String body, byte[] attachment,
+            String attachmentName, String contentType) {
+        try {
+            emailService.sendEmailWithAttachment(to, subject, body, attachment, attachmentName, contentType)
+                    .exceptionally(ex -> {
+                        LOGGER.error("Error enviando correo a {}", to, ex);
+                        return null;
+                    });
+        } catch (Exception ex) {
+            LOGGER.error("Error enviando correo a {}", to, ex);
+        }
     }
 
     private byte[] generarReporteMatricula(Estudiante estudiante, List<Matricula> matriculas, PeriodoAcademico periodo) {
@@ -878,33 +893,34 @@ public class MatriculaServiceImpl implements MatriculaService {
     }
 
     private String buildCuerpoCorreoEstudiante(Estudiante estudiante, PeriodoAcademico periodo, int totalAprobadas) {
-        String saludo = "Hola";
         String nombre = buildNombrePersona(estudiante.getPersona());
-        if (!nombre.isEmpty()) {
-            saludo = "Hola " + nombre;
-        }
-        return saludo + ","
-                + "Tu matricula final fue aprobada. Adjuntamos el reporte con "
-                + totalAprobadas + " cursos del periodo " + periodo.getTagPeriodo() + "."
-                + "Gracias.";
+        String saludo = nombre.isEmpty() ? "Cordial saludo," : "Cordial saludo, " + nombre + ".";
+        String cuerpo = "<p>" + saludo + "</p>"
+        + "<p>Te informamos que tu matrícula correspondiente al periodo "
+        + periodo.getFechaInicio().format(DateTimeFormatter.ofPattern("dd/MM/yy")) + " - " + periodo.getFechaFin().format(DateTimeFormatter.ofPattern("dd/MM/yy")) + " ha sido procesada exitosamente.</p>"
+        + "<p>Adjuntamos el reporte con las materias matriculadas para dicho periodo.</p>"
+        + "<p>Atentamente,</p>"
+                + "<p><strong>Maestría en Computación</strong></p>";
+        return cuerpo;
     }
 
     private String buildCuerpoCorreoTutor(Docente tutor, Estudiante estudiante, PeriodoAcademico periodo,
             int totalAprobadas) {
-        String saludo = "Hola";
         String nombreTutor = buildNombrePersona(tutor != null ? tutor.getPersona() : null);
-        if (!nombreTutor.isEmpty()) {
-            saludo = "Hola " + nombreTutor;
-        }
+        String saludo = nombreTutor.isEmpty() ? "Cordial saludo," : "Cordial saludo, " + nombreTutor + ".";
         String nombreEstudiante = buildNombrePersona(estudiante != null ? estudiante.getPersona() : null);
         String codigo = estudiante != null && estudiante.getCodigo() != null ? estudiante.getCodigo() : "";
         String estudianteLabel = nombreEstudiante.isEmpty() ? codigo : nombreEstudiante + (codigo.isEmpty() ? "" : " (" + codigo + ")");
-        return saludo + ","
-                + "Se aprobo la matricula final del estudiante " + estudianteLabel + ". "
-                + "Adjuntamos el reporte con " + totalAprobadas + " cursos del periodo "
-                + periodo.getTagPeriodo() + "."
-                + "Gracias.";
+        String cuerpo = "<p>" + saludo + "</p>"
+                + "<p>Se aprobo la matricula final del estudiante <strong>" + estudianteLabel + "</strong>.</p>"
+                + "<p>Adjuntamos el reporte con <strong>" + totalAprobadas + "</strong> cursos del periodo "
+                + periodo.getTagPeriodo() + ".</p>"
+                + "<p>Universitariamente,</p>"
+                + "<p><strong>Universidad del Cauca</strong></p>";
+        return  cuerpo;
     }
+
+   
 
     private String buildNombrePersona(Persona persona) {
         if (persona == null) {

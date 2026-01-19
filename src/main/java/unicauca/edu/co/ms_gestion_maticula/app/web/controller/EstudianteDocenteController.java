@@ -2,12 +2,15 @@ package unicauca.edu.co.ms_gestion_maticula.app.web.controller;
 
 import java.util.List;
 
+import javax.print.Doc;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.In.EstudianteDocenteService;
+import unicauca.edu.co.ms_gestion_maticula.domain.response.DocenteResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.EstudianteResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.EstudianteTutorResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.TutorNotificacionResponse;
@@ -55,6 +58,12 @@ public class EstudianteDocenteController {
     public ResponseEntity<ApiResponse> getEstudianteMatriculados() {
         List<EstudianteResponse> param = estudianteDocenteService.getEstudiantesMatriculados();
         return ResponseEntity.ok(new ApiResponse("SUCCESS", "Lista de estudiantes matriculados", param, 200));
+    }
+
+    @GetMapping("/docente-email")
+    public ResponseEntity<ApiResponse> getDocenteEmail(@RequestParam String email) {
+        DocenteResponse doc = estudianteDocenteService.getDocenteByEmail(email);
+        return ResponseEntity.ok(new ApiResponse("SUCCESS", "Mensaje", doc, 200));
     }
     
     

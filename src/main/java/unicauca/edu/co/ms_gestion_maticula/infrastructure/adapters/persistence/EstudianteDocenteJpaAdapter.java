@@ -89,5 +89,11 @@ public class EstudianteDocenteJpaAdapter implements EstudianteDocenteRepository 
                 .toList();
     }
 
+    @Override
+    public Optional<Docente> findDocenteByEmail(String email) {
+        return docenteRepo.findByEmail(email)
+                .map(Docente::fromEntity);
+    }
+
 
 }

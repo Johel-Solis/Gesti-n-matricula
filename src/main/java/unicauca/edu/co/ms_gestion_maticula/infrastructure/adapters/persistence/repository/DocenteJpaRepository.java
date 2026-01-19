@@ -32,4 +32,7 @@ public interface DocenteJpaRepository extends JpaRepository<DocenteEntity, Long>
           AND de.tipo = 'Director'
     """)
     List<DocenteEntity> findTutoresByEstudiante(@Param("estudianteId") Long estudianteId);
+
+    @Query("SELECT d FROM DocenteEntity d WHERE d.persona.correoElectronico = :email")
+    Optional<DocenteEntity> findByEmail(@Param("email") String email);
 }

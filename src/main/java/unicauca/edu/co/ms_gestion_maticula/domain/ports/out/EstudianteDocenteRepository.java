@@ -21,4 +21,5 @@ public interface EstudianteDocenteRepository {
     List<Estudiante> findEstudiantesByTutor(Long tutorId);
     List<Estudiante> findEstudiantesMatriculados(Long periodoId, String estadoMatricula);
     List<Docente> findTutoresByEstudiante(Long estudianteId);
+    Optional<Docente> findDocenteByEmail(String email);
 }

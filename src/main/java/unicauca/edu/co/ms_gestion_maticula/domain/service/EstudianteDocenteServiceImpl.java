@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import org.springframework.web.client.HttpClientErrorException.BadRequest;
 
 import lombok.RequiredArgsConstructor;
 import unicauca.edu.co.ms_gestion_maticula.domain.enums.MatriculaEstado;
@@ -23,6 +23,7 @@ import unicauca.edu.co.ms_gestion_maticula.domain.ports.In.PeriodoAcademicoServi
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.In.EmailService;
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.out.EstudianteDocenteRepository;
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.out.MatriculaRepository;
+import unicauca.edu.co.ms_gestion_maticula.domain.response.DocenteResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.EstudianteResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.EstudianteTutorResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.TutorNotificacionResponse;
@@ -202,6 +203,13 @@ public class EstudianteDocenteServiceImpl implements EstudianteDocenteService {
                 .totalMatriculasPendientes(countMatriculasPendientes(estudiante.getId()))
                 .totalMatriculas(countTotalMatriculas(estudiante.getId()))
                 .build();
+    }
+
+    @Override
+    public DocenteResponse getDocenteByEmail(String email) {
+        Docente docente = estudianteDocenteRepo.findDocenteByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("No se encontró un docente con el correo proporcionado"));
+        return modelMapper.map(docente, DocenteResponse.class);
     }
 
     

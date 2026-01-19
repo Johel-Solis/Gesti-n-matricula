@@ -89,6 +89,19 @@ public class EstudianteDocenteServiceImpl implements EstudianteDocenteService {
         }
         return pendientes;
     }
+     private int countMatriculasPendienteAprobacion(Long estudianteId) {
+        List<Matricula> matriculas = matriculaRepository.findByEstudianteIdAndPeriodoActivo(estudianteId);
+        int aprobadas = 0;
+        for (Matricula matricula : matriculas) {
+            if (matricula != null && matricula.getEstadoMatricula() != null &&(
+                    MatriculaEstado.TUTOR_AVALADA.name().equalsIgnoreCase(matricula.getEstadoMatricula())
+                    || MatriculaEstado.TUTOR_NO_AVALADA.name().equalsIgnoreCase(matricula.getEstadoMatricula())
+                    )) {
+                aprobadas++;
+            }
+        }
+        return aprobadas;
+    }
 
     private int countTotalMatriculas(Long estudianteId) {
         List<Matricula> matriculas = matriculaRepository.findByEstudianteIdAndPeriodoActivo(estudianteId);
@@ -200,8 +213,9 @@ public class EstudianteDocenteServiceImpl implements EstudianteDocenteService {
     private EstudianteTutorResponse toEstudianteTutorResponse(Estudiante estudiante) {
         return EstudianteTutorResponse.builder()
                 .estudiante( modelMapper.map(estudiante, EstudianteResponse.class))
-                .totalMatriculasPendientes(countMatriculasPendientes(estudiante.getId()))
+                .totalMatriculasPendientesTutor(countMatriculasPendientes(estudiante.getId()))
                 .totalMatriculas(countTotalMatriculas(estudiante.getId()))
+                .totalMatriculasPendienteCordinador(countMatriculasPendienteAprobacion(null))
                 .build();
     }
 

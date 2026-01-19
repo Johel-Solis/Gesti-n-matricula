@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 public class EstudianteTutorResponse {
 
     private EstudianteResponse estudiante;
-    private int totalMatriculasPendientes;
+    private int totalMatriculasPendientesTutor;
+    private int totalMatriculasPendienteCordinador;
     private int totalMatriculas;
 }

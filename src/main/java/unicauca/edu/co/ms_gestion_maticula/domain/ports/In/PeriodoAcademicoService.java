@@ -22,6 +22,8 @@ public interface PeriodoAcademicoService {
 
     public PeriodoFechaResponse validarFechas(LocalDate fechaInicio, LocalDate fechaFin);
     public PeriodoAcademicoResponse obtenerPeriodoActivo();
+
+    public PeriodoAcademicoResponse precargarCursosDesdePeriodo(Long idPeriodo, Long idPeriodoPrecarga);
        
 
   

@@ -14,11 +14,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import unicauca.edu.co.ms_gestion_maticula.domain.enums.PeriodoEstadoEnum;
+import unicauca.edu.co.ms_gestion_maticula.domain.model.Curso;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.PeriodoAcademico;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.PeriodoAcademicoRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.PeriodoFechaResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.PeriodoAcademicoResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.In.PeriodoAcademicoService;
+import unicauca.edu.co.ms_gestion_maticula.domain.ports.out.CursoRepository;
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.out.PeriodoAcademicoRepository;
 
 @Service
@@ -28,6 +30,9 @@ public class PeriodoAcademicoServiceImpl implements PeriodoAcademicoService {
     private final PeriodoAcademicoRepository repository;
     @Autowired
     private final ModelMapper modelMapper;
+
+    @Autowired
+    private final CursoRepository cursoRepository;
 
     @Qualifier("messageResourceMatricula")
 	MessageSource messageSource;    
@@ -145,5 +150,45 @@ public class PeriodoAcademicoServiceImpl implements PeriodoAcademicoService {
             }
         }
 }
+
+    @Override
+    public PeriodoAcademicoResponse precargarCursosDesdePeriodo(Long idPeriodo, Long idPeriodoPrecarga) {
+       PeriodoAcademico periodo = repository.findById(idPeriodo)
+            .orElseThrow(() -> new IllegalArgumentException("Periodo no encontrado"));
+         PeriodoAcademico periodoPrecarga = repository.findById(idPeriodoPrecarga)
+            .orElseThrow(() -> new IllegalArgumentException("Periodo de precarga no encontrado"));
+
+        if (!(periodo.getEstado().equals(PeriodoEstadoEnum.ACTIVO.name()))) {
+            throw new IllegalArgumentException("El período debe estar activo para precargar cursos.");
+        }
+
+        List<Curso> cursosPeriodo = cursoRepository.findAllCursos(null,null,periodo.getId() );
+
+        if (cursosPeriodo.size()>0) {
+            throw new IllegalArgumentException("El período ya tiene cursos asignados, no se puede precargar.");
+            
+        }else{
+            List<Curso> cursosAPrecargar = cursoRepository.findAllCursos(null,null,periodoPrecarga.getId() );
+
+            if (cursosAPrecargar.size()<=0) {
+                throw new IllegalArgumentException("El período de precarga no tiene cursos para copiar.");
+            }
+            for (Curso c : cursosAPrecargar) {
+                Curso nuevoCurso = new Curso();
+                nuevoCurso.setAsignatura(c.getAsignatura());
+                nuevoCurso.setDocentes(c.getDocentes());
+                nuevoCurso.setGrupo(c.getGrupo());
+                nuevoCurso.setHorario(c.getHorario());
+                nuevoCurso.setSalon(c.getSalon());
+                nuevoCurso.setPeriodo(periodo);
+                cursoRepository.saveCurso(nuevoCurso);
+            }
+            PeriodoAcademico periodoResponse = repository.findById(idPeriodo)
+            .orElseThrow(() -> new IllegalArgumentException("Periodo no encontrado"));
+            return modelMapper.map(periodoResponse, PeriodoAcademicoResponse.class);
+        }
+
+
+    }
 
 }

@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.In.PeriodoAcademicoService;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.PeriodoAcademicoRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.PeriodoFechasRequest;
+import unicauca.edu.co.ms_gestion_maticula.domain.request.PrecargaCursosRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.PeriodoAcademicoResponse;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.PeriodoFechaResponse;
 import unicauca.edu.co.ms_gestion_maticula.infrastructure.utils.ApiResponse;
@@ -73,6 +74,15 @@ public class PeriodoAcademicoController {
     public ResponseEntity<ApiResponse> obtenerPeriodoActivo() {
         PeriodoAcademicoResponse periodoActivo = useCase.obtenerPeriodoActivo();
         return ResponseEntity.ok(new ApiResponse("SUCCESS", "Período activo obtenido", periodoActivo, 200));
+    }
+
+    @PostMapping("/precargarCursos")
+    public ResponseEntity<ApiResponse> precargarCursos(@RequestBody PrecargaCursosRequest request) {
+
+        PeriodoAcademicoResponse response = useCase.precargarCursosDesdePeriodo(request.getIdPeriodo(), request.getIdPeriodoPrecarga());
+        
+
+        return ResponseEntity.ok(new ApiResponse("SUCCESS", "Cursos precargados correctamente", response, 200));
     }
 
 }

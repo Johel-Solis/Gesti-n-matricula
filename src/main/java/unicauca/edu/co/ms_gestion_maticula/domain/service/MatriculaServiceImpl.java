@@ -48,6 +48,7 @@ import unicauca.edu.co.ms_gestion_maticula.domain.request.CambioEstadoMasivoRequ
 import unicauca.edu.co.ms_gestion_maticula.domain.request.CursoMatriculaEstudiantesRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.CursoMatriculaRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.EstudianteMatriculaRequest;
+import unicauca.edu.co.ms_gestion_maticula.domain.request.ListCursosRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.ListEstudianteRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.MatriculaCursoEstudiantesRequests;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.MatriculaEstadoRequest;
@@ -1043,6 +1044,13 @@ public class MatriculaServiceImpl implements MatriculaService {
                         matricula.setEstado(false);
                     }
                 } else{
+                    if ((matricula.getEstadoMatricula().equalsIgnoreCase(MatriculaEstado.APROBADA.name())||
+                        matricula.getEstadoMatricula().equalsIgnoreCase(MatriculaEstado.RECHAZADA.name())) &&
+                        (request.getNuevoEstado().equalsIgnoreCase(MatriculaEstado.TUTOR_AVALADA.name())||
+                        request.getNuevoEstado().equalsIgnoreCase(MatriculaEstado.TUTOR_NO_AVALADA.name()))) {
+                        throw new IllegalArgumentException("No se puede cambiar el estado de una matrícula que ya está APROBADA o RECHAZADA por el  Coordinador");
+                        
+                    }
                     MatriculaEstado nuevoEstado = MatriculaEstado.valueOf(request.getNuevoEstado().toUpperCase());
                     matricula.setEstadoMatricula(nuevoEstado.name());                    
                 }
@@ -1058,6 +1066,40 @@ public class MatriculaServiceImpl implements MatriculaService {
             throw new IllegalArgumentException("Estado de matrícula no válido para el cambio masivo"); 
         }
         return toMatriculaResponse(matriculasActualizadas);
+    }
+
+    @Override
+    public List<TutorNotificacionResponse> notificarMatriculasFinalCursos(ListCursosRequest request) {
+        // if (request == null || request.getCursoIds() == null || 
+        //     request.getCursoIds().isEmpty()) {
+        //     throw new IllegalArgumentException("Debe especificar al menos un curso para la notificacion");
+        // }
+
+        // PeriodoAcademico periodoActivo = periodoAcademicoRepository.findPeriodoActivo()
+        //         .orElseThrow(() -> new IllegalArgumentException("No hay periodo academico activo"));
+        // Set<String> correosEnviados = new HashSet<>();
+
+        // List<TutorNotificacionResponse> notificaciones = new ArrayList<>();
+        // Set<Matricula> matriculasList = new HashSet<>();
+
+        // String asunto = "Reporte de Matrículas  período "  + periodoActivo.getFechaInicio().format(DateTimeFormatter.ofPattern("dd/MM/yy")) + " - " + periodoActivo.getFechaFin().format(DateTimeFormatter.ofPattern("dd/MM/yy")) ;
+        // for (Long cursoId : request.getCursoIds()) {
+        //     if (cursoId == null) {
+        //         continue;
+        //     }
+
+        //     Curso curso = cursoRepository.findCursoById(cursoId)
+        //         .orElseThrow(() -> new EntityNotFoundException("Curso no encontrado con ID: " + cursoId));
+
+        //     List<Matricula> matriculas = matriculaRepository.findByCursoIdAndPeriodoId(cursoId, periodoActivo.getId());
+        //     matriculasList.addAll(matriculas);
+        // }
+
+            
+           
+           return null;
+               
+
     }
 
 }

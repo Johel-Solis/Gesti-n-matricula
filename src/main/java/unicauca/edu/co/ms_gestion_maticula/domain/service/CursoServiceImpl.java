@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -425,7 +426,7 @@ public class CursoServiceImpl implements CusoService {
                 .map(this::toReportCursoDto)
                 .toList();
         
-        System.out.println("Generando reporte de cursos. Formato: " + formato + ", Registros: " + data.size());
+        
 
         try (InputStream reportStream = getClass().getResourceAsStream("/Reportes/cursos.jasper");
              InputStream logoStream = getClass().getResourceAsStream("/image/logo-unicauca.png")) {
@@ -435,26 +436,23 @@ public class CursoServiceImpl implements CusoService {
             if (logoStream == null) {
                 throw new IllegalArgumentException("No se encontro el logo para el reporte");
             }
-            System.out.println("Recursos del reporte cargados correctamente.");
+            
             Map<String, Object> params = new HashMap<>();
            params.put("logoUnicauca", new BufferedInputStream(logoStream));
-            params.put("fecha_periodo", periodo.getFechaInicio() + " - " + periodo.getFechaFin());
+            params.put("fecha_periodo", periodo.getFechaInicio().format(DateTimeFormatter.ofPattern("dd/MM/yy")) + " - " + periodo.getFechaFin().format(DateTimeFormatter.ofPattern("dd/MM/yy")));
             params.put("tag_periodo", periodo.getTagPeriodo()+"");
             params.put("ds", new JRBeanArrayDataSource(data.toArray()));
-            System.out.println("Parámetros del reporte preparados: " + params.keySet());
             JasperPrint print = JasperFillManager.fillReport(reportStream, params,
                    new JRBeanArrayDataSource(data.toArray()));
 
-            System.out.println("Reporte llenado correctamente, exportando en formato: " + formato);
             if (isExcelFormat(formato)) {
                 return exportXlsx(print);
             }
             return JasperExportManager.exportReportToPdf(print);
         } catch (JRException e) {
-            System.out.println("Error generando el reporte de cursos: " + e.getMessage());
+            
             throw new IllegalStateException("Error generando el reporte de cursos", e);
         } catch (Exception e) {
-            System.out.println("Error inesperado generando el reporte de cursos: " + e.getMessage());
             throw new IllegalStateException("No se pudo generar el reporte de cursos", e);
         }
     }

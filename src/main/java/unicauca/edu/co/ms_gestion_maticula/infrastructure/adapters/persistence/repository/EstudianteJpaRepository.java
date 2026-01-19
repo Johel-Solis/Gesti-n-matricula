@@ -58,4 +58,7 @@ public interface EstudianteJpaRepository extends JpaRepository<EstudianteEntity,
     @Query("SELECT DISTINCT m.estudiante  FROM MatriculaEntity m WHERE m.estado = true AND m.estadoMatricula = :estadoMatricula AND m.periodo.id = :periodoId")
     List<EstudianteEntity> findByPeriodo( @Param("periodoId") Long periodoId,@Param("estadoMatricula") String estadoMatricula);
 
+    @Query("SELECT CASE WHEN COUNT(de) > 0 THEN true ELSE false END FROM DocenteEstudiante de WHERE de.docente.id = :tutorId AND de.estudiante.codigo = :codigoEstudiante")
+    boolean isTutorDeEstudiante(@Param("tutorId") Long tutorId, @Param("codigoEstudiante") String codigoEstudiante);
+
 }

@@ -20,12 +20,15 @@ import unicauca.edu.co.ms_gestion_maticula.domain.model.Persona;
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.In.EmailService;
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.out.EstudianteDocenteRepository;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.ReportCursoDto;
+import unicauca.edu.co.ms_gestion_maticula.domain.response.ReportEstudianteCursoDto;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.TutorNotificacionResponse;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.data.JRBeanArrayDataSource;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -713,9 +716,13 @@ public class MatriculaServiceImpl implements MatriculaService {
 
         PeriodoAcademico periodoActivo = periodoAcademicoRepository.findPeriodoActivo()
                 .orElseThrow(() -> new IllegalArgumentException("No hay periodo academico activo"));
-        List<TutorNotificacionResponse> notificaciones = new ArrayList<>();
         Set<String> correosEnviados = new HashSet<>();
 
+        Set<EstudianteResponse> estudiantesNotificados = new HashSet<>();
+        Set<ReportEstudianteCursoDto> reportesEstudiantes = new HashSet<>();
+        Set<Docente> tutores = new HashSet<>();
+
+        String asunto = "Reporte de Matrícula período "  + periodoActivo.getFechaInicio().format(DateTimeFormatter.ofPattern("dd/MM/yy")) + " - " + periodoActivo.getFechaFin().format(DateTimeFormatter.ofPattern("dd/MM/yy")) ;
         for (Long estudianteId : request.getEstudianteIds()) {
             if (estudianteId == null) {
                 continue;
@@ -726,7 +733,7 @@ public class MatriculaServiceImpl implements MatriculaService {
                 LOGGER.warn("Estudiante {} no encontrado, se omite notificacion", estudianteId);
                 continue;
             }
-
+            
             List<Matricula> matriculas = matriculaRepository.findByEstudianteIdAndPeriodoActivo(estudianteId);
             List<Matricula> aprobadas = matriculas.stream()
                     .filter(this::esMatriculaAprobada)
@@ -736,57 +743,86 @@ public class MatriculaServiceImpl implements MatriculaService {
                 LOGGER.info("Estudiante {} sin matriculas aprobadas en periodo activo", estudianteId);
                 continue;
             }
-
-            byte[] reporte = generarReporteMatricula(estudiante, aprobadas, periodoActivo);
-            int totalAprobadas = aprobadas.size();
-            String asunto = "Matricula final aprobada";
-
+            
             String correoEstudiante = resolveCorreoEstudiante(estudiante);
+            reportesEstudiantes.add(ReportEstudianteCursoDto.builder()
+                    .codigoEstudiante(estudiante.getCodigo())
+                    .nombreEstudiante(buildNombrePersona(estudiante.getPersona()))
+                    .identificacion(estudiante.getPersona().getIdentificacion().toString())
+                    .semestre(estudiante.getInformacionMaestria().getSemestreAcademico().toString())
+                    .correoEstudiante(correoEstudiante)
+                    .cursos(aprobadas.stream()
+                            .map(this::toReportCursoDto)
+                            .toList())
+                    .totalMatricula(String.valueOf(aprobadas.size()))
+                    .build());
+
+            estudiantesNotificados.add(modelMapper.map(estudiante, EstudianteResponse.class));
+            List<Docente> tutoresEstudiante = estudianteDocenteRepository.findTutoresByEstudiante(estudianteId);
+            tutores.addAll(tutoresEstudiante);
+
+            byte[] reporte = generarReporteMatriculaEstudiante(estudiante, aprobadas, periodoActivo);
+            int totalAprobadas = aprobadas.size();
+
+            
             if (correoEstudiante != null && !correoEstudiante.isBlank()) {
                 String normalized = correoEstudiante.trim().toLowerCase();
                 if (correosEnviados.add(normalized)) {
                     String cuerpo = emailService.buildCorreoHtml("Reporte de Matrícula", buildCuerpoCorreoEstudiante(estudiante, periodoActivo, totalAprobadas));
                     sendEmailWithAttachmentSafe(correoEstudiante, asunto, cuerpo, reporte,
                             buildNombreArchivoReporte(estudiante), "application/pdf");
-                    notificaciones.add(TutorNotificacionResponse.builder()
-                            .tutorId(estudiante.getId())
-                            .nombre(buildNombrePersona(estudiante.getPersona()))
-                            .codigo(estudiante.getCodigo())
-                            .correo(correoEstudiante)
-                            .totalEstudiantesConMatriculaActiva(totalAprobadas)
-                            .build());
                 }
             } else {
                 LOGGER.warn("Estudiante {} sin correo, se omite notificacion", estudianteId);
             }
 
-            List<Docente> tutores = estudianteDocenteRepository.findTutoresByEstudiante(estudianteId);
-            for (Docente tutor : tutores) {
-                String correoTutor = resolveCorreoDocente(tutor);
-                if (correoTutor == null || correoTutor.isBlank()) {
-                    LOGGER.warn("Tutor {} sin correo, se omite notificacion", tutor != null ? tutor.getId() : null);
-                    continue;
-                }
-                String normalized = correoTutor.trim().toLowerCase();
-                if (!correosEnviados.add(normalized)) {
-                    continue;
-                }
-                String cuerpo = emailService.buildCorreoHtml("Reporte de Matrícula", buildCuerpoCorreoTutor(tutor, estudiante, periodoActivo, totalAprobadas));
-                sendEmailWithAttachmentSafe(correoTutor, asunto, cuerpo, reporte,
-                        buildNombreArchivoReporte(estudiante), "application/pdf");
-                notificaciones.add(TutorNotificacionResponse.builder()
-                        .tutorId(tutor != null ? tutor.getId() : null)
-                        .nombre(buildNombrePersona(tutor != null ? tutor.getPersona() : null))
-                        .codigo(tutor != null ? tutor.getCodigo() : "")
-                        .correo(correoTutor)
-                        .totalEstudiantesConMatriculaActiva(1)
-                        .build());
-            }
+            
+
         }
 
-        return notificaciones;
+
+        return  notificarTutor(reportesEstudiantes, periodoActivo, tutores,estudiantesNotificados);
     }
 
+    private List<TutorNotificacionResponse> notificarTutor(Set<ReportEstudianteCursoDto> reportesEstudiantes,
+        PeriodoAcademico periodoActivo, Set<Docente> tutores,Set<EstudianteResponse> estudiantesNotificados)
+    {
+        String asunto = "Reporte de Matrícula período "  + periodoActivo.getFechaInicio().format(DateTimeFormatter.ofPattern("dd/MM/yy")) + " - " + periodoActivo.getFechaFin().format(DateTimeFormatter.ofPattern("dd/MM/yy")) ;
+        Set<String> correosEnviados = new HashSet<>();
+        List<TutorNotificacionResponse> notificaciones = new ArrayList<>();
+
+        for (Docente tutor : tutores) {
+            String correoTutor = resolveCorreoDocente(tutor);
+            if (correoTutor == null || correoTutor.isBlank()) {
+                LOGGER.warn("Tutor {} sin correo, se omite notificacion", tutor != null ? tutor.getId() : null);
+                continue;
+            }
+            String normalized = correoTutor.trim().toLowerCase();
+            if (!correosEnviados.add(normalized)) {
+                continue;
+            }
+            String cuerpo = emailService.buildCorreoHtml("Reporte de Matrícula", buildCuerpoCorreoTutor(tutor, periodoActivo));
+            List<ReportEstudianteCursoDto> estudiantesDelTutor = reportesEstudiantes.stream()
+                    .filter(reporte -> estudianteDocenteRepository.isTutorDeEstudiante(tutor.getId(), reporte.getCodigoEstudiante()))
+                    .toList();
+            byte[] reporte = generarReporteMatriculaTutor(tutor,estudiantesDelTutor,periodoActivo);
+            sendEmailWithAttachmentSafe(correoTutor, asunto, cuerpo, reporte,"Reporte_matricula.pdf", "application/pdf");
+
+             List<EstudianteResponse> estudiantesResult = estudiantesNotificados.stream()
+                    .filter(estudiante -> estudianteDocenteRepository.isTutorDeEstudiante(tutor.getId(), estudiante.getCodigo()))
+                    .toList();
+
+            notificaciones.add(TutorNotificacionResponse.builder()
+                    .tutorId(tutor != null ? tutor.getId() : null)
+                    .nombre(buildNombrePersona(tutor != null ? tutor.getPersona() : null))
+                    .codigo(tutor != null ? tutor.getCodigo() : "")
+                    .correo(correoTutor)
+                    .estudiantes(estudiantesResult)
+                    .totalEstudiantesConMatriculaActiva(estudiantesResult.size())
+                    .build());
+        }
+        return notificaciones;
+    }
     private boolean esMatriculaAprobada(Matricula matricula) {
         return matricula != null
                 && matricula.getEstadoMatricula() != null
@@ -806,7 +842,7 @@ public class MatriculaServiceImpl implements MatriculaService {
         }
     }
 
-    private byte[] generarReporteMatricula(Estudiante estudiante, List<Matricula> matriculas, PeriodoAcademico periodo) {
+    private byte[] generarReporteMatriculaEstudiante(Estudiante estudiante, List<Matricula> matriculas, PeriodoAcademico periodo) {
         List<ReportCursoDto> data = matriculas.stream()
                 .map(this::toReportCursoDto)
                 .toList();
@@ -828,6 +864,36 @@ public class MatriculaServiceImpl implements MatriculaService {
             params.put("ds", new JRBeanArrayDataSource(data.toArray()));
             JasperPrint print = JasperFillManager.fillReport(reportStream, params,
                     new JRBeanArrayDataSource(data.toArray()));
+            return JasperExportManager.exportReportToPdf(print);
+        } catch (JRException e) {
+            throw new IllegalStateException("Error generando el reporte de matricula", e);
+        } catch (Exception e) {
+            throw new IllegalStateException("No se pudo generar el reporte de matricula", e);
+        }
+    }
+
+    private byte[] generarReporteMatriculaTutor(Docente tutor,List<ReportEstudianteCursoDto> estudiantes, PeriodoAcademico periodo) {
+       
+        try (InputStream reportStream = getClass().getResourceAsStream("/Reportes/matriculaTutor.jasper");
+             InputStream logoStream = getClass().getResourceAsStream("/image/logo-unicauca.png")) {
+            if (reportStream == null) {
+                throw new IllegalArgumentException("No se encontro el reporte matriculaTutor.jasper");
+            }
+            if (logoStream == null) {
+                throw new IllegalArgumentException("No se encontro el logo para el reporte");
+            }
+            Map<String, Object> params = new HashMap<>();
+            params.put("logoUnicauca", new BufferedInputStream(logoStream));
+            params.put("fecha_periodo", periodo.getFechaInicio() + " - " + periodo.getFechaFin());
+            params.put("codigo_tutor", tutor.getCodigo() != null ? tutor.getCodigo() : "");
+            params.put("correo_tutor", tutor.getPersona() != null && tutor.getPersona().getCorreoElectronico() != null
+                    ? tutor.getPersona().getCorreoElectronico()
+                    : "");
+            params.put("nombre_tutor", buildNombrePersona(tutor.getPersona()));
+            params.put("dsResumenEstudiantes", new JRBeanCollectionDataSource(estudiantes));
+            JRBeanCollectionDataSource mainDs = new JRBeanCollectionDataSource(estudiantes);
+            JasperPrint print = JasperFillManager.fillReport(reportStream, params,
+                    mainDs);
             return JasperExportManager.exportReportToPdf(print);
         } catch (JRException e) {
             throw new IllegalStateException("Error generando el reporte de matricula", e);
@@ -904,19 +970,15 @@ public class MatriculaServiceImpl implements MatriculaService {
         return cuerpo;
     }
 
-    private String buildCuerpoCorreoTutor(Docente tutor, Estudiante estudiante, PeriodoAcademico periodo,
-            int totalAprobadas) {
+    private String buildCuerpoCorreoTutor(Docente tutor, PeriodoAcademico periodo) {
         String nombreTutor = buildNombrePersona(tutor != null ? tutor.getPersona() : null);
         String saludo = nombreTutor.isEmpty() ? "Cordial saludo," : "Cordial saludo, " + nombreTutor + ".";
-        String nombreEstudiante = buildNombrePersona(estudiante != null ? estudiante.getPersona() : null);
-        String codigo = estudiante != null && estudiante.getCodigo() != null ? estudiante.getCodigo() : "";
-        String estudianteLabel = nombreEstudiante.isEmpty() ? codigo : nombreEstudiante + (codigo.isEmpty() ? "" : " (" + codigo + ")");
         String cuerpo = "<p>" + saludo + "</p>"
-                + "<p>Se aprobo la matricula final del estudiante <strong>" + estudianteLabel + "</strong>.</p>"
-                + "<p>Adjuntamos el reporte con <strong>" + totalAprobadas + "</strong> cursos del periodo "
-                + periodo.getTagPeriodo() + ".</p>"
-                + "<p>Universitariamente,</p>"
-                + "<p><strong>Universidad del Cauca</strong></p>";
+                + "<p>Se informa sobre las matrículas de los estudiantes a tu cargo .</p>"
+                + "<p>Adjuntamos el reporte  de los estudiantes y sus matriculas en el periodo "
+                 + periodo.getFechaInicio().format(DateTimeFormatter.ofPattern("dd/MM/yy")) + " - " + periodo.getFechaFin().format(DateTimeFormatter.ofPattern("dd/MM/yy")) + " </p>"
+                + "<p>Atentamente,</p>"
+                + "<p><strong>Maestría en Computación</strong></p>";
         return  cuerpo;
     }
 
@@ -951,7 +1013,7 @@ public class MatriculaServiceImpl implements MatriculaService {
 
     private String buildNombreArchivoReporte(Estudiante estudiante) {
         String codigo = estudiante != null && estudiante.getCodigo() != null ? estudiante.getCodigo() : "estudiante";
-        return "matricula_final_" + codigo + ".pdf";
+        return "reporte_matricula_" + codigo + ".pdf";
     }
 
 }

@@ -139,7 +139,7 @@ public class CursoController {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(mediaType);
-        headers.setContentDisposition(ContentDisposition.attachment().filename("cursos." + extension).build());
+        headers.setContentDisposition(ContentDisposition.attachment().filename("cursosOfertados." + extension).build());
         return new ResponseEntity<>(reporte, headers, HttpStatus.OK);
     }
     

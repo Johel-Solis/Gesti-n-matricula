@@ -95,5 +95,10 @@ public class EstudianteDocenteJpaAdapter implements EstudianteDocenteRepository 
                 .map(Docente::fromEntity);
     }
 
+    @Override
+    public boolean isTutorDeEstudiante(Long tutorId, String codigoEstudiante) {
+        return estudianteRepo.isTutorDeEstudiante(tutorId, codigoEstudiante);
+    }
+
 
 }

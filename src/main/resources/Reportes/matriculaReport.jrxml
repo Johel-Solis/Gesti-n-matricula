@@ -1,0 +1,338 @@
+<!-- Created with Jaspersoft Studio version 7.0.3.final using JasperReports Library version 7.0.3-41034ca841d452f3305ba55b9042260aaa1ab5dd  -->
+<jasperReport name="MatriculaReportFinal" language="java" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="942836d2-3eb7-4429-a092-6b2c80d16054">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<style name="Table_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="Table_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="Table_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<dataset name="dsReporteCursos" uuid="f5441854-606f-4503-bca1-90fbf16e6ef5">
+		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+		<parameter name="semestre" class="java.lang.String"/>
+		<query language="sql"><![CDATA[]]></query>
+		<field name="codigoEstudiante" class="java.lang.String"/>
+		<field name="nombreEstudiante" class="java.lang.String"/>
+		<field name="identificacion" class="java.lang.String"/>
+		<field name="semestre" class="java.lang.String"/>
+		<field name="correoEstudiante" class="java.lang.String"/>
+		<field name="Observación" class="java.lang.String"/>
+	</dataset>
+	<dataset name="dsResumenCursos" uuid="0f0169e6-e179-41ba-b316-c8d95a24511a">
+		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+		<query language="sql"><![CDATA[]]></query>
+		<field name="grupo" class="java.lang.String"/>
+		<field name="asignatura" class="java.lang.String"/>
+		<field name="docentes" class="java.lang.String"/>
+		<field name="horario" class="java.lang.String"/>
+		<field name="estudiantes" class="java.util.List"/>
+		<field name="salon" class="java.lang.String"/>
+	</dataset>
+	<parameter name="logoUnicauca" class="java.io.InputStream"/>
+	<parameter name="tag_periodo" class="java.lang.String"/>
+	<parameter name="fecha_inicio" class="java.lang.String"/>
+	<parameter name="fecha_matricula" class="java.lang.String"/>
+	<parameter name="fecha_fin" class="java.lang.String"/>
+	<parameter name="dsResumenCursos" class="net.sf.jasperreports.engine.data.JRBeanCollectionDataSource"/>
+	<parameter name="descripcion_periodo" class="java.lang.String"/>
+	<query language="sql"><![CDATA[]]></query>
+	<field name="grupo" class="java.lang.String"/>
+	<field name="asignatura" class="java.lang.String"/>
+	<field name="docentes" class="java.lang.String"/>
+	<field name="horario" class="java.lang.String"/>
+	<field name="estudiantes" class="java.util.List"/>
+	<field name="salon" class="java.lang.String"/>
+	<title height="215" splitType="Stretch">
+		<element kind="image" uuid="53d11b6c-cdab-45ba-a273-cff0ce6d50bc" x="90" y="-5" width="80" height="80" onErrorType="Blank">
+			<expression><![CDATA[$P{logoUnicauca}]]></expression>
+			<property name="com.jaspersoft.studio.unit.width" value="px"/>
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+		</element>
+		<element kind="staticText" uuid="37f56c34-0c84-41ac-a1c1-1af2913bd662" x="190" y="20" width="300" height="30" forecolor="#1B3357" fontName="SansSerif" fontSize="19.0" bold="true">
+			<text><![CDATA[MAESTRÍA EN COMPUTACIÓN]]></text>
+		</element>
+		<element kind="line" uuid="f5d78527-baaf-416e-961c-64c9b90ae93c" x="180" y="15" width="1" height="41">
+			<pen lineWidth="2.0" lineStyle="Solid" lineColor="#D11A17"/>
+		</element>
+		<element kind="staticText" uuid="b3368d58-8f6f-4cce-91f5-5cfa6a6befba" mode="Opaque" x="0" y="84" width="551" height="30" forecolor="#FFFFFF" backcolor="#1B3357" fontName="Arial Black" fontSize="13.0" bold="true" hTextAlign="Center" vTextAlign="Middle">
+			<text><![CDATA[Reporte de Matrícula]]></text>
+		</element>
+		<element kind="staticText" uuid="a427ee7a-c533-4476-9d54-a1d5a74849fc" x="281" y="170" width="270" height="18" forecolor="#000000" bold="true" vTextAlign="Middle">
+			<text><![CDATA[Tag Período:]]></text>
+		</element>
+		<element kind="textField" uuid="4c2b9f5d-0388-4630-8229-54571ecb0086" x="348" y="170" width="175" height="18" vTextAlign="Middle">
+			<expression><![CDATA[$P{tag_periodo}]]></expression>
+		</element>
+		<element kind="staticText" uuid="d37d695d-daf0-4f6e-bb09-13e7da8c42d4" x="0" y="170" width="272" height="18" bold="true" vTextAlign="Middle">
+			<text><![CDATA[Fin período de Matricula:]]></text>
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+		</element>
+		<element kind="staticText" uuid="3e9c3db8-2b81-4791-935c-95814967ead0" x="0" y="146" width="270" height="14" bold="true">
+			<text><![CDATA[Fecha Inicio:]]></text>
+		</element>
+		<element kind="textField" uuid="03da057f-d0b1-4d82-9d19-ef9957d8390c" x="67" y="146" width="104" height="14">
+			<expression><![CDATA[$P{fecha_inicio}]]></expression>
+		</element>
+		<element kind="textField" uuid="ed792fed-05f6-4612-aedc-09cf6e5535ea" x="124" y="170" width="146" height="18" vTextAlign="Middle">
+			<expression><![CDATA[$P{fecha_matricula}]]></expression>
+		</element>
+		<element kind="staticText" uuid="15900868-8682-4daa-b7e5-e232a527d645" x="281" y="146" width="270" height="14" bold="true" vTextAlign="Middle">
+			<text><![CDATA[Fecha Fin:]]></text>
+		</element>
+		<element kind="textField" uuid="039f305e-e144-4197-9c63-29637c6396b3" x="336" y="147" width="208" height="13" vTextAlign="Middle">
+			<expression><![CDATA[$P{fecha_fin}]]></expression>
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+		</element>
+		<element kind="staticText" uuid="41c94f0f-0be1-4ad0-a414-074d949ae6ff" x="1" y="117" width="551" height="26" fontSize="13.0" bold="true" hTextAlign="Center" vTextAlign="Middle">
+			<text><![CDATA[Período académico]]></text>
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+		</element>
+		<element kind="textField" uuid="bdfe055a-6711-4d06-9b4f-f50820610c30" x="67" y="197" width="175" height="18" vTextAlign="Middle">
+			<expression><![CDATA[$P{descripcion_periodo}]]></expression>
+		</element>
+		<element kind="staticText" uuid="dec96d79-9eb4-4e67-bffe-dfe6d7ee2cee" x="0" y="197" width="270" height="18" forecolor="#000000" bold="true" vTextAlign="Middle">
+			<text><![CDATA[Descripción: ]]></text>
+		</element>
+	</title>
+	<columnHeader height="167">
+		<element kind="staticText" uuid="c3dbb432-94c3-4afa-a41e-b44967382e59" mode="Opaque" x="0" y="5" width="551" height="30" forecolor="#FFFFFF" backcolor="#1B3357" fontName="Arial Black" fontSize="13.0" bold="true" hTextAlign="Center" vTextAlign="Middle">
+			<text><![CDATA[Listado de Cursos]]></text>
+		</element>
+		<element kind="staticText" uuid="da4edac7-06ac-4b92-886b-97f6254c28fa" positionType="Float" mode="Opaque" x="1" y="134" width="551" height="30" forecolor="#FFFFFF" backcolor="#1B3357" fontName="Arial Black" fontSize="13.0" bold="true" hTextAlign="Center" vTextAlign="Middle">
+			<text><![CDATA[Reporte detallado de los Cursos ofertados]]></text>
+		</element>
+		<element kind="staticText" uuid="4faf91e2-774c-43f8-b352-38f6733a68b4" x="1" y="105" width="550" height="20">
+			<text><![CDATA[]]></text>
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+		</element>
+		<element kind="component" uuid="d3407c1f-62a6-4f11-b824-7a73ad5fb35c" positionType="Float" x="0" y="40" width="551" height="60" removeLineWhenBlank="true">
+			<component kind="table">
+				<datasetRun uuid="fbfab691-8ce5-4606-9615-717c04891438" subDataset="dsResumenCursos">
+					<dataSourceExpression><![CDATA[$P{dsResumenCursos}]]></dataSourceExpression>
+				</datasetRun>
+				<column kind="single" uuid="4f4e794f-272f-4c33-b76e-911e0c1c0c2e" width="40">
+					<columnHeader height="30" rowSpan="1" style="Table_CH">
+						<element kind="staticText" uuid="ee9bd9f4-5ddd-47e0-aa1d-4414d9c9ad39" mode="Opaque" x="0" y="0" width="40" height="30" forecolor="#FFFFFF" backcolor="#1B3357" bold="true" hTextAlign="Center" vTextAlign="Middle">
+							<text><![CDATA[Grupo]]></text>
+						</element>
+					</columnHeader>
+					<detailCell height="30" style="Table_TD">
+						<element kind="textField" uuid="7b948c3a-5392-4a6e-b946-5061719a8739" x="0" y="0" width="40" height="30" hTextAlign="Center" vTextAlign="Middle">
+							<expression><![CDATA[$F{grupo}]]></expression>
+						</element>
+					</detailCell>
+					<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column1"/>
+				</column>
+				<column kind="single" uuid="a9beb03d-f48c-44d0-8128-a818332f1f44" width="150">
+					<columnHeader height="30" rowSpan="1" style="Table_CH">
+						<element kind="staticText" uuid="0b61d2b9-8b5e-4f3c-b0e9-0bebef6e9b29" mode="Opaque" x="0" y="0" width="150" height="30" forecolor="#FFFFFF" backcolor="#1B3357" bold="true" hTextAlign="Center" vTextAlign="Middle">
+							<text><![CDATA[Asignatura]]></text>
+						</element>
+					</columnHeader>
+					<detailCell height="30" style="Table_TD">
+						<element kind="textField" uuid="a944d587-d36f-4095-8084-820ff5951b6a" x="0" y="0" width="150" height="30" hTextAlign="Center" vTextAlign="Middle">
+							<expression><![CDATA[$F{asignatura}]]></expression>
+						</element>
+					</detailCell>
+					<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column2"/>
+				</column>
+				<column kind="single" uuid="6bc8a0a5-69fa-47a0-9455-a773766a15c8" width="158">
+					<columnHeader height="30" rowSpan="1" style="Table_CH">
+						<element kind="staticText" uuid="17f560e3-6286-423b-8637-71a74d0c4fc8" mode="Opaque" x="0" y="0" width="158" height="30" forecolor="#FFFFFF" backcolor="#1B3357" bold="true" hTextAlign="Center" vTextAlign="Middle">
+							<text><![CDATA[Docentes]]></text>
+						</element>
+					</columnHeader>
+					<detailCell height="30" style="Table_TD">
+						<element kind="textField" uuid="68635f68-6f83-429b-812c-b921d539cef1" x="0" y="0" width="158" height="30" hTextAlign="Center" vTextAlign="Middle">
+							<expression><![CDATA[$F{docentes}]]></expression>
+						</element>
+					</detailCell>
+					<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column3"/>
+				</column>
+				<column kind="single" uuid="9795cc53-8525-4b4b-ba5a-75c42a8da420" width="119">
+					<columnHeader height="30" rowSpan="1" style="Table_CH">
+						<element kind="staticText" uuid="c2d09279-6ec3-40c1-b57d-a903f30e2aa7" mode="Opaque" x="0" y="0" width="119" height="30" forecolor="#FFFFFF" backcolor="#1B3357" bold="true" hTextAlign="Center" vTextAlign="Middle">
+							<text><![CDATA[Horario]]></text>
+						</element>
+					</columnHeader>
+					<detailCell height="30" style="Table_TD">
+						<element kind="textField" uuid="f9826e84-7bba-4bda-8154-a7d19e639f56" x="0" y="0" width="119" height="30" hTextAlign="Center" vTextAlign="Middle">
+							<expression><![CDATA[$F{horario}]]></expression>
+						</element>
+					</detailCell>
+					<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column4"/>
+				</column>
+				<column kind="single" uuid="f0644fce-520f-4351-81c5-29c3dc2f25c1" width="83">
+					<columnHeader height="30" rowSpan="1" style="Table_CH">
+						<element kind="staticText" uuid="e8d4eaf9-052d-4bbd-8c7e-62f980b75347" mode="Opaque" x="0" y="0" width="83" height="30" forecolor="#FFFFFF" backcolor="#1B3357" bold="true" hTextAlign="Center" vTextAlign="Middle">
+							<text><![CDATA[Salón]]></text>
+						</element>
+					</columnHeader>
+					<detailCell height="30" style="Table_TD">
+						<element kind="textField" uuid="6da1ecdc-f958-43f9-9fe2-a1a300dea3a9" x="0" y="0" width="83" height="30" hTextAlign="Center" vTextAlign="Middle">
+							<expression><![CDATA[$F{salon}]]></expression>
+						</element>
+					</detailCell>
+					<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column5"/>
+				</column>
+			</component>
+			<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>
+			<property name="com.jaspersoft.studio.table.style.table_header" value="Table_TH"/>
+			<property name="com.jaspersoft.studio.table.style.column_header" value="Table_CH"/>
+			<property name="com.jaspersoft.studio.table.style.detail" value="Table_TD"/>
+		</element>
+	</columnHeader>
+	<detail>
+		<band height="167" splitType="Stretch">
+			<element kind="textField" uuid="acdba385-e8c1-40d8-9f36-21ea760e1316" x="44" y="28" width="220" height="13" vTextAlign="Middle">
+				<expression><![CDATA[$F{grupo}]]></expression>
+			</element>
+			<element kind="staticText" uuid="454e22e2-5c18-41d3-af5a-4b13d4a53858" x="2" y="52" width="272" height="18" bold="true" vTextAlign="Middle">
+				<text><![CDATA[Asignatura:]]></text>
+				<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			</element>
+			<element kind="staticText" uuid="471d8400-8d63-45d9-9118-649bb8a15881" x="2" y="28" width="270" height="14" bold="true">
+				<text><![CDATA[Grupo:]]></text>
+			</element>
+			<element kind="staticText" uuid="90142b32-a229-4727-85fe-7568d60970af" x="287" y="52" width="270" height="14" bold="true">
+				<text><![CDATA[Horario:]]></text>
+			</element>
+			<element kind="staticText" uuid="7eb328e5-c763-4517-9ef8-24371802f4b7" x="0" y="76" width="270" height="14" bold="true" vTextAlign="Middle">
+				<text><![CDATA[Docentes asociados :]]></text>
+			</element>
+			<element kind="textField" uuid="deae42aa-116e-4476-bd0b-80334323f36b" x="61" y="54" width="171" height="15" vTextAlign="Middle">
+				<expression><![CDATA[$F{asignatura}]]></expression>
+			</element>
+			<element kind="staticText" uuid="4eb77681-00c4-4d08-ad9a-4509648d8872" x="1" y="2" width="551" height="26" fontSize="13.0" bold="true" hTextAlign="Center" vTextAlign="Middle">
+				<text><![CDATA[Información Curso]]></text>
+				<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			</element>
+			<element kind="textField" uuid="3e05b856-8142-4866-9138-2d406381fab4" x="106" y="77" width="443" height="13" vTextAlign="Middle">
+				<expression><![CDATA[$F{docentes}]]></expression>
+			</element>
+			<element kind="textField" uuid="a292b0b1-dff1-4f7e-aba1-1699fbf45ada" x="330" y="52" width="204" height="13" vTextAlign="Middle">
+				<expression><![CDATA[$F{horario}]]></expression>
+			</element>
+			<element kind="line" uuid="7900eff6-654d-4820-9182-15eeebb6734b" x="0" y="160" width="550" height="1">
+				<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				<pen lineWidth="4.0" lineColor="#1B3357"/>
+			</element>
+			<element kind="component" uuid="168acc1d-373a-44f3-b268-c00c54288dac" positionType="Float" x="1" y="102" width="551" height="60" removeLineWhenBlank="true">
+				<printWhenExpression><![CDATA[$F{estudiantes} != null && !$F{estudiantes}.isEmpty()]]></printWhenExpression>
+				<component kind="table">
+					<datasetRun uuid="45186d19-9dba-46d9-a80e-3c2de39e4ecb" subDataset="dsReporteCursos">
+						<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($F{estudiantes})]]></dataSourceExpression>
+					</datasetRun>
+					<column kind="single" uuid="fb5fac56-cbaf-4561-88e6-c734be33d5d1" width="90">
+						<columnHeader height="30" rowSpan="1" style="Table_CH">
+							<element kind="staticText" uuid="4277e369-c6d2-447c-bb88-ef04cdf369e8" mode="Opaque" x="0" y="0" width="90" height="30" forecolor="#FFFFFF" backcolor="#1B3357" bold="true" hTextAlign="Center" vTextAlign="Middle">
+								<text><![CDATA[código]]></text>
+							</element>
+						</columnHeader>
+						<detailCell height="30" style="Table_TD">
+							<element kind="textField" uuid="be91408d-ff2b-46d5-a549-2a7303a38373" x="0" y="0" width="90" height="30" hTextAlign="Center" vTextAlign="Middle">
+								<expression><![CDATA[$F{codigoEstudiante}]]></expression>
+							</element>
+						</detailCell>
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column1"/>
+					</column>
+					<column kind="single" uuid="577f8379-23a7-439a-a152-09054ae93e8f" width="170">
+						<columnHeader height="30" rowSpan="1" style="Table_CH">
+							<element kind="staticText" uuid="8a5e65a0-4e33-41ae-ad74-b55640c52df8" mode="Opaque" x="0" y="0" width="170" height="30" forecolor="#FFFFFF" backcolor="#1B3357" bold="true" hTextAlign="Center" vTextAlign="Middle">
+								<text><![CDATA[Nombre]]></text>
+							</element>
+						</columnHeader>
+						<detailCell height="30" style="Table_TD">
+							<element kind="textField" uuid="8b3a91e9-608c-488a-965a-19b1a302c9d4" x="0" y="0" width="170" height="30" hTextAlign="Center" vTextAlign="Middle">
+								<expression><![CDATA[$F{nombreEstudiante}]]></expression>
+							</element>
+						</detailCell>
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column2"/>
+					</column>
+					<column kind="single" uuid="03f0dbe7-6af3-43bc-8e57-edd390e50adf" width="150">
+						<columnHeader height="30" rowSpan="1" style="Table_CH">
+							<element kind="staticText" uuid="b77ccdaa-528b-47d7-a2f5-50fd3596de28" mode="Opaque" x="0" y="0" width="150" height="30" forecolor="#FFFFFF" backcolor="#1B3357" bold="true" hTextAlign="Center" vTextAlign="Middle">
+								<text><![CDATA[correo]]></text>
+							</element>
+						</columnHeader>
+						<detailCell height="30" style="Table_TD">
+							<element kind="textField" uuid="0cdb52d3-d779-4d4d-8a37-61f178c89c5c" x="0" y="0" width="150" height="30" hTextAlign="Center" vTextAlign="Middle">
+								<expression><![CDATA[$F{correoEstudiante}]]></expression>
+							</element>
+						</detailCell>
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column3"/>
+					</column>
+					<column kind="single" uuid="edebc5a5-f9f0-4217-b5cf-6d892ee01eb7" width="40">
+						<columnHeader height="30" rowSpan="1" style="Table_CH">
+							<element kind="staticText" uuid="de0a25e5-4e4d-49a7-b0d2-6ee4f6a112b4" mode="Opaque" x="0" y="0" width="40" height="30" forecolor="#FFFFFF" backcolor="#1B3357" bold="true" hTextAlign="Center" vTextAlign="Middle">
+								<text><![CDATA[semestre]]></text>
+							</element>
+						</columnHeader>
+						<detailCell height="30" style="Table_TD">
+							<element kind="textField" uuid="2a1a3e1b-ae90-42ef-a271-a823bfdd2a02" x="0" y="0" width="40" height="30" hTextAlign="Center" vTextAlign="Middle">
+								<expression><![CDATA[$F{semestre}]]></expression>
+							</element>
+						</detailCell>
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column4"/>
+					</column>
+					<column kind="single" uuid="c0b6bb2e-7d02-4b19-bc2a-913333959e85" width="101">
+						<columnHeader height="30" rowSpan="1" style="Table_CH">
+							<element kind="staticText" uuid="6b27e690-5dd0-44f4-89ca-adc4db310b2f" mode="Opaque" x="0" y="0" width="101" height="30" forecolor="#FFFFFF" backcolor="#1B3357" bold="true" hTextAlign="Center" vTextAlign="Middle">
+								<text><![CDATA[Observación]]></text>
+							</element>
+						</columnHeader>
+						<detailCell height="30" style="Table_TD">
+							<element kind="textField" uuid="72204a04-32fc-4d2d-bb51-fb3e2c2163dc" x="0" y="0" width="101" height="30" hTextAlign="Center" vTextAlign="Middle">
+								<expression><![CDATA[$F{Observación}]]></expression>
+							</element>
+						</detailCell>
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column5"/>
+					</column>
+				</component>
+				<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>
+				<property name="com.jaspersoft.studio.table.style.table_header" value="Table_TH"/>
+				<property name="com.jaspersoft.studio.table.style.column_header" value="Table_CH"/>
+				<property name="com.jaspersoft.studio.table.style.detail" value="Table_TD"/>
+				<property name="com.jaspersoft.studio.element.name" value="estudiantes"/>
+			</element>
+			<element kind="staticText" uuid="e9a3f79c-dc9a-4a65-a78f-4d0ce54c159b" x="288" y="30" width="270" height="14" bold="true">
+				<text><![CDATA[Salón:]]></text>
+			</element>
+			<element kind="textField" uuid="529cedc9-808c-461e-bac8-9e28445ef1d2" x="320" y="30" width="211" height="13" vTextAlign="Middle">
+				<expression><![CDATA[$F{salon}]]></expression>
+			</element>
+		</band>
+	</detail>
+	<pageFooter height="16" splitType="Stretch">
+		<element kind="staticText" uuid="0296491d-c681-4740-a3a8-f9912cf3801c" x="0" y="-2" width="340" height="16" bold="true" vTextAlign="Middle">
+			<text><![CDATA[Fecha y hora de creación:]]></text>
+		</element>
+		<element kind="textField" uuid="5e60ddc5-6fbd-481e-aa0b-fd41b5f9c4d1" x="130" y="0" width="98" height="14" pattern="MMMMM dd, yyyy">
+			<expression><![CDATA[new java.util.Date()]]></expression>
+		</element>
+		<element kind="textField" uuid="6de08906-3bdb-4726-a6a2-5d32fea869d7" x="220" y="0" width="80" height="14" pattern="HH:mm">
+			<expression><![CDATA[new java.util.Date()]]></expression>
+		</element>
+	</pageFooter>
+</jasperReport>

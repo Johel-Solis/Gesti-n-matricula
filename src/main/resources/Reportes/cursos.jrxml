@@ -42,39 +42,37 @@
 	<parameter name="fecha_periodo" class="java.lang.String"/>
 	<parameter name="tag_periodo" class="java.lang.String"/>
 	<query language="sql"><![CDATA[]]></query>
-	<title height="84" splitType="Stretch">
+	<title height="194" splitType="Stretch">
 		<element kind="image" uuid="53d11b6c-cdab-45ba-a273-cff0ce6d50bc" x="90" y="-5" width="80" height="80" onErrorType="Blank">
 			<expression><![CDATA[$P{logoUnicauca}]]></expression>
 			<property name="com.jaspersoft.studio.unit.width" value="px"/>
 			<property name="com.jaspersoft.studio.unit.height" value="px"/>
 		</element>
-		<element kind="staticText" uuid="37f56c34-0c84-41ac-a1c1-1af2913bd662" x="190" y="20" width="300" height="30" forecolor="#1B3357" fontName="SansSerif" fontSize="19.0" bold="true">
+		<element kind="staticText" uuid="37f56c34-0c84-41ac-a1c1-1af2913bd662" x="189" y="20" width="366" height="30" forecolor="#1B3357" fontName="SansSerif" fontSize="19.0" bold="true">
 			<text><![CDATA[MAESTRÍA EN COMPUTACIÓN]]></text>
 		</element>
 		<element kind="line" uuid="f5d78527-baaf-416e-961c-64c9b90ae93c" x="180" y="15" width="1" height="41">
 			<pen lineWidth="2.0" lineStyle="Solid" lineColor="#D11A17"/>
 		</element>
-	</title>
-	<pageHeader height="119" splitType="Stretch">
-		<element kind="staticText" uuid="b3368d58-8f6f-4cce-91f5-5cfa6a6befba" mode="Opaque" x="0" y="5" width="551" height="30" forecolor="#FFFFFF" backcolor="#1B3357" fontName="Arial Black" fontSize="13.0" bold="true" hTextAlign="Center" vTextAlign="Middle">
+		<element kind="staticText" uuid="dba68236-d6c7-4612-b225-4b18262ff8b6" mode="Opaque" x="5" y="90" width="551" height="30" forecolor="#FFFFFF" backcolor="#1B3357" fontName="Arial Black" fontSize="13.0" bold="true" hTextAlign="Center" vTextAlign="Middle">
 			<text><![CDATA[CURSOS OFERTADOS]]></text>
 		</element>
-		<element kind="staticText" uuid="800dd86f-f1be-4092-a2ed-55ab77809a85" x="0" y="50" width="280" height="18" forecolor="#000000" bold="true" vTextAlign="Middle">
+		<element kind="staticText" uuid="8cfe297a-d2d7-4817-a237-0a45ded13c39" x="0" y="135" width="79" height="18" forecolor="#000000" bold="true" hTextAlign="Center" vTextAlign="Middle">
 			<text><![CDATA[Período:]]></text>
 		</element>
-		<element kind="staticText" uuid="3ed49ba1-30c8-4457-84df-4b49e3345849" x="0" y="80" width="120" height="16" bold="true" vTextAlign="Middle">
+		<element kind="staticText" uuid="a6312866-04bb-4da1-8ddd-eb653116c0c6" x="0" y="164" width="78" height="16" bold="true" hTextAlign="Center" vTextAlign="Middle">
 			<text><![CDATA[Tag Período:]]></text>
 		</element>
-		<element kind="textField" uuid="214be511-f8b9-44b8-a7f2-132b0619436d" x="40" y="50" width="239" height="18" vTextAlign="Middle">
+		<element kind="textField" uuid="9d7bd339-4df4-48cd-9f83-52b583cb457c" x="79" y="135" width="202" height="18" vTextAlign="Middle">
 			<expression><![CDATA[$P{fecha_periodo}]]></expression>
 		</element>
-		<element kind="textField" uuid="7aa52942-5355-4391-b232-61f4582a6cfd" x="66" y="80" width="80" height="16" vTextAlign="Middle">
+		<element kind="textField" uuid="3810de03-ff21-4d7f-ac01-7ff14f2c8d32" x="79" y="164" width="80" height="16" vTextAlign="Middle">
 			<expression><![CDATA[$P{tag_periodo}]]></expression>
 		</element>
-	</pageHeader>
+	</title>
 	<detail>
 		<band height="63" splitType="Stretch">
-			<element kind="component" uuid="9d969f1d-e5ab-4860-a89a-f4c3efe8ba20" x="0" y="0" width="551" height="60">
+			<element kind="component" uuid="9d969f1d-e5ab-4860-a89a-f4c3efe8ba20" positionType="Float" x="0" y="0" width="551" height="60" removeLineWhenBlank="true">
 				<component kind="table">
 					<datasetRun uuid="7e30d542-7bf6-482b-92c6-657875ddd773" subDataset="dsReporteCursos">
 						<dataSourceExpression><![CDATA[$P{ds}]]></dataSourceExpression>
@@ -153,13 +151,13 @@
 		</band>
 	</detail>
 	<pageFooter height="16" splitType="Stretch">
-		<element kind="staticText" uuid="0296491d-c681-4740-a3a8-f9912cf3801c" x="0" y="-2" width="340" height="16" bold="true" vTextAlign="Middle">
+		<element kind="staticText" uuid="0296491d-c681-4740-a3a8-f9912cf3801c" x="0" y="-2" width="130" height="18" bold="true" vTextAlign="Middle">
 			<text><![CDATA[Fecha y hora de creación:]]></text>
 		</element>
-		<element kind="textField" uuid="5e60ddc5-6fbd-481e-aa0b-fd41b5f9c4d1" x="130" y="0" width="98" height="14" pattern="MMMMM dd, yyyy">
+		<element kind="textField" uuid="5e60ddc5-6fbd-481e-aa0b-fd41b5f9c4d1" x="130" y="0" width="100" height="16" pattern="MMMMM dd, yyyy">
 			<expression><![CDATA[new java.util.Date()]]></expression>
 		</element>
-		<element kind="textField" uuid="6de08906-3bdb-4726-a6a2-5d32fea869d7" x="220" y="0" width="80" height="14" pattern="HH:mm">
+		<element kind="textField" uuid="6de08906-3bdb-4726-a6a2-5d32fea869d7" x="230" y="0" width="110" height="16" pattern="HH:mm">
 			<expression><![CDATA[new java.util.Date()]]></expression>
 		</element>
 	</pageFooter>

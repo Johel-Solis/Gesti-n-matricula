@@ -35,4 +35,7 @@ public interface DocenteJpaRepository extends JpaRepository<DocenteEntity, Long>
 
     @Query("SELECT d FROM DocenteEntity d WHERE d.persona.correoElectronico = :email")
     Optional<DocenteEntity> findByEmail(@Param("email") String email);
+
+    @Query("SELECT d FROM DocenteEntity d WHERE d.estado = 'ACTIVO'")
+    List<DocenteEntity> getDocentesActivos();
 }

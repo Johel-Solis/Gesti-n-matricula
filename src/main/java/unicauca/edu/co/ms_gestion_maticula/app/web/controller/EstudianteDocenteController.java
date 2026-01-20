@@ -2,7 +2,7 @@ package unicauca.edu.co.ms_gestion_maticula.app.web.controller;
 
 import java.util.List;
 
-import javax.print.Doc;
+
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -71,6 +71,13 @@ public class EstudianteDocenteController {
         EstudianteResponse estudiante = estudianteDocenteService.getEstudianteById(id);
         return ResponseEntity.ok(new ApiResponse("SUCCESS", "Estudiante encontrado", estudiante, 200));
     }
+
+    @GetMapping("/listaDocentes")
+    public ResponseEntity<ApiResponse> getDocentesActivos() {
+        List<DocenteResponse> param = estudianteDocenteService.getDocentesActivos();
+        return ResponseEntity.ok(new ApiResponse("SUCCESS", "Mensaje", param, 200));
+    }
+    
     
     
     

@@ -234,5 +234,13 @@ public class EstudianteDocenteServiceImpl implements EstudianteDocenteService {
         return modelMapper.map(estudiante, EstudianteResponse.class);
     }
 
+    @Override
+    public List<DocenteResponse> getDocentesActivos() {
+        List<Docente> docentes = estudianteDocenteRepo.getDocentesActivos();
+        return docentes.stream()
+                .map(docente -> modelMapper.map(docente, DocenteResponse.class))
+                .toList();
+    }
+
     
 }

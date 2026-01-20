@@ -23,4 +23,5 @@ public interface EstudianteDocenteRepository {
     List<Docente> findTutoresByEstudiante(Long estudianteId);
     Optional<Docente> findDocenteByEmail(String email);
     boolean isTutorDeEstudiante(Long tutorId, String codigoEstudiante);
+    List<Docente> getDocentesActivos();
 }

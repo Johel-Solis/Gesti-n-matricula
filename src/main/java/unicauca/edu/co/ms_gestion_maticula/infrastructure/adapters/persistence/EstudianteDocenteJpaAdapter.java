@@ -101,5 +101,12 @@ public class EstudianteDocenteJpaAdapter implements EstudianteDocenteRepository 
         return estudianteRepo.isTutorDeEstudiante(tutorId, codigoEstudiante);
     }
 
+    @Override
+    public List<Docente> getDocentesActivos() {
+        return docenteRepo.getDocentesActivos().stream()
+                .map(Docente::fromEntity)
+                .toList();
+    }
+
 
 }

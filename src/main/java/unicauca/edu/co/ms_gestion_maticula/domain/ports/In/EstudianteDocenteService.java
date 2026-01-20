@@ -17,5 +17,6 @@ public interface EstudianteDocenteService {
     public List<EstudianteResponse> getEstudiantesMatriculados();
     public DocenteResponse getDocenteByEmail(String email);
     public EstudianteResponse getEstudianteById(Long id);
+    public List<DocenteResponse> getDocentesActivos();
     
 }

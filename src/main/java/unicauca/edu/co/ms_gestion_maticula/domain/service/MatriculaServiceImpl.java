@@ -30,6 +30,7 @@ import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.data.JRBeanArrayDataSource;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 
+import org.apache.xmlbeans.impl.store.Cur;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -713,6 +714,7 @@ public class MatriculaServiceImpl implements MatriculaService {
 
         PeriodoAcademico periodoActivo = periodoAcademicoRepository.findPeriodoActivo()
                 .orElseThrow(() -> new IllegalArgumentException("No hay periodo academico activo"));
+
         Set<String> correosEnviados = new HashSet<>();
 
         Set<EstudianteResponse> estudiantesNotificados = new HashSet<>();
@@ -731,16 +733,15 @@ public class MatriculaServiceImpl implements MatriculaService {
                 continue;
             }
             
-            List<Matricula> matriculas = matriculaRepository.findByEstudianteIdAndPeriodoActivo(estudianteId);
-            List<Matricula> aprobadas = matriculas.stream()
-                    .filter(this::esMatriculaAprobada)
-                    .toList();
+            List<Matricula> aprobadas = matriculaRepository.findByEstudianteIdAndPeriodoActivo(estudianteId)
+             .stream()
+                .filter(this::esMatriculaAprobada)
+                .toList();
 
             if (aprobadas.isEmpty()) {
                 LOGGER.info("Estudiante {} sin matriculas aprobadas en periodo activo", estudianteId);
                 continue;
             }
-            
             String correoEstudiante = resolveCorreoEstudiante(estudiante);
             reportesEstudiantes.add(ReportEstudianteCursoDto.builder()
                     .codigoEstudiante(estudiante.getCodigo())
@@ -760,8 +761,7 @@ public class MatriculaServiceImpl implements MatriculaService {
 
             byte[] reporte = generarReporteMatriculaEstudiante(estudiante, aprobadas, periodoActivo);
             int totalAprobadas = aprobadas.size();
-
-            
+        
             if (correoEstudiante != null && !correoEstudiante.isBlank()) {
                 String normalized = correoEstudiante.trim().toLowerCase();
                 if (correosEnviados.add(normalized)) {
@@ -771,15 +771,161 @@ public class MatriculaServiceImpl implements MatriculaService {
                 }
             } else {
                 LOGGER.warn("Estudiante {} sin correo, se omite notificacion", estudianteId);
-            }
-
-            
+           }         
 
         }
-
-
         return  notificarTutor(reportesEstudiantes, periodoActivo, tutores,estudiantesNotificados);
     }
+
+     @Override
+    public List<MatriculaResponse> cambiarEstadoMasivoMatricula(CambioEstadoMasivoRequest request) {
+
+        List<Matricula> matriculasActualizadas = new ArrayList<>();
+        List<Matricula> matriculasList = new ArrayList<>();
+        if (request == null || request.getEstudiantesIds() == null || request.getEstudiantesIds().isEmpty()) {
+            throw new IllegalArgumentException("Debe especificar al menos una matrícula para el cambio de estado masivo");
+        }
+        if (request.getNuevoEstado().equalsIgnoreCase(MatriculaEstado.APROBADA.name())
+            || request.getNuevoEstado().equalsIgnoreCase(MatriculaEstado.RECHAZADA.name())
+            || request.getNuevoEstado().equalsIgnoreCase(MatriculaEstado.CREADA.name())
+            || request.getNuevoEstado().equalsIgnoreCase(MatriculaEstado.TUTOR_AVALADA.name())
+            || request.getNuevoEstado().equalsIgnoreCase(MatriculaEstado.TUTOR_NO_AVALADA.name())
+            || request.getNuevoEstado().equalsIgnoreCase(MatriculaEstado.CANCELADA.name())
+            || request.getNuevoEstado().equalsIgnoreCase("APROBAR_TUTOR_AVALADA")
+        ) {
+            
+            for (Long estudianteId : request.getEstudiantesIds()) {
+                List<Matricula> matriculas = matriculaRepository.findByEstudianteIdAndPeriodoActivo(estudianteId);
+                matriculasList.addAll(matriculas);
+            }
+            for (Matricula matricula : matriculasList) {
+                if (request.getNuevoEstado().equalsIgnoreCase("APROBAR_TUTOR_AVALADA")) {
+                    matricula.setEstadoMatricula(MatriculaEstado.APROBADA.name());
+                    if (matricula.getEstadoMatricula().equalsIgnoreCase(MatriculaEstado.TUTOR_NO_AVALADA.name())) {
+                        matricula.setEstadoMatricula(MatriculaEstado.RECHAZADA.name());    
+                        matricula.setEstado(false);
+                    }
+                } else{
+                    if ((matricula.getEstadoMatricula().equalsIgnoreCase(MatriculaEstado.APROBADA.name())||
+                        matricula.getEstadoMatricula().equalsIgnoreCase(MatriculaEstado.RECHAZADA.name())) &&
+                        (request.getNuevoEstado().equalsIgnoreCase(MatriculaEstado.TUTOR_AVALADA.name())||
+                        request.getNuevoEstado().equalsIgnoreCase(MatriculaEstado.TUTOR_NO_AVALADA.name()))) {
+                        throw new IllegalArgumentException("No se puede cambiar el estado de una matrícula que ya está APROBADA o RECHAZADA por el  Coordinador");
+                        
+                    }
+                    MatriculaEstado nuevoEstado = MatriculaEstado.valueOf(request.getNuevoEstado().toUpperCase());
+                    matricula.setEstadoMatricula(nuevoEstado.name());                    
+                }
+
+                if (matricula.getEstadoMatricula().equalsIgnoreCase(MatriculaEstado.RECHAZADA.name())
+                || matricula.getEstadoMatricula().equalsIgnoreCase(MatriculaEstado.CANCELADA.name())) {
+                    matricula.setEstado(false);                  
+                }
+                matriculasActualizadas.add(matriculaRepository.update(matricula));
+            }
+  
+        }else {
+            throw new IllegalArgumentException("Estado de matrícula no válido para el cambio masivo"); 
+        }
+        return toMatriculaResponse(matriculasActualizadas);
+    }
+
+    @Override
+    public List<TutorNotificacionResponse> notificarMatriculasFinalCursos(ListCursosRequest request) {
+
+        if (request == null || request.getCursoIds() == null ||request.getCursoIds().isEmpty()) {
+                throw new IllegalArgumentException("Debe especificar al menos un curso para la notificacion");
+        }
+
+        PeriodoAcademico periodoActivo = periodoAcademicoRepository.findPeriodoActivo()
+                .orElseThrow(() -> new IllegalArgumentException("No hay periodo academico activo"));
+
+        Set<String> correosEnviados = new HashSet<>();
+        Set<Matricula> matriculasList = new HashSet<>();
+  
+        Set<EstudianteResponse> estudiantesNotificados = new HashSet<>();
+        Set<ReportEstudianteCursoDto> reportesEstudiantes = new HashSet<>();
+        Set<Docente> tutores = new HashSet<>();
+
+        String asunto = "Reporte de Matriculas  periodo "
+                + periodoActivo.getFechaInicio().format(DateTimeFormatter.ofPattern("dd/MM/yy"))
+                + " - "
+                + periodoActivo.getFechaFin().format(DateTimeFormatter.ofPattern("dd/MM/yy"));
+
+        for (Long cursoId : request.getCursoIds()) {
+            if (cursoId == null) {
+                continue;
+            }
+
+            if (cursoRepository.findCursoById(cursoId).isEmpty()) {
+                LOGGER.warn("Curso {} no encontrado, se omite notificacion", cursoId);
+                continue;
+            }
+
+            List<Matricula> matriculas = matriculaRepository.findByCursoIdAndPeriodoId(cursoId, periodoActivo.getId()).stream()
+                    .filter(this::esMatriculaAprobada)
+                    .toList();
+
+            matriculasList.addAll(matriculas);
+        }
+
+        Set<Estudiante> estudianteIds = matriculasList.stream()
+                .map(matricula -> matricula.getEstudiante())
+                .collect(Collectors.toSet());
+
+        for (Estudiante estudiante : estudianteIds) {
+            if (estudiante == null)
+                 {
+                continue;
+            }
+
+            List<Matricula> aprobadas= matriculaRepository.findByEstudianteIdAndPeriodoActivo(estudiante.getId()).stream()
+            .filter(m -> request.getCursoIds().contains(m.getCurso().getId()) && esMatriculaAprobada(m))
+            .toList();
+
+            if (aprobadas.isEmpty()) {
+                LOGGER.info("Estudiante {} sin matriculas aprobadas en periodo activo", estudiante.getId());
+                continue;
+            } 
+
+            String correoEstudiante = resolveCorreoEstudiante(estudiante);
+
+            reportesEstudiantes.add( ReportEstudianteCursoDto.builder()
+                    .codigoEstudiante(estudiante.getCodigo())
+                    .nombreEstudiante(buildNombrePersona(estudiante.getPersona()))
+                    .identificacion(estudiante.getPersona().getIdentificacion().toString())
+                    .semestre(estudiante.getInformacionMaestria().getSemestreAcademico().toString())
+                    .correoEstudiante(correoEstudiante)
+                    .cursos(aprobadas.stream()
+                            .map(this::toReportCursoDto)
+                            .toList())
+                    .totalMatricula(String.valueOf(aprobadas.size()))
+                    .build()
+                );
+            
+            estudiantesNotificados.add(modelMapper.map(estudiante, EstudianteResponse.class));
+            tutores.addAll(estudianteDocenteRepository.findTutoresByEstudiante(estudiante.getId()));
+           
+            byte[] reporte = generarReporteMatriculaEstudiante(estudiante, aprobadas, periodoActivo);
+            int totalAprobadas = aprobadas.size();
+
+            if (correoEstudiante != null && !correoEstudiante.isBlank()) {
+                String normalized = correoEstudiante.trim().toLowerCase();
+                if (correosEnviados.add(normalized)) {
+                    String cuerpo = emailService.buildCorreoHtml("Reporte de Matrícula", buildCuerpoCorreoEstudiante(estudiante, periodoActivo, totalAprobadas));
+                    sendEmailWithAttachmentSafe(correoEstudiante, asunto, cuerpo, reporte,
+                            buildNombreArchivoReporte(estudiante), "application/pdf");
+                }
+            } else {
+                LOGGER.warn("Estudiante {} sin correo, se omite notificacion", estudiante.getId());
+           }        
+        }
+
+        return  notificarTutor(reportesEstudiantes, periodoActivo, tutores,estudiantesNotificados);
+    
+    }
+
+
 
     private List<TutorNotificacionResponse> notificarTutor(Set<ReportEstudianteCursoDto> reportesEstudiantes,
         PeriodoAcademico periodoActivo, Set<Docente> tutores,Set<EstudianteResponse> estudiantesNotificados)
@@ -967,6 +1113,20 @@ public class MatriculaServiceImpl implements MatriculaService {
         return cuerpo;
     }
 
+    private String buildCuerpoCorreoEstudianteCursos(Estudiante estudiante, PeriodoAcademico periodo, int totalCursos) {
+        String nombre = buildNombrePersona(estudiante.getPersona());
+        String saludo = nombre.isEmpty() ? "Cordial saludo," : "Cordial saludo, " + nombre + ".";
+        String cuerpo = "<p>" + saludo + "</p>"
+                + "<p>Te compartimos el reporte de matricula asociado a los cursos seleccionados del periodo "
+                + periodo.getFechaInicio().format(DateTimeFormatter.ofPattern("dd/MM/yy")) + " - "
+                + periodo.getFechaFin().format(DateTimeFormatter.ofPattern("dd/MM/yy")) + ".</p>"
+                + "<p>El reporte incluye <strong>" + totalCursos + "</strong> cursos.</p>"
+                + "<p>Atentamente,</p>"
+                + "<p><strong>Maestria en Computacion</strong></p>";
+        return cuerpo;
+    }
+
+
     private String buildCuerpoCorreoTutor(Docente tutor, PeriodoAcademico periodo) {
         String nombreTutor = buildNombrePersona(tutor != null ? tutor.getPersona() : null);
         String saludo = nombreTutor.isEmpty() ? "Cordial saludo," : "Cordial saludo, " + nombreTutor + ".";
@@ -1015,91 +1175,8 @@ public class MatriculaServiceImpl implements MatriculaService {
         return "reporte_matricula_" + codigo + ".pdf";
     }
 
-    @Override
-    public List<MatriculaResponse> cambiarEstadoMasivoMatricula(CambioEstadoMasivoRequest request) {
+   
 
-        List<Matricula> matriculasActualizadas = new ArrayList<>();
-        List<Matricula> matriculasList = new ArrayList<>();
-        if (request == null || request.getEstudiantesIds() == null || request.getEstudiantesIds().isEmpty()) {
-            throw new IllegalArgumentException("Debe especificar al menos una matrícula para el cambio de estado masivo");
-        }
-        if (request.getNuevoEstado().equalsIgnoreCase(MatriculaEstado.APROBADA.name())
-            || request.getNuevoEstado().equalsIgnoreCase(MatriculaEstado.RECHAZADA.name())
-            || request.getNuevoEstado().equalsIgnoreCase(MatriculaEstado.CREADA.name())
-            || request.getNuevoEstado().equalsIgnoreCase(MatriculaEstado.TUTOR_AVALADA.name())
-            || request.getNuevoEstado().equalsIgnoreCase(MatriculaEstado.TUTOR_NO_AVALADA.name())
-            || request.getNuevoEstado().equalsIgnoreCase(MatriculaEstado.CANCELADA.name())
-            || request.getNuevoEstado().equalsIgnoreCase("APROBAR_TUTOR_AVALADA")
-        ) {
-            
-            for (Long estudianteId : request.getEstudiantesIds()) {
-                List<Matricula> matriculas = matriculaRepository.findByEstudianteIdAndPeriodoActivo(estudianteId);
-                matriculasList.addAll(matriculas);
-            }
-            for (Matricula matricula : matriculasList) {
-                if (request.getNuevoEstado().equalsIgnoreCase("APROBAR_TUTOR_AVALADA")) {
-                    matricula.setEstadoMatricula(MatriculaEstado.APROBADA.name());
-                    if (matricula.getEstadoMatricula().equalsIgnoreCase(MatriculaEstado.TUTOR_NO_AVALADA.name())) {
-                        matricula.setEstadoMatricula(MatriculaEstado.RECHAZADA.name());    
-                        matricula.setEstado(false);
-                    }
-                } else{
-                    if ((matricula.getEstadoMatricula().equalsIgnoreCase(MatriculaEstado.APROBADA.name())||
-                        matricula.getEstadoMatricula().equalsIgnoreCase(MatriculaEstado.RECHAZADA.name())) &&
-                        (request.getNuevoEstado().equalsIgnoreCase(MatriculaEstado.TUTOR_AVALADA.name())||
-                        request.getNuevoEstado().equalsIgnoreCase(MatriculaEstado.TUTOR_NO_AVALADA.name()))) {
-                        throw new IllegalArgumentException("No se puede cambiar el estado de una matrícula que ya está APROBADA o RECHAZADA por el  Coordinador");
-                        
-                    }
-                    MatriculaEstado nuevoEstado = MatriculaEstado.valueOf(request.getNuevoEstado().toUpperCase());
-                    matricula.setEstadoMatricula(nuevoEstado.name());                    
-                }
-
-                if (matricula.getEstadoMatricula().equalsIgnoreCase(MatriculaEstado.RECHAZADA.name())
-                || matricula.getEstadoMatricula().equalsIgnoreCase(MatriculaEstado.CANCELADA.name())) {
-                    matricula.setEstado(false);                  
-                }
-                matriculasActualizadas.add(matriculaRepository.update(matricula));
-            }
-  
-        }else {
-            throw new IllegalArgumentException("Estado de matrícula no válido para el cambio masivo"); 
-        }
-        return toMatriculaResponse(matriculasActualizadas);
-    }
-
-    @Override
-    public List<TutorNotificacionResponse> notificarMatriculasFinalCursos(ListCursosRequest request) {
-        // if (request == null || request.getCursoIds() == null || 
-        //     request.getCursoIds().isEmpty()) {
-        //     throw new IllegalArgumentException("Debe especificar al menos un curso para la notificacion");
-        // }
-
-        // PeriodoAcademico periodoActivo = periodoAcademicoRepository.findPeriodoActivo()
-        //         .orElseThrow(() -> new IllegalArgumentException("No hay periodo academico activo"));
-        // Set<String> correosEnviados = new HashSet<>();
-
-        // List<TutorNotificacionResponse> notificaciones = new ArrayList<>();
-        // Set<Matricula> matriculasList = new HashSet<>();
-
-        // String asunto = "Reporte de Matrículas  período "  + periodoActivo.getFechaInicio().format(DateTimeFormatter.ofPattern("dd/MM/yy")) + " - " + periodoActivo.getFechaFin().format(DateTimeFormatter.ofPattern("dd/MM/yy")) ;
-        // for (Long cursoId : request.getCursoIds()) {
-        //     if (cursoId == null) {
-        //         continue;
-        //     }
-
-        //     Curso curso = cursoRepository.findCursoById(cursoId)
-        //         .orElseThrow(() -> new EntityNotFoundException("Curso no encontrado con ID: " + cursoId));
-
-        //     List<Matricula> matriculas = matriculaRepository.findByCursoIdAndPeriodoId(cursoId, periodoActivo.getId());
-        //     matriculasList.addAll(matriculas);
-        // }
-
-            
-           
-           return null;
-               
-
-    }
-
+    
+    
 }

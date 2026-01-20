@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class ReportCursoDto {
+    private Long cursoId;
     private String grupo;
     private String asignatura;
     private String docentes;

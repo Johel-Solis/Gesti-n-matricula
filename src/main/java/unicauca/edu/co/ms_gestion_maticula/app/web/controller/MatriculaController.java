@@ -15,6 +15,7 @@ import unicauca.edu.co.ms_gestion_maticula.domain.model.Matricula;
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.In.MatriculaService;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.CambioEstadoMasivoRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.CursoMatriculaEstudiantesRequest;
+import unicauca.edu.co.ms_gestion_maticula.domain.request.ListCursosRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.ListEstudianteRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.MatriculaCancelRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.MatriculaCursoEstudiantesRequests;
@@ -182,6 +183,14 @@ public class MatriculaController {
     @PostMapping("/notificar-matricula-final")
     public ResponseEntity<ApiResponse> notificarMatriculaFinal(@RequestBody  ListEstudianteRequest request) {
         List<TutorNotificacionResponse> notificados = matriculaService.notificarMatriculasAprobadas(request);
+        return ResponseEntity.ok(new ApiResponse("SUCCESS", "Notificaciones enviadas", notificados, 200));
+    }
+
+
+    
+    @PostMapping("/notificar-matricula-final/cursos")
+    public ResponseEntity<ApiResponse> notificarMatriculaFinalCursos(@RequestBody  ListCursosRequest request) {
+        List<TutorNotificacionResponse> notificados = matriculaService.notificarMatriculasFinalCursos(request);
         return ResponseEntity.ok(new ApiResponse("SUCCESS", "Notificaciones enviadas", notificados, 200));
     }
     

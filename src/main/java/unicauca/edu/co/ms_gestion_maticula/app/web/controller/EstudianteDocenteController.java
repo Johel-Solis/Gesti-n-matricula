@@ -65,6 +65,13 @@ public class EstudianteDocenteController {
         DocenteResponse doc = estudianteDocenteService.getDocenteByEmail(email);
         return ResponseEntity.ok(new ApiResponse("SUCCESS", "Mensaje", doc, 200));
     }
+
+    @GetMapping("/estudiante/{id}")
+    public ResponseEntity<ApiResponse> getEstudianteId(@PathVariable("id") Long id) {
+        EstudianteResponse estudiante = estudianteDocenteService.getEstudianteById(id);
+        return ResponseEntity.ok(new ApiResponse("SUCCESS", "Estudiante encontrado", estudiante, 200));
+    }
+    
     
     
     

@@ -11,6 +11,7 @@ import unicauca.edu.co.ms_gestion_maticula.domain.model.Docente;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Estudiante;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.TutorEstudiante;
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.out.EstudianteDocenteRepository;
+import unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence.entity.EstudianteEntity;
 import unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence.repository.DocenteJpaRepository;
 import unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence.repository.EstudianteJpaRepository;
 
@@ -23,8 +24,8 @@ public class EstudianteDocenteJpaAdapter implements EstudianteDocenteRepository 
 
     @Override
     public Optional<Estudiante> getEstudianteById(Long estudianteId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getEstudianteById'");
+        return estudianteRepo.findById(estudianteId)
+                .map(EstudianteEntity::toDomain);
     }
 
     @Override

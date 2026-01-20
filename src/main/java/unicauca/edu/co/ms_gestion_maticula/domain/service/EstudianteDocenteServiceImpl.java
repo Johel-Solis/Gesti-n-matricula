@@ -19,7 +19,6 @@ import unicauca.edu.co.ms_gestion_maticula.domain.model.Matricula;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.PeriodoAcademico;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.TutorEstudiante;
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.In.EstudianteDocenteService;
-import unicauca.edu.co.ms_gestion_maticula.domain.ports.In.PeriodoAcademicoService;
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.In.EmailService;
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.out.EstudianteDocenteRepository;
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.out.MatriculaRepository;
@@ -89,7 +88,7 @@ public class EstudianteDocenteServiceImpl implements EstudianteDocenteService {
         }
         return pendientes;
     }
-     private int countMatriculasPendienteAprobacion(Long estudianteId) {
+    private int countMatriculasPendienteAprobacion(Long estudianteId) {
         List<Matricula> matriculas = matriculaRepository.findByEstudianteIdAndPeriodoActivo(estudianteId);
         int aprobadas = 0;
         for (Matricula matricula : matriculas) {
@@ -224,6 +223,15 @@ public class EstudianteDocenteServiceImpl implements EstudianteDocenteService {
         Docente docente = estudianteDocenteRepo.findDocenteByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("No se encontró un docente con el correo proporcionado"));
         return modelMapper.map(docente, DocenteResponse.class);
+    }
+
+    @Override
+    public EstudianteResponse getEstudianteById(Long id) {
+        
+        Estudiante estudiante = estudianteDocenteRepo.getEstudianteById(id)
+                .orElseThrow(() -> new IllegalArgumentException("No se encontró un estudiante con el ID proporcionado"));
+
+        return modelMapper.map(estudiante, EstudianteResponse.class);
     }
 
     

@@ -16,5 +16,6 @@ public interface EstudianteDocenteService {
     public List<TutorNotificacionResponse> notificarTutoresConMatriculasActivas();
     public List<EstudianteResponse> getEstudiantesMatriculados();
     public DocenteResponse getDocenteByEmail(String email);
+    public EstudianteResponse getEstudianteById(Long id);
     
 }

@@ -196,16 +196,10 @@ public class CursoServiceImpl implements CusoService {
     public CursoResponse actualizarCurso(Long id, CursoRequest request) {
         // Validaciones similares a crear: periodo activo, asignatura activa, docentes
         // activos, unicidad
-        PeriodoAcademico periodo = periodoAcademicoRepository.findPeriodoActivo()
-                .orElseThrow(() -> new EntityNotFoundException(msg("curso.error.periodo.activo.noexiste")));
-        Long periodoActivoId = periodo.getId();
-
+      
         // Verificar que el curso a actualizar pertenece al período ACTIVO
         Curso cursoActual = cursoRepository.findCursoById(id)
                 .orElseThrow(() -> new EntityNotFoundException(msg("curso.error.noexiste")));
-        if (cursoActual.getPeriodo() == null || !periodoActivoId.equals(cursoActual.getPeriodo().getId())) {
-            throw new IllegalArgumentException(msg("curso.error.curso.no.pertenece.periodo.activo"));
-        }
 
         Asignatura asignatura = cursoRepository.findAsignaturaById(request.getAsignaturaId())
                 .orElseThrow(() -> new EntityNotFoundException(msg("curso.error.asignatura.noexiste")));
@@ -230,10 +224,10 @@ public class CursoServiceImpl implements CusoService {
 
         // Unicidad en periodo activo (ignorando el mismo id)
         boolean existeEnActivo = cursoRepository.existsByGrupoAndPeriodoIdAndAsignaturaId(
-                request.getGrupo(), periodoActivoId, request.getAsignaturaId());
+                request.getGrupo(), cursoActual.getPeriodo().getId(), request.getAsignaturaId());
         if (existeEnActivo) {
             boolean esMismo = cursoRepository
-                    .findAllCursos(Long.valueOf(asignatura.getAreaFormacion()), asignatura.getId(), periodoActivoId)
+                    .findAllCursos(Long.valueOf(asignatura.getAreaFormacion()), asignatura.getId(), cursoActual.getPeriodo().getId())
                     .stream()
                     .anyMatch(c -> c.getId().equals(id));
             if (!esMismo) {
@@ -259,7 +253,7 @@ public class CursoServiceImpl implements CusoService {
         Curso curso = Curso.builder()
                 .id(id)
                 .grupo(request.getGrupo())
-                .periodo(periodo)
+                .periodo(cursoActual.getPeriodo())
                 .asignatura(asignatura)
                 .docentes(docentes.stream().collect(Collectors.toList()))
                 .materiales(materiales.stream().collect(Collectors.toList()))

@@ -78,10 +78,7 @@ public class PeriodoAcademicoController {
 
     @PostMapping("/precargarCursos")
     public ResponseEntity<ApiResponse> precargarCursos(@RequestBody PrecargaCursosRequest request) {
-
         PeriodoAcademicoResponse response = useCase.precargarCursosDesdePeriodo(request.getIdPeriodo(), request.getIdPeriodoPrecarga());
-        
-
         return ResponseEntity.ok(new ApiResponse("SUCCESS", "Cursos precargados correctamente", response, 200));
     }
 

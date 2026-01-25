@@ -36,6 +36,7 @@
 		<field name="docentes" class="java.lang.String"/>
 		<field name="horario" class="java.lang.String"/>
 		<field name="salon" class="java.lang.String"/>
+		<field name="creditos" class="java.lang.String"/>
 	</dataset>
 	<parameter name="logoUnicauca" class="java.io.InputStream"/>
 	<parameter name="ds" class="net.sf.jasperreports.engine.data.JRBeanArrayDataSource"/>
@@ -95,7 +96,7 @@
 	</title>
 	<detail>
 		<band height="63" splitType="Stretch">
-			<element kind="component" uuid="9d969f1d-e5ab-4860-a89a-f4c3efe8ba20" x="0" y="0" width="551" height="60">
+			<element kind="component" uuid="9d969f1d-e5ab-4860-a89a-f4c3efe8ba20" x="0" y="0" width="554" height="60">
 				<component kind="table">
 					<datasetRun uuid="7e30d542-7bf6-482b-92c6-657875ddd773" subDataset="dsReporteCursos">
 						<dataSourceExpression><![CDATA[$P{ds}]]></dataSourceExpression>
@@ -113,63 +114,77 @@
 						</detailCell>
 						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column1"/>
 					</column>
-					<column kind="single" uuid="50e94666-9e13-4bc6-af39-aad6f580f1f9" width="150">
+					<column kind="single" uuid="50e94666-9e13-4bc6-af39-aad6f580f1f9" width="139">
 						<columnHeader height="30" rowSpan="1" style="Table_CH">
-							<element kind="staticText" uuid="0e51981c-280f-43c0-b82b-00036673fd0f" mode="Opaque" x="0" y="0" width="150" height="30" forecolor="#FFFFFF" backcolor="#1B3357" bold="true" hTextAlign="Center" vTextAlign="Middle">
+							<element kind="staticText" uuid="0e51981c-280f-43c0-b82b-00036673fd0f" mode="Opaque" x="0" y="0" width="139" height="30" forecolor="#FFFFFF" backcolor="#1B3357" bold="true" hTextAlign="Center" vTextAlign="Middle">
 								<text><![CDATA[Asignatura]]></text>
 							</element>
 						</columnHeader>
 						<detailCell height="30" style="Table_TD">
-							<element kind="textField" uuid="413f81cf-da3b-41e0-84fc-e95f69e1fd09" x="0" y="0" width="150" height="30" hTextAlign="Center" vTextAlign="Middle">
+							<element kind="textField" uuid="413f81cf-da3b-41e0-84fc-e95f69e1fd09" x="0" y="0" width="139" height="30" hTextAlign="Center" vTextAlign="Middle">
 								<expression><![CDATA[$F{asignatura}]]></expression>
 							</element>
 						</detailCell>
 						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column2"/>
 					</column>
-					<column kind="single" uuid="d2209e5d-5232-4089-9af1-711f89d25989" width="158">
+					<column kind="single" uuid="d2209e5d-5232-4089-9af1-711f89d25989" width="150">
 						<columnHeader height="30" rowSpan="1" style="Table_CH">
-							<element kind="staticText" uuid="018448b1-6f83-460d-8bfb-48fa35c5bddb" mode="Opaque" x="0" y="0" width="158" height="30" forecolor="#FFFFFF" backcolor="#1B3357" bold="true" hTextAlign="Center" vTextAlign="Middle">
+							<element kind="staticText" uuid="018448b1-6f83-460d-8bfb-48fa35c5bddb" mode="Opaque" x="0" y="0" width="150" height="30" forecolor="#FFFFFF" backcolor="#1B3357" bold="true" hTextAlign="Center" vTextAlign="Middle">
 								<text><![CDATA[Docentes]]></text>
 							</element>
 						</columnHeader>
 						<detailCell height="30" style="Table_TD">
-							<element kind="textField" uuid="09958add-88fb-48cd-a523-b21a2ae6a61f" x="0" y="0" width="158" height="30" hTextAlign="Center" vTextAlign="Middle">
+							<element kind="textField" uuid="09958add-88fb-48cd-a523-b21a2ae6a61f" x="0" y="0" width="150" height="30" hTextAlign="Center" vTextAlign="Middle">
 								<expression><![CDATA[$F{docentes}]]></expression>
 							</element>
 						</detailCell>
 						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column3"/>
 					</column>
-					<column kind="single" uuid="ce07f701-86e4-4741-8284-59fccde965fc" width="119">
+					<column kind="single" uuid="ce07f701-86e4-4741-8284-59fccde965fc" width="90">
 						<columnHeader height="30" rowSpan="1" style="Table_CH">
-							<element kind="staticText" uuid="3b79d452-b77d-4746-a027-1fe9250b51cd" mode="Opaque" x="0" y="0" width="119" height="30" forecolor="#FFFFFF" backcolor="#1B3357" bold="true" hTextAlign="Center" vTextAlign="Middle">
+							<element kind="staticText" uuid="3b79d452-b77d-4746-a027-1fe9250b51cd" mode="Opaque" x="0" y="0" width="90" height="30" forecolor="#FFFFFF" backcolor="#1B3357" bold="true" hTextAlign="Center" vTextAlign="Middle">
 								<text><![CDATA[Horario]]></text>
 							</element>
 						</columnHeader>
 						<detailCell height="30" style="Table_TD">
-							<element kind="textField" uuid="500e5ec1-0691-4a2b-885f-256bc0388755" x="0" y="0" width="119" height="30" hTextAlign="Center" vTextAlign="Middle">
+							<element kind="textField" uuid="500e5ec1-0691-4a2b-885f-256bc0388755" x="0" y="0" width="90" height="30" hTextAlign="Center" vTextAlign="Middle">
 								<expression><![CDATA[$F{horario}]]></expression>
 							</element>
 						</detailCell>
 						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column4"/>
 					</column>
-					<column kind="single" uuid="07aeb0b6-876f-4e33-ae12-3fb15d2719ee" width="83">
+					<column kind="single" uuid="07aeb0b6-876f-4e33-ae12-3fb15d2719ee" width="81">
 						<columnHeader height="30" rowSpan="1" style="Table_CH">
-							<element kind="staticText" uuid="b990157e-30c8-4b56-95fe-ec4d185faf9d" mode="Opaque" x="0" y="0" width="83" height="30" forecolor="#FFFFFF" backcolor="#1B3357" bold="true" hTextAlign="Center" vTextAlign="Middle">
+							<element kind="staticText" uuid="b990157e-30c8-4b56-95fe-ec4d185faf9d" mode="Opaque" x="0" y="0" width="81" height="30" forecolor="#FFFFFF" backcolor="#1B3357" bold="true" hTextAlign="Center" vTextAlign="Middle">
 								<text><![CDATA[Salón]]></text>
 							</element>
 						</columnHeader>
 						<detailCell height="30" style="Table_TD">
-							<element kind="textField" uuid="58606f95-1d4a-4f1c-80a3-2d545e113f51" x="0" y="0" width="83" height="30" hTextAlign="Center" vTextAlign="Middle">
+							<element kind="textField" uuid="58606f95-1d4a-4f1c-80a3-2d545e113f51" x="0" y="0" width="81" height="30" hTextAlign="Center" vTextAlign="Middle">
 								<expression><![CDATA[$F{salon}]]></expression>
 							</element>
 						</detailCell>
 						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column5"/>
+					</column>
+					<column kind="single" uuid="8c94288f-1c70-4b52-94d6-ac7e6c8dfb56" width="53">
+						<columnHeader height="30" rowSpan="1" style="Table_CH">
+							<element kind="staticText" uuid="0f791f59-e1e5-46d1-92ef-d715b0a23984" mode="Opaque" x="0" y="0" width="53" height="30" forecolor="#FFFFFF" backcolor="#1B3357" bold="true" hTextAlign="Center" vTextAlign="Middle">
+								<text><![CDATA[Créditos]]></text>
+							</element>
+						</columnHeader>
+						<detailCell height="30" style="Table_TD">
+							<element kind="textField" uuid="9e34a7e9-6327-4902-a707-f661c8590e6f" x="0" y="0" width="53" height="30" hTextAlign="Center" vTextAlign="Middle">
+								<expression><![CDATA[$F{creditos}]]></expression>
+							</element>
+						</detailCell>
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column6"/>
 					</column>
 				</component>
 				<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>
 				<property name="com.jaspersoft.studio.table.style.table_header" value="Table_TH"/>
 				<property name="com.jaspersoft.studio.table.style.column_header" value="Table_CH"/>
 				<property name="com.jaspersoft.studio.table.style.detail" value="Table_TD"/>
+				<property name="com.jaspersoft.studio.unit.width" value="px"/>
 			</element>
 		</band>
 	</detail>

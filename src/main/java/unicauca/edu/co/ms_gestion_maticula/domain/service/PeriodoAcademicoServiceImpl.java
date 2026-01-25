@@ -77,6 +77,13 @@ public class PeriodoAcademicoServiceImpl implements PeriodoAcademicoService {
 
     @Override
     public void eliminar(Long id) {
+        PeriodoAcademico periodo = repository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Periodo no encontrado"));
+        List<Curso> cursosPeriodo = cursoRepository.findAllCursos(null,null,periodo.getId() );
+        if (cursosPeriodo.size()>0) {
+            throw new IllegalArgumentException("No se puede eliminar el período porque tiene cursos asignados.");
+        }
+        
         repository.deleteById(id);
     }
 

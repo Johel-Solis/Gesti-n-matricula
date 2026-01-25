@@ -25,4 +25,7 @@ public interface PeriodoJpaRepository extends JpaRepository<PeriodoAcademicoEnti
            ":fin BETWEEN p.fechaInicio AND p.fechaFin)")
     List<PeriodoAcademicoEntity> findByFechasSuperpuestas(@Param("inicio") LocalDate inicio, @Param("fin") LocalDate fin);
 
+    @Query("SELECT p FROM PeriodoAcademicoEntity p ORDER BY p.fechaInicio DESC")
+    List<PeriodoAcademicoEntity> findAllOrderByFechaInicioDesc();
+
 }

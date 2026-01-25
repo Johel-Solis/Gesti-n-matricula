@@ -458,6 +458,7 @@ public class CursoServiceImpl implements CusoService {
                 .docentes(formatDocentes(curso.getDocentes()))
                 .horario(curso.getHorario() != null ? curso.getHorario() : "")
                 .salon(curso.getSalon() != null ? curso.getSalon() : "")
+                .creditos(curso.getAsignatura().getCreditos().toString())
                 .build();
     }
 

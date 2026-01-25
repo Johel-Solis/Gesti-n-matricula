@@ -37,7 +37,7 @@ public class PeriodoAcademicoJpaAdapter implements PeriodoAcademicoRepository {
 
     @Override
     public List<PeriodoAcademico> findAll() {
-        return jpaRepository.findAll().stream()
+        return jpaRepository.findAllOrderByFechaInicioDesc().stream()
                 .map(PeriodoAcademicoEntity::toDomain)
                 .toList();
     }

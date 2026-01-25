@@ -1055,6 +1055,9 @@ public class MatriculaServiceImpl implements MatriculaService {
                 .docentes(curso != null ? formatDocentes(curso.getDocentes()) : "")
                 .horario(curso != null && curso.getHorario() != null ? curso.getHorario() : "")
                 .salon(curso != null && curso.getSalon() != null ? curso.getSalon() : "")
+                .creditos(curso != null && curso.getAsignatura() != null && curso.getAsignatura().getCreditos() != null
+                        ? curso.getAsignatura().getCreditos().toString()
+                        : "")
                 .build();
     }
 

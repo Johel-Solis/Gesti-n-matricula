@@ -34,6 +34,9 @@ import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -88,6 +91,14 @@ public class MatriculaServiceImpl implements MatriculaService {
     private final EstudianteDocenteRepository estudianteDocenteRepository;
     @Autowired
     private final EmailService emailService;
+
+    @Autowired
+    @Qualifier("messageResourceMatricula")
+    private MessageSource messageSource;
+
+   private String msg(String key, Object... args){
+        return messageSource.getMessage(key, args, LocaleContextHolder.getLocale());
+    }
 
     
     @Override
@@ -357,7 +368,7 @@ public class MatriculaServiceImpl implements MatriculaService {
         
         // Obtener periodo académico activo
         PeriodoAcademico periodoActivo = periodoAcademicoRepository.findPeriodoActivo()
-                .orElseThrow(() -> new IllegalArgumentException("No hay periodo académico activo"));
+                .orElseThrow(() -> new IllegalArgumentException(msg("periodo.error.noexiste")));
         
         // Verificar si el estudiante ya está matriculado en esta asignatura en este periodo
         boolean yaMatriculado = matriculaRepository.existsMatriculaByEstudianteIdAndPeriodoIdAndAsignaturaId(
@@ -414,7 +425,7 @@ public class MatriculaServiceImpl implements MatriculaService {
         
         // Obtener periodo académico activo
         PeriodoAcademico periodoActivo = periodoAcademicoRepository.findPeriodoActivo()
-                .orElseThrow(() -> new IllegalArgumentException("No hay periodo académico activo"));
+                .orElseThrow(() -> new IllegalArgumentException(msg("periodo.error.noexiste")));
         
         // Obtener todas las asignaturas activas
         List<Asignatura> todasLasAsignaturas = cursoRepository.findAsignaturasByStatus(true,null);
@@ -464,7 +475,7 @@ public class MatriculaServiceImpl implements MatriculaService {
 
         // Validar periodo de matrícula
         PeriodoAcademico periodoActivo = periodoAcademicoRepository.findPeriodoActivo()
-                .orElseThrow(() -> new IllegalArgumentException("No hay periodo académico activo"));
+                .orElseThrow(() -> new IllegalArgumentException(msg("periodo.error.noexiste")));
         
         LocalDate fechaActual = LocalDate.now();
         if (fechaActual.isBefore(periodoActivo.getFechaInicio())) {
@@ -541,10 +552,12 @@ public class MatriculaServiceImpl implements MatriculaService {
      @Override
     public List<MatriculaCursoResponse> obtenerEstudiantesMatriculadosEnCurso(Long cursoId) {
         Optional<Curso> cursoOpt = cursoRepository.findCursoById(cursoId);
-        cursoOpt.orElseThrow(() -> new EntityNotFoundException("Curso no encontrado con ID: " + cursoId));
+        if(cursoOpt.isEmpty()){
+            throw new EntityNotFoundException("Curso no encontrado con ID: " + cursoId);
+        }
 
         PeriodoAcademico periodoActivo = periodoAcademicoRepository.findPeriodoActivo()
-                .orElseThrow(() -> new IllegalArgumentException("No hay periodo académico activo"));
+                .orElseThrow(() -> new IllegalArgumentException(msg("periodo.error.noexiste")));
 
         List<Matricula> matriculas = matriculaRepository.findByCursoIdAndPeriodoId(cursoId, periodoActivo.getId());
 
@@ -590,7 +603,7 @@ public class MatriculaServiceImpl implements MatriculaService {
      */
     private void validarPeriodoMatricula() {
         PeriodoAcademico periodoActivo = periodoAcademicoRepository.findPeriodoActivo()
-                .orElseThrow(() -> new IllegalArgumentException("No hay periodo académico activo"));
+                .orElseThrow(() -> new IllegalArgumentException(msg("periodo.error.noexiste")));
         
         LocalDate fechaActual = LocalDate.now();
         
@@ -613,7 +626,7 @@ public class MatriculaServiceImpl implements MatriculaService {
         
         // Verificar que el curso pertenezca al periodo activo
         PeriodoAcademico periodoActivo = periodoAcademicoRepository.findPeriodoActivo()
-                .orElseThrow(() -> new IllegalArgumentException("No hay periodo académico activo"));
+                .orElseThrow(() -> new IllegalArgumentException(msg("periodo.error.noexiste")));
         
         if (!curso.getPeriodo().getId().equals(periodoActivo.getId())) {
             throw new IllegalArgumentException("El curso no pertenece al periodo académico activo");

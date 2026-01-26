@@ -62,5 +62,5 @@ public interface EstudianteJpaRepository extends JpaRepository<EstudianteEntity,
     boolean isTutorDeEstudiante(@Param("tutorId") Long tutorId, @Param("codigoEstudiante") String codigoEstudiante);
 
     @Query("SELECT CASE WHEN COUNT(e) > 0 THEN true ELSE false END FROM EstudianteEntity e WHERE e.id = :id AND e.informacionMaestria.estadoMaestria = :estado")
-    boolean existsByIdAndEstado(Long id, String estado);
+    boolean existsEstudianteActivoById(Long id, EstadoEstudianteMaestria estado);
 }

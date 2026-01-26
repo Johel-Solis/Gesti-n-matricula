@@ -110,7 +110,7 @@ public class EstudianteDocenteJpaAdapter implements EstudianteDocenteRepository 
 
     @Override
     public boolean existsEstudianteActivoById(Long estudianteId) {
-        return estudianteRepo.existsByIdAndEstado(estudianteId, EstadoEstudianteMaestria.ACTIVO.name());
+        return estudianteRepo.existsEstudianteActivoById(estudianteId, EstadoEstudianteMaestria.ACTIVO);
     }
 
 }

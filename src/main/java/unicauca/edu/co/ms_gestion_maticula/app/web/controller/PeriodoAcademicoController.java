@@ -26,7 +26,7 @@ import unicauca.edu.co.ms_gestion_maticula.infrastructure.utils.ApiResponse;
 
 @RestController
 @RequestMapping("/api/periodos")
-@CrossOrigin(origins = "*", allowedHeaders = "*")
+@CrossOrigin(origins = "http://localhost:4200", allowedHeaders = "*")
 public class PeriodoAcademicoController {
     private final PeriodoAcademicoService useCase;
 

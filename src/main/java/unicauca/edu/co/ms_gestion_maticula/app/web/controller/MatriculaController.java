@@ -35,7 +35,7 @@ import unicauca.edu.co.ms_gestion_maticula.infrastructure.utils.ApiResponse;
 
 @RestController
 @RequestMapping("/api/matricula")
-@CrossOrigin(origins = "*", allowedHeaders = "*")
+@CrossOrigin(origins = "http://localhost:4200", allowedHeaders = "*")
 @RequiredArgsConstructor
 public class MatriculaController {
 

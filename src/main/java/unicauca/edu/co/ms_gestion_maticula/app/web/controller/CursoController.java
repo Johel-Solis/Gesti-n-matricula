@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 @RestController
 @RequestMapping("/api/cursos")
-@CrossOrigin(origins = "*", allowedHeaders = "*")
+@CrossOrigin(origins = "http://localhost:4200", allowedHeaders = "*")
 public class CursoController {
 
     private final CursoServiceImpl cursoService;
@@ -88,7 +88,6 @@ public class CursoController {
 
     @GetMapping("/asignaturas")
     public ResponseEntity<ApiResponse> ListarAsignaturas(@RequestParam(required = false) Long idArea) {
-        System.out.println("ID Área: " + idArea);
         List<AsignaturaResponse> asignaturas = cursoService.obtenerAsignaturasPorEstado(idArea);
         return ResponseEntity.ok(new ApiResponse("SUCCESS", "Asignaturas encontradas", asignaturas, 200));
     }

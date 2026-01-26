@@ -30,6 +30,7 @@ public class PeriodoAcademicoJpaAdapter implements PeriodoAcademicoRepository {
     public Optional<PeriodoAcademico> findById(Long id) {
         return jpaRepository.findById(id).map(PeriodoAcademicoEntity::toDomain);
     }
+
     @Override
     public Optional<PeriodoAcademico> findByState(String estado) {
         return jpaRepository.findByEstado(estado).map(PeriodoAcademicoEntity::toDomain);
@@ -56,6 +57,10 @@ public class PeriodoAcademicoJpaAdapter implements PeriodoAcademicoRepository {
     @Override
     public void deleteById(Long id) {
         jpaRepository.deleteById(id);
+    }
+    @Override
+    public boolean existsById(Long id) {
+        return jpaRepository.existsById(id);
     }
 
 }

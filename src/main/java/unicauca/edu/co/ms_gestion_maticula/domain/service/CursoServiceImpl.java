@@ -1,7 +1,6 @@
 package unicauca.edu.co.ms_gestion_maticula.domain.service;
 
 import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.time.format.DateTimeFormatter;
@@ -10,6 +9,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -31,7 +31,6 @@ import unicauca.edu.co.ms_gestion_maticula.domain.model.Docente;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.Estudiante;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.PeriodoAcademico;
 import unicauca.edu.co.ms_gestion_maticula.domain.model.MaterialApoyo;
-import unicauca.edu.co.ms_gestion_maticula.domain.model.Matricula;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.CursoRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.request.CursoReportRequest;
 import unicauca.edu.co.ms_gestion_maticula.domain.response.AsignaturaResponse;
@@ -46,13 +45,11 @@ import unicauca.edu.co.ms_gestion_maticula.domain.ports.In.MatriculaService;
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.out.CursoRepository;
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.out.PeriodoAcademicoRepository;
 import unicauca.edu.co.ms_gestion_maticula.domain.ports.out.MaterialApoyoRepository;
-import net.sf.jasperreports.engine.JREmptyDataSource;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.data.JRBeanArrayDataSource;
-import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import net.sf.jasperreports.export.SimpleExporterInput;
 import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
 import net.sf.jasperreports.export.SimpleXlsxReportConfiguration;
@@ -368,8 +365,10 @@ public class CursoServiceImpl implements CusoService {
 
     @Override
     public List<EstudianteResponse> obtenerEstudiantesDisponiblesPorCursoAsignatura(Long asignaturaId) {
-        cursoRepository.findAsignaturaById(asignaturaId)
-                .orElseThrow(() -> new EntityNotFoundException("Asignatura no encontrado con ID: " + asignaturaId));
+        Optional<Asignatura> asignatura = cursoRepository.findAsignaturaById(asignaturaId);
+        if (!asignatura.isPresent()) {
+            throw new EntityNotFoundException("Asignatura no encontrado con ID: " + asignaturaId);
+        }
 
         PeriodoAcademico periodoActivo = periodoAcademicoRepository.findPeriodoActivo()
                 .orElseThrow(() -> new IllegalArgumentException("No hay periodo académico activo"));

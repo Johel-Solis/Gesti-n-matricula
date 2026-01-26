@@ -49,8 +49,9 @@ public class PeriodoAcademicoServiceImpl implements PeriodoAcademicoService {
 
     @Override
     public PeriodoAcademicoResponse actualizar(Long id, PeriodoAcademicoRequest actualizado) {
-         repository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Periodo no encontrado"));
+         if(!repository.existsById(id)) {
+            throw new IllegalArgumentException("Periodo no encontrado");
+         }
 
         PeriodoAcademico periodo = modelMapper.map(actualizado, PeriodoAcademico.class);
 

@@ -49,4 +49,9 @@ public class MaterialApoyoJpaAdapter implements MaterialApoyoRepository {
         if(ids==null || ids.isEmpty()) return List.of();
         return jpa.findAllById(ids).stream().map(MaterialApoyoEntity::toDomain).collect(Collectors.toList());
     }
+
+    @Override
+    public boolean isAsignadoById(Long id) {
+        return jpa.isAsignadoById(id);
+    }
 }

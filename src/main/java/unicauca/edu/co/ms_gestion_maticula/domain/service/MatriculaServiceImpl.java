@@ -7,10 +7,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import java.io.BufferedInputStream;
 import java.io.InputStream;
+import java.lang.StackWalker.Option;
 import java.util.HashSet;
 import java.util.Set;
 import org.slf4j.Logger;
@@ -30,7 +32,6 @@ import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.data.JRBeanArrayDataSource;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 
-import org.apache.xmlbeans.impl.store.Cur;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -336,13 +337,16 @@ public class MatriculaServiceImpl implements MatriculaService {
     @Override
     public Boolean validarMatriculaEstudiantes(Long estudianteId, Long cursoId) {
         if (estudianteId == null || cursoId == null) {
-            throw new IllegalArgumentException("Los parÃ¡metros estudianteId y cursoId son requeridos");
+            throw new IllegalArgumentException("Los parámetros estudianteId y cursoId son requeridos");
         }
-        // Validar que el estudiante estÃ© activo
-        matriculaRepository.getEstudianteByIdAndEstado(estudianteId,EstadoEstudianteMaestria.ACTIVO)
-                .orElseThrow(() -> new EntityNotFoundException("No estÃ¡ activo o no existe el estudiante con ID: " + estudianteId));
+        // Validar que el estudiante esté activo
+       Optional<Estudiante> estudianteActivo = matriculaRepository.getEstudianteByIdAndEstado(estudianteId,EstadoEstudianteMaestria.ACTIVO);
+       if (estudianteActivo.isEmpty()) {
+            throw new EntityNotFoundException("No está activo o no existe el estudiante con ID: " + estudianteId);
+       }
+                 
 
-        // Validar periodo de matrÃ­cula
+        // Validar periodo de matrícula
         validarPeriodoMatricula();
         
         // Obtener y validar el curso
@@ -351,11 +355,11 @@ public class MatriculaServiceImpl implements MatriculaService {
         // Validar prerequisitos de la asignatura
         validarPrerequisitos(estudianteId, curso.getAsignatura().getId());
         
-        // Obtener periodo acadÃ©mico activo
+        // Obtener periodo académico activo
         PeriodoAcademico periodoActivo = periodoAcademicoRepository.findPeriodoActivo()
-                .orElseThrow(() -> new IllegalArgumentException("No hay periodo acadÃ©mico activo"));
+                .orElseThrow(() -> new IllegalArgumentException("No hay periodo académico activo"));
         
-        // Verificar si el estudiante ya estÃ¡ matriculado en esta asignatura en este periodo
+        // Verificar si el estudiante ya está matriculado en esta asignatura en este periodo
         boolean yaMatriculado = matriculaRepository.existsMatriculaByEstudianteIdAndPeriodoIdAndAsignaturaId(
                 estudianteId, periodoActivo.getId(), curso.getAsignatura().getId());
 
@@ -367,7 +371,7 @@ public class MatriculaServiceImpl implements MatriculaService {
         // Verificar si el estudiante ya ganÃ³ la asignatura
         boolean asignaturaGanada = matriculaRepository.asignaturaGanada(estudianteId, curso.getAsignatura().getId());
         if (asignaturaGanada) {
-            throw new IllegalArgumentException("El estudiante ya ganÃ³ esta asignatura");
+            throw new IllegalArgumentException("El estudiante ya ganó esta asignatura");
         }
         
         return true;
@@ -399,17 +403,18 @@ public class MatriculaServiceImpl implements MatriculaService {
             throw new IllegalArgumentException("El ID del estudiante es requerido");
         }
         
-        System.out.println("Estudiante ID recibido en el servicio: " + estudianteId);
+        
         // Validar existencia del estudiante
-        matriculaRepository.getEstudianteById(estudianteId)
-                .orElseThrow(() -> new EntityNotFoundException("Estudiante no encontrado con ID: " + estudianteId));
+        if (!estudianteDocenteRepository.existsEstudianteActivoById(estudianteId)) {
+            throw new EntityNotFoundException("No se encuentra o no está activo el estudiante con ID: " + estudianteId);
+        }
 
-        // Validar periodo de matrÃ­cula
+        // Validar periodo de matrícula
         validarPeriodoMatricula();
         
-        // Obtener periodo acadÃ©mico activo
+        // Obtener periodo académico activo
         PeriodoAcademico periodoActivo = periodoAcademicoRepository.findPeriodoActivo()
-                .orElseThrow(() -> new IllegalArgumentException("No hay periodo acadÃ©mico activo"));
+                .orElseThrow(() -> new IllegalArgumentException("No hay periodo académico activo"));
         
         // Obtener todas las asignaturas activas
         List<Asignatura> todasLasAsignaturas = cursoRepository.findAsignaturasByStatus(true,null);
@@ -420,7 +425,7 @@ public class MatriculaServiceImpl implements MatriculaService {
         // Filtrar asignaturas disponibles
         List<Asignatura> asignaturasDisponibles = todasLasAsignaturas.stream()
                 .filter(asignatura -> {
-                    // Verificar que no estÃ© ya matriculado
+                    // Verificar que no está ya matriculado
                     boolean yaMatriculado = asignaturasMatriculadas.stream()
                             .anyMatch(matriculada -> matriculada.getId().equals(asignatura.getId()));
                     
@@ -440,43 +445,43 @@ public class MatriculaServiceImpl implements MatriculaService {
     public String cancelarMatricula(Long matriculaId, String motivoCancelacion) {
     
         if (matriculaId == null) {
-            throw new IllegalArgumentException("El ID de la matrÃ­cula es requerido");
+            throw new IllegalArgumentException("El ID de la matrícula es requerido");
         }
         
         Matricula matricula = matriculaRepository.findById(matriculaId)
-                .orElseThrow(() -> new EntityNotFoundException("MatrÃ­cula no encontrada"));
+                .orElseThrow(() -> new EntityNotFoundException("Matrícula no encontrada"));
             
     
         matriculaRepository.findNotaFinalByMatriculaId(matriculaId)
                 .ifPresent(notaFinal -> {
-                    throw new IllegalArgumentException("No se puede cancelar la matrÃ­cula, ya tiene una nota final registrada");
+                    throw new IllegalArgumentException("No se puede cancelar la matrícula, ya tiene una nota final registrada");
                 });
         
-        // Validar que la matrÃ­cula estÃ© activa
+        // Validar que la matrícula esté activa
         if (!matricula.isEstado()) {
-            throw new IllegalArgumentException("Solo se pueden cancelar matrÃ­culas activas");
+            throw new IllegalArgumentException("Solo se pueden cancelar matrículas activas");
         }
 
-        // Validar periodo de matrÃ­cula
+        // Validar periodo de matrícula
         PeriodoAcademico periodoActivo = periodoAcademicoRepository.findPeriodoActivo()
-                .orElseThrow(() -> new IllegalArgumentException("No hay periodo acadÃ©mico activo"));
+                .orElseThrow(() -> new IllegalArgumentException("No hay periodo académico activo"));
         
         LocalDate fechaActual = LocalDate.now();
         if (fechaActual.isBefore(periodoActivo.getFechaInicio())) {
-            throw new IllegalArgumentException("El periodo acadÃ©mico aÃºn no ha iniciado");
+            throw new IllegalArgumentException("El periodo académico aún no ha iniciado");
         }
         if (fechaActual.isAfter(periodoActivo.getFechaFinMatricula())) {
-            throw new IllegalArgumentException("El periodo de matrÃ­cula ha finalizado");
+            throw new IllegalArgumentException("El periodo de matrícula ha finalizado");
         }
         
-        // Actualizar estado y observaciÃ³n
+        // Actualizar estado y observación
         matricula.setEstadoMatricula(MatriculaEstado.CANCELADA.name());
         matricula.setEstado(false);
         matricula.setObservacion("CANCELADA: " + motivoCancelacion);
         
         matriculaRepository.update(matricula);
 
-        return "MatrÃ­cula cancelada exitosamente";
+        return "Matrícula cancelada exitosamente";
     }
 
     /**
@@ -486,10 +491,10 @@ public class MatriculaServiceImpl implements MatriculaService {
         if (estudianteId == null) {
             throw new IllegalArgumentException("El ID del estudiante es requerido");
         }
-        //TODO: Validar existencia del estudiante, esta fallando la funcion
-        
-        matriculaRepository.getEstudianteById(estudianteId)
-                .orElseThrow(() -> new EntityNotFoundException("Estudiante no encontrado con ID: " + estudianteId));
+        // Validar existencia del estudiante
+        if (!estudianteDocenteRepository.existsEstudianteActivoById(estudianteId)) {
+            throw new EntityNotFoundException("No se encuentra o no está activo el estudiante con ID: " + estudianteId);
+        }
         
         List<Matricula> todasLasMatriculas = matriculaRepository.findByEstudianteIdAndPeriodoActivo(estudianteId);
                          
@@ -504,11 +509,11 @@ public class MatriculaServiceImpl implements MatriculaService {
      */
     public Matricula obtenerMatriculaPorId(Long matriculaId) {
         if (matriculaId == null) {
-            throw new IllegalArgumentException("El ID de la matrÃ­cula es requerido");
+            throw new IllegalArgumentException("El ID de la matrícula es requerido");
         }
         
         return matriculaRepository.findById(matriculaId)
-                .orElseThrow(() -> new EntityNotFoundException("MatrÃ­cula no encontrada con ID: " + matriculaId));
+                .orElseThrow(() -> new EntityNotFoundException("Matrícula no encontrada con ID: " + matriculaId));
     }
 
     /**
@@ -535,11 +540,11 @@ public class MatriculaServiceImpl implements MatriculaService {
      */
      @Override
     public List<MatriculaCursoResponse> obtenerEstudiantesMatriculadosEnCurso(Long cursoId) {
-        cursoRepository.findCursoById(cursoId)
-                .orElseThrow(() -> new EntityNotFoundException("Curso no encontrado con ID: " + cursoId));
+        Optional<Curso> cursoOpt = cursoRepository.findCursoById(cursoId);
+        cursoOpt.orElseThrow(() -> new EntityNotFoundException("Curso no encontrado con ID: " + cursoId));
 
         PeriodoAcademico periodoActivo = periodoAcademicoRepository.findPeriodoActivo()
-                .orElseThrow(() -> new IllegalArgumentException("No hay periodo acadÃ©mico activo"));
+                .orElseThrow(() -> new IllegalArgumentException("No hay periodo académico activo"));
 
         List<Matricula> matriculas = matriculaRepository.findByCursoIdAndPeriodoId(cursoId, periodoActivo.getId());
 
@@ -554,7 +559,7 @@ public class MatriculaServiceImpl implements MatriculaService {
      public MatriculaResponse cambiarEstadoMatricula(Long id, MatriculaEstadoRequest request) {
       
         Matricula matricula = matriculaRepository.findById(id)
-        .orElseThrow(() -> new EntityNotFoundException("MatrÃ­cula no encontrada"));
+        .orElseThrow(() -> new EntityNotFoundException("Matrícula no encontrada"));
 
         if (request.getEstado().equalsIgnoreCase(MatriculaEstado.APROBADA.name()) ||
             request.getEstado().equalsIgnoreCase(MatriculaEstado.RECHAZADA.name()) ||
@@ -573,7 +578,7 @@ public class MatriculaServiceImpl implements MatriculaService {
             return modelMapper.map(matricula, MatriculaResponse.class);
             
         }else {
-            throw new IllegalArgumentException("Estado de matrÃ­cula no vÃ¡lido");
+            throw new IllegalArgumentException("Estado de matrícula no válido");
         }
 
 
@@ -585,16 +590,16 @@ public class MatriculaServiceImpl implements MatriculaService {
      */
     private void validarPeriodoMatricula() {
         PeriodoAcademico periodoActivo = periodoAcademicoRepository.findPeriodoActivo()
-                .orElseThrow(() -> new IllegalArgumentException("No hay periodo acadÃ©mico activo"));
+                .orElseThrow(() -> new IllegalArgumentException("No hay periodo académico activo"));
         
         LocalDate fechaActual = LocalDate.now();
         
         if (fechaActual.isBefore(periodoActivo.getFechaInicio())) {
-            throw new IllegalArgumentException("El periodo acadÃ©mico aÃºn no ha iniciado");
+            throw new IllegalArgumentException("El periodo académico aún no ha iniciado");
         }
         
         if (fechaActual.isAfter(periodoActivo.getFechaFinMatricula())) {
-            throw new IllegalArgumentException("El periodo de matrÃ­cula ha finalizado");
+            throw new IllegalArgumentException("El periodo de matrícula ha finalizado");
         }
     }
 
@@ -608,14 +613,14 @@ public class MatriculaServiceImpl implements MatriculaService {
         
         // Verificar que el curso pertenezca al periodo activo
         PeriodoAcademico periodoActivo = periodoAcademicoRepository.findPeriodoActivo()
-                .orElseThrow(() -> new IllegalArgumentException("No hay periodo acadÃ©mico activo"));
+                .orElseThrow(() -> new IllegalArgumentException("No hay periodo académico activo"));
         
         if (!curso.getPeriodo().getId().equals(periodoActivo.getId())) {
-            throw new IllegalArgumentException("El curso no pertenece al periodo acadÃ©mico activo");
+            throw new IllegalArgumentException("El curso no pertenece al periodo académico activo");
         }
 
         if (!curso.isEstado()) {
-            throw new IllegalArgumentException("El curso no estÃ¡ disponible para matrÃ­cula");
+            throw new IllegalArgumentException("El curso no está disponible para matrícula");
         }
 
         return curso;
@@ -650,7 +655,7 @@ public class MatriculaServiceImpl implements MatriculaService {
                 .orElseThrow(() -> new EntityNotFoundException("Asignatura no encontrada"));
         
         if (!asignatura.getEstado()) {
-            throw new IllegalArgumentException("La asignatura no estÃ¡ disponible para matrÃ­cula");
+            throw new IllegalArgumentException("La asignatura no está disponible para matrícula");
         }
     }
 
@@ -956,9 +961,9 @@ public class MatriculaServiceImpl implements MatriculaService {
                     .toList();
 
             notificaciones.add(TutorNotificacionResponse.builder()
-                    .tutorId(tutor != null ? tutor.getId() : null)
-                    .nombre(buildNombrePersona(tutor != null ? tutor.getPersona() : null))
-                    .codigo(tutor != null ? tutor.getCodigo() : "")
+                    .tutorId(tutor.getId())
+                    .nombre(buildNombrePersona(tutor.getPersona()))
+                    .codigo(tutor.getCodigo())
                     .correo(correoTutor)
                     .estudiantes(estudiantesResult)
                     .totalEstudiantesConMatriculaActiva(estudiantesResult.size())

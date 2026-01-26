@@ -1,6 +1,7 @@
 package unicauca.edu.co.ms_gestion_maticula.domain.service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -66,7 +67,11 @@ public class MaterialApoyoServiceImpl implements MaterialApoyoService {
     @Override
     @Transactional
     public void eliminar(Long id) {
-        repository.findById(id).orElseThrow(() -> new EntityNotFoundException(msg("material.error.noexiste")));
+        MaterialApoyo material = repository.findById(id)
+        .orElseThrow(() -> new EntityNotFoundException(msg("material.error.noexiste")));
+        if (repository.isAsignadoById(material.getId())) {
+            throw new IllegalArgumentException(msg("material.error.asignado.eliminar"));
+        }
         repository.deleteById(id);
     }
 

@@ -12,4 +12,5 @@ public interface MaterialApoyoRepository {
     List<MaterialApoyo> findAll();
     void deleteById(Long id);
     List<MaterialApoyo> findAllByIds(List<Long> ids);
+    boolean isAsignadoById(Long id);
 }

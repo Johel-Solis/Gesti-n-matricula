@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import unicauca.edu.co.ms_gestion_maticula.domain.enums.EstadoEstudianteMaestria;
-import unicauca.edu.co.ms_gestion_maticula.domain.enums.MatriculaEstado;
+
 import unicauca.edu.co.ms_gestion_maticula.infrastructure.adapters.persistence.entity.EstudianteEntity;
 
 public interface EstudianteJpaRepository extends JpaRepository<EstudianteEntity, Long> {
@@ -61,4 +61,6 @@ public interface EstudianteJpaRepository extends JpaRepository<EstudianteEntity,
     @Query("SELECT CASE WHEN COUNT(de) > 0 THEN true ELSE false END FROM DocenteEstudiante de WHERE de.docente.id = :tutorId AND de.estudiante.codigo = :codigoEstudiante")
     boolean isTutorDeEstudiante(@Param("tutorId") Long tutorId, @Param("codigoEstudiante") String codigoEstudiante);
 
+    @Query("SELECT CASE WHEN COUNT(e) > 0 THEN true ELSE false END FROM EstudianteEntity e WHERE e.id = :id AND e.informacionMaestria.estadoMaestria = :estado")
+    boolean existsByIdAndEstado(Long id, String estado);
 }

@@ -15,5 +15,6 @@ public interface PeriodoAcademicoRepository  {
     List<PeriodoAcademico> findAll();
     Optional<PeriodoAcademico> findPeriodoActivo();
     List<PeriodoAcademico> findByFechaSuperpuesta(LocalDate inicio, LocalDate fin);
+    boolean existsById(Long id);
 
 }

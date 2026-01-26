@@ -285,7 +285,10 @@ public class CursoServiceImpl implements CusoService {
     @Transactional(readOnly = true)
     public boolean existeCursoPorId(Long id) {
         try {
-            cursoRepository.findCursoById(id).orElseThrow();
+            Optional<Curso> cursoOpt = cursoRepository.findCursoById(id);
+            if (cursoOpt.isEmpty()) {
+                return false;
+            }
             return true;
         } catch (Exception e) {
             return false;

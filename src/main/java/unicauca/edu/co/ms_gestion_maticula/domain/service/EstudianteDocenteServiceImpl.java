@@ -141,7 +141,7 @@ public class EstudianteDocenteServiceImpl implements EstudianteDocenteService {
             String cuerpo = buildCuerpoCorreo(docente, conMatriculasActivas);
             LOGGER.info("Enviando correo a tutor {} ({}) con {} estudiantes",
                     docente.getId(), correo, conMatriculasActivas.size());
-            emailService.sendEmail(correo, asunto, cuerpo);
+            emailService.sendEmailWithAttachment(correo, asunto, cuerpo, null, null, null);
             LOGGER.info("Correo enviado a tutor {}", docente.getId());
 
             resultado.add(TutorNotificacionResponse.builder()
@@ -184,11 +184,13 @@ public class EstudianteDocenteServiceImpl implements EstudianteDocenteService {
         }
         String listado = estudiantes.stream()
                 .map(this::formatEstudiante)
-                .collect(Collectors.joining("\n- ", "\n- ", ""));
-        return saludo + ",\n\n" +
-                "Tienes estudiantes con prematricula activa. Por favor revisa las solicitudes:\n" +
-                listado +
-                "\n\nGracias.";
+                .map(item -> "<li>" + item + "</li>")
+                .collect(Collectors.joining());
+        String contenidoHtml = "<p>" + saludo + ",</p>"
+                + "<p>Tienes estudiantes con prematricula activa. Por favor revisa las solicitudes:</p>"
+                + "<ul>" + listado + "</ul>"
+                + "<p>Gracias.</p>";
+        return emailService.buildCorreoHtml("Revision de prematricula", contenidoHtml);
     }
 
     private String formatEstudiante(Estudiante estudiante) {

@@ -64,7 +64,7 @@
 	<field name="horario" class="java.lang.String"/>
 	<field name="estudiantes" class="java.util.List"/>
 	<field name="salon" class="java.lang.String"/>
-	<title height="215" splitType="Stretch">
+	<title height="259" splitType="Stretch">
 		<element kind="image" uuid="53d11b6c-cdab-45ba-a273-cff0ce6d50bc" x="90" y="-5" width="80" height="80" onErrorType="Blank">
 			<expression><![CDATA[$P{logoUnicauca}]]></expression>
 			<property name="com.jaspersoft.studio.unit.width" value="px"/>
@@ -121,12 +121,13 @@
 		<element kind="staticText" uuid="dec96d79-9eb4-4e67-bffe-dfe6d7ee2cee" x="0" y="197" width="280" height="18" forecolor="#000000" bold="true" vTextAlign="Middle">
 			<text><![CDATA[Descripción: ]]></text>
 		</element>
-	</title>
-	<columnHeader height="167">
-		<element kind="staticText" uuid="c3dbb432-94c3-4afa-a41e-b44967382e59" mode="Opaque" x="0" y="5" width="554" height="30" forecolor="#FFFFFF" backcolor="#1B3357" fontName="Arial Black" fontSize="13.0" bold="true" hTextAlign="Center" vTextAlign="Middle">
+		<element kind="staticText" uuid="c3dbb432-94c3-4afa-a41e-b44967382e59" mode="Opaque" x="0" y="229" width="554" height="30" forecolor="#FFFFFF" backcolor="#1B3357" fontName="Arial Black" fontSize="13.0" bold="true" hTextAlign="Center" vTextAlign="Middle">
 			<text><![CDATA[Listado de Cursos]]></text>
 			<property name="com.jaspersoft.studio.unit.width" value="px"/>
+			<property name="com.jaspersoft.studio.unit.x" value="px"/>
 		</element>
+	</title>
+	<columnHeader height="167">
 		<element kind="staticText" uuid="da4edac7-06ac-4b92-886b-97f6254c28fa" positionType="Float" mode="Opaque" x="1" y="134" width="554" height="30" forecolor="#FFFFFF" backcolor="#1B3357" fontName="Arial Black" fontSize="13.0" bold="true" hTextAlign="Center" vTextAlign="Middle">
 			<text><![CDATA[Reporte detallado de los Cursos ofertados]]></text>
 			<property name="com.jaspersoft.studio.unit.width" value="px"/>
@@ -135,7 +136,7 @@
 			<text><![CDATA[]]></text>
 			<property name="com.jaspersoft.studio.unit.height" value="px"/>
 		</element>
-		<element kind="component" uuid="d3407c1f-62a6-4f11-b824-7a73ad5fb35c" positionType="Float" x="0" y="40" width="554" height="60" removeLineWhenBlank="true">
+		<element kind="component" uuid="d3407c1f-62a6-4f11-b824-7a73ad5fb35c" positionType="Float" x="1" y="10" width="553" height="60" removeLineWhenBlank="true">
 			<component kind="table">
 				<datasetRun uuid="fbfab691-8ce5-4606-9615-717c04891438" subDataset="dsResumenCursos">
 					<dataSourceExpression><![CDATA[$P{dsResumenCursos}]]></dataSourceExpression>
@@ -205,14 +206,14 @@
 					</detailCell>
 					<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column5"/>
 				</column>
-				<column kind="single" uuid="cbab26fb-0b63-4c69-8003-f8461ce56728" width="71">
+				<column kind="single" uuid="cbab26fb-0b63-4c69-8003-f8461ce56728" width="63">
 					<columnHeader height="30" rowSpan="1" style="Table_CH">
-						<element kind="staticText" uuid="36efc4a3-ee7d-4a70-996a-3d3f657c2c34" mode="Opaque" x="0" y="0" width="71" height="30" forecolor="#FFFFFF" backcolor="#1B3357" bold="true" hTextAlign="Center" vTextAlign="Middle">
+						<element kind="staticText" uuid="36efc4a3-ee7d-4a70-996a-3d3f657c2c34" mode="Opaque" x="0" y="0" width="63" height="30" forecolor="#FFFFFF" backcolor="#1B3357" bold="true" hTextAlign="Center" vTextAlign="Middle">
 							<text><![CDATA[Créditos]]></text>
 						</element>
 					</columnHeader>
 					<detailCell height="30" style="Table_TD">
-						<element kind="textField" uuid="6fe96784-5c71-455f-bbdf-1d36efcb512e" x="0" y="0" width="71" height="30" hTextAlign="Center" vTextAlign="Middle">
+						<element kind="textField" uuid="6fe96784-5c71-455f-bbdf-1d36efcb512e" x="0" y="0" width="63" height="30" hTextAlign="Center" vTextAlign="Middle">
 							<expression><![CDATA[$F{creditos}]]></expression>
 						</element>
 					</detailCell>

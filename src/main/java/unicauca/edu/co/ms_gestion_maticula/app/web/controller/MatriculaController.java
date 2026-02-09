@@ -4,7 +4,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -179,6 +182,24 @@ public class MatriculaController {
         
     }
 
+    /**
+     * Endpoint para generar reporte de matricula (PDF o XLSX)
+     */
+    @GetMapping("/reporte")
+    public ResponseEntity<byte[]> generarReporteMatricula(
+            @RequestParam(defaultValue = "pdf") String formato) {
+        byte[] reporte = matriculaService.generarReporteMatricula(formato);
+        boolean esExcel = formato != null && (formato.equalsIgnoreCase("xlsx") || formato.equalsIgnoreCase("excel"));
+        String extension = esExcel ? "xlsx" : "pdf";
+        MediaType mediaType = esExcel
+                ? MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                : MediaType.APPLICATION_PDF;
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(mediaType);
+        headers.setContentDisposition(ContentDisposition.attachment().filename("reporte_matricula." + extension).build());
+        return new ResponseEntity<>(reporte, headers, HttpStatus.OK);
+    }
 
     @PostMapping("/notificar-matricula-final")
     public ResponseEntity<ApiResponse> notificarMatriculaFinal(@RequestBody  ListEstudianteRequest request) {
@@ -204,6 +225,4 @@ public class MatriculaController {
         return ResponseEntity.ok(new ApiResponse("SUCCESS", "Estado de matrícula cambiado", matricula, 200));
         
     }
-
-    
 }

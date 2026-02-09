@@ -40,5 +40,6 @@ public interface MatriculaService {
     List<TutorNotificacionResponse> notificarMatriculasAprobadas(ListEstudianteRequest request);
     List<TutorNotificacionResponse> notificarMatriculasFinalCursos(ListCursosRequest request);
     List<MatriculaResponse> cambiarEstadoMasivoMatricula(CambioEstadoMasivoRequest request);
+    byte[] generarReporteMatricula(String formato);
 
 }

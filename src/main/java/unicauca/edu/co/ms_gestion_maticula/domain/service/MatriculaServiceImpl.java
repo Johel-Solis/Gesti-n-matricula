@@ -11,6 +11,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.lang.StackWalker.Option;
 import java.util.HashSet;
@@ -31,6 +32,10 @@ import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.data.JRBeanArrayDataSource;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import net.sf.jasperreports.engine.export.ooxml.JRXlsxExporter;
+import net.sf.jasperreports.export.SimpleExporterInput;
+import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
+import net.sf.jasperreports.export.SimpleXlsxReportConfiguration;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -1194,6 +1199,120 @@ public class MatriculaServiceImpl implements MatriculaService {
     private String buildNombreArchivoReporte(Estudiante estudiante) {
         String codigo = estudiante != null && estudiante.getCodigo() != null ? estudiante.getCodigo() : "estudiante";
         return "reporte_matricula_" + codigo + ".pdf";
+    }
+
+    @Override
+    public byte[] generarReporteMatricula(String formato) {
+        PeriodoAcademico periodoActivo = periodoAcademicoRepository.findPeriodoActivo()
+                .orElseThrow(() -> new IllegalArgumentException("No hay periodo academico activo"));
+
+        List<Map<String, Object>> cursosData = buildCursosReporteData(periodoActivo);
+
+        try (InputStream reportStream = getClass().getResourceAsStream("/Reportes/matriculaReport.jasper");
+             InputStream logoStream = getClass().getResourceAsStream("/image/logo-unicauca.png")) {
+            if (reportStream == null) {
+                throw new IllegalArgumentException("No se encontro el reporte matriculaReport.jasper");
+            }
+            if (logoStream == null) {
+                throw new IllegalArgumentException("No se encontro el logo para el reporte");
+            }
+
+            Map<String, Object> params = new HashMap<>();
+            params.put("logoUnicauca", new BufferedInputStream(logoStream));
+            params.put("tag_periodo", String.valueOf(periodoActivo.getTagPeriodo()));
+            params.put("fecha_inicio", formatFecha(periodoActivo.getFechaInicio()));
+            params.put("fecha_matricula", formatFecha(periodoActivo.getFechaFinMatricula()));
+            params.put("fecha_fin", formatFecha(periodoActivo.getFechaFin()));
+            params.put("descripcion_periodo", safeValue(periodoActivo.getDescripcion()));
+            params.put("dsResumenCursos", new JRBeanCollectionDataSource(cursosData));
+
+            JRBeanCollectionDataSource mainDs = new JRBeanCollectionDataSource(cursosData);
+            JasperPrint print = JasperFillManager.fillReport(reportStream, params, mainDs);
+
+            if (isExcelFormat(formato)) {
+                return exportXlsx(print);
+            }
+            return JasperExportManager.exportReportToPdf(print);
+        } catch (JRException e) {
+            throw new IllegalStateException("Error generando el reporte de matricula", e);
+        } catch (Exception e) {
+            throw new IllegalStateException("No se pudo generar el reporte de matricula", e);
+        }
+    }
+
+    private List<Map<String, Object>> buildCursosReporteData(PeriodoAcademico periodo) {
+        List<Curso> cursos = cursoRepository.findAllCursos(null, null, periodo.getId()).stream()
+                .filter(Curso::isEstado)
+                .toList();
+
+        List<Map<String, Object>> data = new ArrayList<>();
+        for (Curso curso : cursos) {
+            List<Matricula> aprobadas = matriculaRepository.findByCursoIdAndPeriodoId(curso.getId(), periodo.getId())
+                    .stream()
+                    .filter(this::esMatriculaAprobada)
+                    .toList();
+
+            Map<String, Object> cursoMap = new HashMap<>();
+            cursoMap.put("grupo", safeValue(curso.getGrupo()));
+            cursoMap.put("asignatura", curso.getAsignatura() != null ? safeValue(curso.getAsignatura().getNombre()) : "");
+            cursoMap.put("docentes", formatDocentes(curso.getDocentes()));
+            cursoMap.put("horario", safeValue(curso.getHorario()));
+            cursoMap.put("salon", safeValue(curso.getSalon()));
+            cursoMap.put("creditos", curso.getAsignatura() != null && curso.getAsignatura().getCreditos() != null
+                    ? curso.getAsignatura().getCreditos().toString()
+                    : "");
+            cursoMap.put("estudiantes", buildEstudiantesReporteData(aprobadas));
+            data.add(cursoMap);
+        }
+        return data;
+    }
+
+    private List<Map<String, Object>> buildEstudiantesReporteData(List<Matricula> matriculas) {
+        if (matriculas == null || matriculas.isEmpty()) {
+            return List.of();
+        }
+        List<Map<String, Object>> data = new ArrayList<>();
+        for (Matricula matricula : matriculas) {
+            Estudiante estudiante = matricula != null ? matricula.getEstudiante() : null;
+            Map<String, Object> estMap = new HashMap<>();
+            estMap.put("codigoEstudiante", estudiante != null && estudiante.getCodigo() != null ? estudiante.getCodigo() : "");
+            estMap.put("nombreEstudiante", buildNombrePersona(estudiante != null ? estudiante.getPersona() : null));
+            estMap.put("identificacion", resolveIdentificacion(estudiante));
+            estMap.put("correoEstudiante", safeValue(resolveCorreoEstudiante(estudiante)));
+            estMap.put("semestre", resolveSemestre(estudiante));
+            estMap.put("Observación", safeValue(matricula != null ? matricula.getObservacion() : ""));
+            data.add(estMap);
+        }
+        return data;
+    }
+
+    private String safeValue(String value) {
+        return value == null ? "" : value;
+    }
+
+    private String formatFecha(LocalDate fecha) {
+        return fecha != null ? fecha.format(DateTimeFormatter.ofPattern("dd/MM/yy")) : "";
+    }
+
+    private boolean isExcelFormat(String formato) {
+        if (formato == null) {
+            return false;
+        }
+        String normalized = formato.trim().toLowerCase();
+        return normalized.equals("xlsx") || normalized.equals("excel");
+    }
+
+    private byte[] exportXlsx(JasperPrint print) throws JRException {
+        JRXlsxExporter exporter = new JRXlsxExporter();
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        exporter.setExporterInput(new SimpleExporterInput(print));
+        exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(outputStream));
+        SimpleXlsxReportConfiguration configuration = new SimpleXlsxReportConfiguration();
+        configuration.setDetectCellType(true);
+        configuration.setCollapseRowSpan(false);
+        exporter.setConfiguration(configuration);
+        exporter.exportReport();
+        return outputStream.toByteArray();
     }
 
    

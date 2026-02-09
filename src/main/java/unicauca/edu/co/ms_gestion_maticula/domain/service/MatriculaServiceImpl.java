@@ -1207,6 +1207,9 @@ public class MatriculaServiceImpl implements MatriculaService {
                 .orElseThrow(() -> new IllegalArgumentException("No hay periodo academico activo"));
 
         List<Map<String, Object>> cursosData = buildCursosReporteData(periodoActivo);
+        if (cursosData.isEmpty()) {
+            throw new IllegalArgumentException("No hay matriculas aprobadas");
+        }
 
         try (InputStream reportStream = getClass().getResourceAsStream("/Reportes/matriculaReport.jasper");
              InputStream logoStream = getClass().getResourceAsStream("/image/logo-unicauca.png")) {
@@ -1251,6 +1254,9 @@ public class MatriculaServiceImpl implements MatriculaService {
                     .stream()
                     .filter(this::esMatriculaAprobada)
                     .toList();
+            if (aprobadas.isEmpty()) {
+                continue;
+            }
 
             Map<String, Object> cursoMap = new HashMap<>();
             cursoMap.put("grupo", safeValue(curso.getGrupo()));
